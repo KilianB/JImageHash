@@ -4,7 +4,7 @@ JImageHash is a performant perceptual image fingerprinting library written entir
 
 >  A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
 
-This library was inspired by _Dr. Neal Krawetz_ blog post <a href="http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">kind of like that</a> and incorporates several improvements like adjustable hash resolution and diagonal gradient detection. A comprehensive overview of perceptual image hashing can be found in this <a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">paper</a> by <a href="Christoph Zauner">Christoph Zauner</a>. 
+This library was inspired by _Dr. Neal Krawetz_ blog post <a href="http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">kind of like that</a> and incorporates several improvements like adjustable hash resolution and diagonal gradient detection. A comprehensive overview of perceptual image hashing can be found in this <a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">paper</a> by Christoph Zauner. 
 
 ## Example 
 
