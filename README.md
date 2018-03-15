@@ -131,7 +131,7 @@ The dHash algorithm is the fastest algorithm while mostly being on par on detect
 - DoublePrecision will double the resulting hashSize but additionally accounts for top to bottom gradients
 - TripplePrecision will triple the resulting hashSize but additionally accounts for diagonal gradients 
 
-## Algorithm chaning & fine tuning
+## Algorithm chaining & fine tuning
 In some situations it might be useful to chain multiple detection algorithms back to back to utilize the different features they are based on. 
 A promising approach is to first filter images using the fast difference hash with a low resolution key and if a potential match is found checking again with the perceptive hash function.
 
@@ -221,6 +221,8 @@ Original Image:
 
 ### Example of hamming distances with 64 bit key
 
+The following examples were found by creating a duplicate detection system to filter reposts on 9gag.com
+
 Distance 0: Identical image
 
 Distance 5: Slight color change. 
@@ -235,6 +237,9 @@ Distance 9: (False positive). Due to difference hash relying on gradient search 
 
 <p>Distance 10: Resized image</p>
 <img align="left" width = 48% src="https://user-images.githubusercontent.com/9025925/36517179-a59b47a4-1781-11e8-8f00-a8d47856e6f0.jpg"><img width = 48% src="https://user-images.githubusercontent.com/9025925/36517181-a71751fe-1781-11e8-81d6-56cdfdae614f.jpg">
+
+
+
 
 ### Known Bugs
 - Perceptive hash relies on JTransform which fails to close a threadpool upon calculating large DCT matrices resulting in the JVM not to terminate. If you want to calculate a perceptive hash with a large bit resolution call `ConcurrencyUtils.shutdownThreadPoolAndAwaitTermination();` if you want to terminate the program.
