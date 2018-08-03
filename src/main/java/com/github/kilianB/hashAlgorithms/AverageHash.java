@@ -1,13 +1,12 @@
-package hashAlgorithms;
+package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBufferByte;
-import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Objects;
 
-import javax.imageio.ImageIO;
+import com.github.kilianB.matcher.Hash;
 
 /**
  * Calculate a hash value based on the average color in an image. This hash reacts to changes 
@@ -19,16 +18,23 @@ public class AverageHash extends HashingAlgorithm{
 
 
 	/**
-	 * 
-	 * 
+	 * Unique id identifying the algorithm and it's settings
+	 */
+	private final int algorithmId;
+	/**
+	 * The height and width of the scaled instance used to compute the hash
+	 */
+	private final int height, width;
+
+	/**
 	 * @param bitResolution 
 	 * The bit resolution specifies the final length of the generated hash. A higher resolution will increase computation
 	 * time and space requirement while being able to track finer detail in the image. Be aware that a high key is not always
-	 * desired.
+	 * desired.<p>
 	 * 
 	 * The average hash requires to re scale the base image according to the required bit resolution.
 	 * 	If the square root of the bit resolution is not a natural number the resolution will be rounded to the next whole 
-	 *  number.
+	 *  number.<p>
 	 *  
 	 *  64 = 8x8 = 65 bit key
 	 *  128 = 11.3 -> 12 -> 144 bit key
@@ -40,21 +46,13 @@ public class AverageHash extends HashingAlgorithm{
 			int dimension = (int)Math.round(Math.sqrt(bitResolution));
 			this.width = dimension;
 			this.height = dimension;
+			//String and int hashes stays consistent throughout different JVM invocations.
+			algorithmId = Objects.hash(getClass().getName(),this.bitResoluation);
 	}
 
-	/**
-	 * Width of the rescaled hash image
-	 */
-	private int width; 
-	
-	/**
-	 * Hight of the rescaled hash image
-	 */
-	private int height;
-	
-	
+
 	@Override
-	public BigInteger hash(BufferedImage image) {
+	public Hash hash(BufferedImage image) {
 		BufferedImage transformed = getGrayScaledInstance(image,width,height);
 		
 		//Calculate the average color of the entire image
@@ -73,7 +71,8 @@ public class AverageHash extends HashingAlgorithm{
 		}
 
 		//Create hash
-		BigInteger hash = BigInteger.ZERO;
+		//Padding bit
+		BigInteger hash = BigInteger.ONE;
 	
 		for(byte b : pixelData){
 			if(colorModel.getBlue((b & 0xFF)) < avgPixelValue)
@@ -84,7 +83,12 @@ public class AverageHash extends HashingAlgorithm{
 			}
 		}
 		
-		return hash;
+		return new Hash(hash,algorithmId);
+	}
+
+	@Override
+	public int algorithmId() {
+		return algorithmId;
 	}
 
 }

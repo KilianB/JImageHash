@@ -1,12 +1,12 @@
-package hashAlgorithms;
+package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Objects;
 
-import javax.imageio.ImageIO;
+
+import com.github.kilianB.matcher.Hash;
 
 /**
  * Calculates a hash based on gradient tracking. This hash is cheap to compute
@@ -16,23 +16,53 @@ import javax.imageio.ImageIO;
  */
 public class DifferenceHash extends HashingAlgorithm {
 
-	int height, width;
-	boolean doublePrecision, triplePrecision;
+	/**
+	 * Algorithm precision.
+	 * 
+	 * Be aware that changing the enum names will alter the algorithm id rendering 
+	 * generated keys unable to 
+	 * @author Kilian
+	 *
+	 */
+	public enum Precision{
+		/** Top to bottom gradient only */
+		Simple,	
+		/** Additionally left to right gradient*/
+		Double,
+		/** Tripple precision (top-bottom, left-right, diagonally) */
+		Triple
+	}
+	
+	
+	/**
+	 * Unique id identifying the algorithm and it's settings
+	 */
+	private final int algorithmId;
+	/**
+	 * The height and width of the scaled instance used to compute the hash
+	 */
+	private final int height, width;
+	
+	/**
+	 *  Precision used to calculate the hash
+	 */
+	private final Precision precision;
 
 	/**
+	 * 
 	 * @param bitResolution
 	 * The bit resolution specifies the final length of the generated hash. A higher resolution will increase computation
-	 * time and space requirement while being able to track finer detail in the image. Be aware that a high key is not always
-	 * desired.
-	 * The bit resolution is only an approximation of the final hash length.
-	 * @param doublePrecision
-	 * 	Also compute the the top to bottom gradient. This will double the key size while increasing matching quality
-	 * 
-	 * @param triplePrecision
-	 * Also compute the the diagonal gradient. This will triple the key size while increasing matching quality.
-	 * This parameter only takes effect if the doublePrecision is true 
+	 * time and space requirement while being able to track finer detail in the image. <b>Be aware that a high resolution is not always desired.</b>
+	 * The bit resolution is only an <b>approximation</b> of the final hash length.
+	 * @param precision
+	 * 	Algorithm precision. Allowed Values:
+	 * <dl>
+	 * 	<dt>Simple:</dt>	<dd>Calculates top - bottom gradient</dd> 
+	 *  <dt>Double:</dt>	<dd>Additionally computes left - right gradient (doubles key length)</dd> 
+	 *  <dt>Tripple:</dt>	<dd>Additionally computes diagonal gradient (triples key length)</dd> 
+	 * </dl>
 	 */
-	public DifferenceHash(int bitResolution, boolean doublePrecision, boolean triplePrecision) {
+	public DifferenceHash(int bitResolution, Precision precision) {
 		super(bitResolution);
 
 		// width * height = bitResolution -> (height + 1) * height =
@@ -49,19 +79,21 @@ public class DifferenceHash extends HashingAlgorithm {
 		//Width +1 for padding
 		width = x + 1;
 		
-		this.doublePrecision = doublePrecision;
-		this.triplePrecision = triplePrecision;
+		this.precision = precision;
+		//String and int hashes stays consistent throughout different JVM invocations.
+		algorithmId = Objects.hash(getClass().getName(),this.bitResoluation,this.precision.name());		
 	}
 
 	
 	@Override
-	public BigInteger hash(BufferedImage image) {
+	public Hash hash(BufferedImage image) {
 		BufferedImage transformed = getGrayScaledInstance(image, width, height);
+		//Use data buffer for faster access
 		byte[] data = ((DataBufferByte) transformed.getRaster().getDataBuffer()).getData();
 		
 		//Calculate the left to right gradient 
 		
-		BigInteger hash = BigInteger.ZERO;
+		BigInteger hash = BigInteger.ONE;
 		final int pixelCount = data.length;
 		int xCount = 1;
 
@@ -82,7 +114,7 @@ public class DifferenceHash extends HashingAlgorithm {
 
 		
 		// Top to bottom gradient
-		if (doublePrecision) {
+		if (!precision.equals(Precision.Simple)) {
 			// We need a padding row at the top now.
 			// Caution width and height are swapped
 			transformed = getGrayScaledInstance(image, height, width);
@@ -116,7 +148,7 @@ public class DifferenceHash extends HashingAlgorithm {
 				}
 			}
 			//Diagonally hash
-			if(triplePrecision){
+			if(precision.equals(Precision.Triple)){
 				
 				transformed = getGrayScaledInstance(image, this.height+1, this.width+1);
 				data = ((DataBufferByte) transformed.getRaster().getDataBuffer()).getData();
@@ -151,7 +183,13 @@ public class DifferenceHash extends HashingAlgorithm {
 			}
 			
 		}
-
-		return hash;
+		return new Hash(hash,algorithmId);
 	}
+	
+	
+	@Override
+	public int algorithmId() {
+		return algorithmId;
+	}
+	
 }

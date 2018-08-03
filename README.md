@@ -96,31 +96,24 @@ Each algorithm comes with individual properties
 
 
 ````java
-//Approximate final hash resolution
-int bitResolution = 64;
 
-public static void main(String[] args){
-
-  //Load images
-  BufferedImage img1 = ImageIO.read(new File("image1.jpg"));
-  BufferedImage img2 = ImageIO.read(new File("image2.jpg"));
-  
-  //Pick an algorithm
-  HashingAlgorithm hasher = new AverageHash(bitResolution);
-  
-  //Calculate similarity score
-  double normDistance = ImageHash.normalizedHammingDistance(hasher.hash(img1),hasher.hash(img2));
-  double distance = ImageHash.hammingDistance(hasher.hash(img1),hasher.hash(img2));
-  
-  if(normDistance < 0.1){
-    //Duplicate found. Most likely an altered image 
-  }
-  
-  //Or 
-  if(distance < 10){
-    //Likely duplicate found
-  }
-}
+	//Key bit resolution
+	int keyLength = 64;
+	
+	//Pick an algorithm
+	HashingAlgorithm hasher = new AverageHash(keyLength);
+	
+	public boolean compareTwoImages(File image1, File image2) throws IOException {
+		
+		//Hash images
+		Hash hash1 = hasher.hash(image1);
+		Hash hash2 = hasher.hash(image2);
+		
+		//Ranges between 0 - keyLength.  The lower the more similar the image is.
+		int similarityScore = hash1.hammingDistance(hash2);
+		
+		return similarityScore < 20;	
+	}
   
 ````
 Only hashes produced by the same algorithm with the same bit resolution can be compared.

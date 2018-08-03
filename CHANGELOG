@@ -1,0 +1,21 @@
+- Semantic versioning
+
+## [0.1.0] - 3.8.2018
+## Added
+- BinaryTree class to save & compare precomputed hashes
+- UnitTests for hash algorthms and basic matchers
+- Examples
+	- Extensive gui example
+- Algorithm identifiers preventing mismatching hashes to be compared
+
+## Changed
+- Preparation for maven distribution. Changed package structure
+- Using a dedicated Hash class instead of a BigInteger to represent hash results
+
+
+
+
+## [0.0.8] - 
+## Added
+- MIT License
+- usage of changelog

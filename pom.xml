@@ -1,0 +1,90 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+
+	<!-- Project settings -->
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.github.kilianB</groupId>
+	<artifactId>JImageHash</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	
+	<properties>
+		<bintrayRepository>maven</bintrayRepository>
+		<bintrayPackage>JImageHash</bintrayPackage>
+	</properties>	
+	
+	<licenses>
+		<license>
+			<name>MIT</name>
+			<url>https://opensource.org/licenses/MIT</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
+	<developers>
+		<developer>
+			<name>Kilian Brachtendorf</name>
+			<email>Kilian.Brachtendorf@t-online.de</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>Europe/Berlin</timezone>
+		</developer>
+	</developers>
+	
+	
+
+	<!-- Dependencies -->
+
+	<dependencies>
+		<dependency>
+			<groupId>com.github.wendykierp</groupId>
+			<artifactId>JTransforms</artifactId>
+			<version>3.1</version>
+			<classifier>with-dependencies</classifier>
+		</dependency>
+
+		<!-- Google image downloading dependency -->
+		<dependency>
+			<groupId>net.sourceforge.htmlunit</groupId>
+			<artifactId>htmlunit</artifactId>
+			<version>2.32</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.4.0-b180725.0427</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jfoenix</groupId>
+			<artifactId>jfoenix</artifactId>
+			<version>8.0.4</version>
+		</dependency>
+	</dependencies>
+
+	<!-- Build settings -->
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<release>10</release>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- Environment Settings -->
+	<distributionManagement>
+		<repository>
+			<id>bintrayServer</id>
+			<url>https://bintray.com/kilianb/${bintrayRepository}/${bintrayPackage}/${project.version};publish=1</url>
+		</repository>
+	</distributionManagement>
+
+
+</project>

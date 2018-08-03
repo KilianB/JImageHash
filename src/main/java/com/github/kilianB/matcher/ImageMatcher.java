@@ -1,81 +1,63 @@
 package com.github.kilianB.matcher;
 
-import java.awt.image.BufferedImage;
-import java.math.BigInteger;
 import java.util.LinkedHashMap;
-import java.util.Map.Entry;
+import java.util.Map;
 
-import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 
-
-/**
- * Convenience class to chain multiple hashing algorithms
- * @author Kilian
- *
- */
-public class ImageMatcher {
+public abstract class ImageMatcher {
 
 	/**
-	 * Return a preconfigured image matcher chaining dHash and pHash algorithms for 
-	 * fast high quality results.
-	 * @param strict toggle between different matching modes.
-	 * 	true: 
-	 * @return
+	 * Configuration level for the default matcher
+	 * @author Kilian
+	 *
 	 */
-	public static ImageMatcher createDefaultMatcher(boolean strict){
-		
-		if(!strict){
-			ImageMatcher matcher = new ImageMatcher();
-			//Fastest algorithm and even greater accuracy than average hash.  Fast filter
-			matcher.addHashingAlgo(new DifferenceHash(32,Precision.Double), 10);
-			//Slower but more accurate. Only execute if difference hash found a potential match.
-			matcher.addHashingAlgo(new PerceptiveHash(64), 5);
-			return matcher;
-		}else{
-			ImageMatcher matcher = new ImageMatcher(){
-				int threshold = 15;
-				HashingAlgorithm dirtyHash = new DifferenceHash(32,Precision.Double);
-				HashingAlgorithm filterHash = new PerceptiveHash(64); 
-				
-				public boolean checkSimilarity(BufferedImage image, BufferedImage image1){
-					
-					BigInteger hash = dirtyHash.hash(image);
-					BigInteger hash1 = dirtyHash.hash(image1);
-					int dirtyDistance = hammingDistance(hash,hash1);
-					//Considered a mismatch
-					if(dirtyDistance <= threshold){
-						
-						hash = filterHash.hash(image);
-						hash1 = filterHash.hash(image1);
-						
-						if(hammingDistance(hash,hash1) <= dirtyDistance){
-							return true;
-						}else{
-							return false;
-						}
-					}
-					return false;
-				}
-			};
-			return matcher;
-		}
+	public enum Setting{
+		/**
+		 * Most permissive setting. Many images will be matched. Be aware of false positives
+		 * <ul>
+		 * 	<li>DifferenceHash(32,Precision.Double) threshold 20</li>
+		 * <li>PerceptiveHash(32) threshold 15</li>
+		 * </ul>
+		 */
+		Forgiving,
+		/**
+		 * 2nd most permissive setting. Be aware of false positives
+		 * <ul>
+		 * 	<li>DifferenceHash(32,Precision.Double) threshold 15</li>
+		 *  <li>PerceptiveHash(32) threshold 10</li>
+		 * </ul>
+		 */
+		Fair,
+		/**
+		 * Strict image matcher. Only very close images will be matched. e.g. Thumbnail does 
+		 * not trigger the matcher.
+		 * <ul>
+		 * 	<li>DifferenceHash(32,Precision.Double) threshold 10</li>
+		 *  <li>PerceptiveHash(32) threshold 6</li>
+		 * </ul>
+		 */
+		Strict,
+		/**
+		 * Recommended for the supplied test images.<p>
+		 * DiffernceHash(32, Double precision) threshold 15 followed by
+		 * PerceptiveHash(32) threshold 15
+		 */
+		Quality
 	}
-
+	
 	/**
 	 * Contains multiple hashing algorithms applied in the order they were added to the 
 	 * image matcher
 	 */
-	private LinkedHashMap<HashingAlgorithm,AlgoSettings> steps = new LinkedHashMap<>();
+	protected LinkedHashMap<HashingAlgorithm,AlgoSettings> steps = new LinkedHashMap<>();
 	
 	/**
 	 * Append a new hashing algorithm which will be executed after all hash algorithms passed the test.
 	 * @param algo The algorithms to be added
 	 * @param threshold  the threshold the hemming distance may be in order to pass as identical image
 	 */
-	public void addHashingAlgo(HashingAlgorithm algo, float threshold){
+	public void addHashingAlgorithm(HashingAlgorithm algo, float threshold){
 		addHashingAlgorithm(algo,threshold,false);
 	}
 	
@@ -118,68 +100,10 @@ public class ImageMatcher {
 	 * Be aware that this instance is not thread safe.
 	 * @return
 	 */
-	public LinkedHashMap<HashingAlgorithm,AlgoSettings> getAlgorithms(){
+	public Map<HashingAlgorithm,AlgoSettings> getAlgorithms(){
 		return steps;
 	}
 	
-	
-	/**
-	 * Execute all supplied hashing algorithms and check if the images are similar 
-	 * @param image
-	 * @param image1
-	 * @return true if images are considered similar
-	 */
-	public boolean checkSimilarity(BufferedImage image, BufferedImage image1){
-		if(steps.isEmpty())
-			throw new IllegalStateException("Please supply at least one hashing algorithm prior to invoking the match method");
-		
-		for(Entry<HashingAlgorithm,AlgoSettings> entry : steps.entrySet()){	
-			
-			BigInteger hash = entry.getKey().hash(image);
-			BigInteger hash1 = entry.getKey().hash(image1);
-			
-			//Check if the hashing algo is within the threshold. If it's not return early
-			if(!entry.getValue().apply(hash, hash1)) {
-				return false;
-			}
-		}
-		//Everything matched
-		return true;
-	}
-	
-	
-	/**
-	 * Calculate the hamming distance of 2 hash values. Lower values indicate closer similarity.
-	 * The longer the key supplied the greater the distance will be.
-	 * Please be aware that only hashes produced by the same algorithm with the same bit key 
-	 * will return a use able result.
-	 * @param i
-	 * @param i2
-	 * @return similarity value ranging between 0 - bit resolution
-	 */
-	public static int hammingDistance(BigInteger i, BigInteger i2){
-		if(i.bitLength() != i2.bitLength()) {
-			throw new IllegalArgumentException("Can't compare two hash values with unequal length");
-		}
-		return i.xor(i2).bitCount();
-	}
-	
-	/**
-	 * Calculate the hamming distance of 2 hash values. Lower values indicate closer similarity.
-	 * The value is normalized by the hash bit resolution.
-	 * Please be aware that only hashes produced by the same algorithm with the same bit key 
-	 * will return a use able result.
-	 * @param i
-	 * @param i2
-	 * @return similarity value ranging between 0 and 1
-	 */
-	public static double normalizedHammingDistance(BigInteger i, BigInteger i2){
-		//We expect both integers to contain the same bit key lengths!
-		return hammingDistance(i,i2)  / (double)i.bitLength();
-	}
-
-	
-	// TODO Overlapping hash values.
 	
 	/**
 	 * Settings used while computing if an algorithms consideres two images to 
@@ -187,8 +111,14 @@ public class ImageMatcher {
 	 * @author Kilian
 	 *
 	 */
-	private class AlgoSettings{
+	public static class AlgoSettings{
+		/**
+		 * Threshold value hash hemmning may be for images to be considered equal
+		 */
 		float threshold;
+		/**
+		 * Use normalized or ordinary hemming distance during calculation
+		 */
 		boolean normalized;
 		
 		public AlgoSettings(float threshold, boolean normalized) {
@@ -196,14 +126,12 @@ public class ImageMatcher {
 			this.normalized = normalized;
 		}
 		
-		public boolean apply(BigInteger hash, BigInteger hash1) {
+		public boolean apply(Hash hash, Hash hash1) {
 			if(normalized) {
-				return normalizedHammingDistance(hash,hash1) <= threshold;
+				return hash.normalizedHammingDistanceFast(hash1) <= threshold;
 			}else {
-				return hammingDistance(hash,hash1) <= threshold;
+				return hash.hammingDistanceFast(hash1) <= threshold;
 			}
 		}
 	}
-	
-	
 }
