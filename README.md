@@ -8,7 +8,11 @@ This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.h
 
 ## Example 
 
+Below you can find examples of convenience methods used to get fast results. Further examples are provided in the examples folder explain how to choose 
+and optimize individual algorithms on your own.
 
+
+### Check if two images are likely duplicates of each other
 ````java
 public static void main(String[] args){
 
@@ -16,11 +20,31 @@ public static void main(String[] args){
   BufferedImage img1 = ImageIO.read(new File("image1.jpg"));
   BufferedImage img2 = ImageIO.read(new File("image2.jpg"));
   
-  ImageMatcher matcher = ImageMatcher.createDefaultMatcher(true);
+  SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher();
 	
   if(matcher.checkSimilarity(img1, img2)){
     //likely duplicate found
   }
+}
+````
+
+### Check batch of images
+
+````java
+public void matchMultipleImagesInMemory() {
+
+	InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
+
+	//Add all images of interest to the matcher and precalculate hashes
+	matcher.addImages(ballon,copyright,highQuality,lowQuality,thumbnail);
+		
+	//Find all images which are similar to highQuality
+	PriorityQueue<Result<BufferedImage>> similarImages = matcher.getMatchingImages(highQuality);
+		
+	//Print out results
+	similarImages.forEach(result ->{
+		System.out.printf("Distance: %3d Image: %s%n",result.distance,result.value);
+	});
 }
 ````
 
@@ -71,19 +95,6 @@ public static void main(String[] args){
 
 
 
-
-Hashes stay persistent between invocations of the same algorithms. Therefore if you want to compare huge batches of images an useful approach is to save the precompiled hashes to a database (e.g. <a href="http://www.h2database.com/html/main.html">h2 embedded</a>) allowing for a quick lookup.  With the hash already known checking for duplicates between 10000 images took only 4 seconds on a standard laptop.
-
-````java
- //Retrieving hashes for persistent storage
- BigInteger hash = hasher.hash(img1);
- String hexHash = hash.toString(16);
- String binaryHash = hash.toString(2);
- 
- //Re import hash from db
- BigInteger hash = new BigInteger(hashAsString,radix);
-````
-
 ## Hashing algorithm
 
 Each algorithm comes with individual properties
@@ -97,23 +108,23 @@ Each algorithm comes with individual properties
 
 ````java
 
-	//Key bit resolution
-	int keyLength = 64;
+//Key bit resolution
+int keyLength = 64;
 	
-	//Pick an algorithm
-	HashingAlgorithm hasher = new AverageHash(keyLength);
+//Pick an algorithm
+HashingAlgorithm hasher = new AverageHash(keyLength);
 	
-	public boolean compareTwoImages(File image1, File image2) throws IOException {
+public boolean compareTwoImages(File image1, File image2) throws IOException {
 		
-		//Hash images
-		Hash hash1 = hasher.hash(image1);
-		Hash hash2 = hasher.hash(image2);
+	//Hash images
+	Hash hash1 = hasher.hash(image1);
+	Hash hash2 = hasher.hash(image2);
 		
-		//Ranges between 0 - keyLength.  The lower the more similar the image is.
-		int similarityScore = hash1.hammingDistance(hash2);
+	//Ranges between 0 - keyLength.  The lower the more similar the image is.
+	int similarityScore = hash1.hammingDistance(hash2);
 		
-		return similarityScore < 20;	
-	}
+	return similarityScore < 20;	
+}
   
 ````
 Only hashes produced by the same algorithm with the same bit resolution can be compared.
@@ -128,10 +139,40 @@ The dHash algorithm is the fastest algorithm while mostly being on par on detect
 In some situations it might be useful to chain multiple detection algorithms back to back to utilize the different features they are based on. 
 A promising approach is to first filter images using the fast difference hash with a low resolution key and if a potential match is found checking again with the perceptive hash function.
 
-The 'ImageMatcher matcher = ImageMatcher.createDefaultMatcher(boolean);' does exactly this for you. The boolean lets you choose between different implementations.
+The 'ImageMatchers' provide a set of classes to do exactly this.
 
-Depending on the image domains you may want to try out different treshold values at which point an image is considered a match. The most granular control you achieve by calculating the hammingDistance on 2 hashes. A small hamming distance corresponds to closer related images. If two images are equal their hamming distance will be 0. 
+Depending on the image domains you may want to play around with different algorithm & threshold combinations to see at which point you get a high retrieval rate without
+too many false positives. The most granular control you can achieve by calculating the hammingDistance on 2 hashes. A small hamming distance corresponds to closer related images. If two images are identical their hamming distance will be 0. 
 Be aware that unlike the normalized hamming distance the hamming distance ranges from 0 -> bitKeyResolution.
+
+
+````java
+/**
+ * Compares the similarity of two images.
+ * @param image1	First image to be matched against 2nd image
+ * @param image2	The second image
+ * @return	true if the algorithm defines the images to be similar.
+ */
+public boolean compareTwoImages(BufferedImage image1, BufferedImage image2) {
+
+	// Key bit resolution
+	int keyLength = 64;
+
+	// Pick an algorithm
+	HashingAlgorithm hasher = new AverageHash(keyLength);
+		
+	//Generate the hash for each image
+	Hash hash1 = hasher.hash(image1);
+	Hash hash2 = hasher.hash(image2);
+
+	//Compute a similarity score
+	// Ranges between 0 - 1. The lower the more similar the images are.
+	double similarityScore = hash1.normalizedHammingDistance(hash2);
+
+	return similarityScore < 0.3d;
+}
+````
+
 
 <p align= "center">
 <img src="https://user-images.githubusercontent.com/9025925/36545875-3805f32e-17ea-11e8-9b28-96e25ba0ea67.png">
@@ -211,12 +252,16 @@ Original Image:
 </table>
 
 
+### Example Application 
+An gui application can be found the in example folder: Be aware that the results will be poor due to only one algorithms be applied at a time.
+Only the first 100 google thumbnails are downloaded and usually there are not many true duplicates present in those. 
+<p align="center">https://user-images.githubusercontent.com/9025925/43670281-2ca48ab6-978a-11e8-822b-fc2414586708.png</p>
+
+
 
 ### Example of hamming distances with 64 bit key
 
 The following examples were found by creating a duplicate detection system to filter reposts on 9gag.com
-
-Distance 0: Identical image
 
 Distance 5: Slight color change. 
 <p></p>
