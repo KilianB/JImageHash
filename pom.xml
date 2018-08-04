@@ -8,12 +8,12 @@
 	<groupId>com.github.kilianB</groupId>
 	<artifactId>JImageHash</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	
+
 	<properties>
 		<bintrayRepository>maven</bintrayRepository>
 		<bintrayPackage>JImageHash</bintrayPackage>
-	</properties>	
-	
+	</properties>
+
 	<licenses>
 		<license>
 			<name>MIT</name>
@@ -21,7 +21,7 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	
+
 	<developers>
 		<developer>
 			<name>Kilian Brachtendorf</name>
@@ -32,8 +32,8 @@
 			<timezone>Europe/Berlin</timezone>
 		</developer>
 	</developers>
-	
-	
+
+
 
 	<!-- Dependencies -->
 
@@ -63,36 +63,57 @@
 			<artifactId>jfoenix</artifactId>
 			<version>8.0.4</version>
 		</dependency>
-		
-		<!--  Testing -->
+
+		<!-- Testing -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>5.2.0</version>
+			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
 			<version>5.2.0</version>
+			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
 			<version>5.2.0</version>
+			<scope>test</scope>
 		</dependency>
-		
+
 	</dependencies>
 
 	<!-- Build settings -->
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.21.0</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.platform</groupId>
+						<artifactId>junit-platform-surefire-provider</artifactId>
+						<version>1.2.0-M1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-engine</artifactId>
+						<version>5.2.0-M1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.7.0</version>
 				<configuration>
-					<release>10</release>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 		</plugins>
