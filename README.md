@@ -4,6 +4,7 @@
 
 [![Travis](https://travis-ci.org/KilianB/JImageHash.svg?branch=master)](https://travis-ci.org/KilianB/JImageHash)
 [![GitHub license](https://img.shields.io/github/license/KilianB/JImageHash.svg)](https://github.com/KilianB/JImageHash/blob/master/LICENSE)
+ [ ![Download](https://api.bintray.com/packages/kilianb/maven/JImageHash/images/download.svg) ](https://bintray.com/kilianb/maven/JImageHash/_latestVersion)
 
 
 JImageHash is a performant perceptual image fingerprinting library written entirely in Java. The library returns a similarity score aiming to indentify entities which are likely modifications of the original source while being robust to color and scale transformation.
@@ -12,13 +13,57 @@ JImageHash is a performant perceptual image fingerprinting library written entir
 
 This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">kind of like that</a>" and incorporates several improvements i.e. adjustable hash resolution and diagonal gradient detection. A comprehensive overview of perceptual image hashing can be found in this <a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">paper</a> by Christoph Zauner. 
 
+## Maven - Bintray
+
+The project is hosted on bintray and jcenter
+
+````
+<repositories>
+	<repository>
+		<id>jcenter</id>
+		<url>https://jcenter.bintray.com/</url>
+	</repository>
+</repositories>
+
+<dependency>
+	<groupId>com.github.kilianB</groupId>
+	<artifactId>JImageHash</artifactId>
+	<version>1.0.0</version>
+	<type>pom</type>
+</dependency>
+````
+
+
 ## Example 
 
 Below you can find examples of convenience methods used to get fast results. Further examples are provided in the examples folder explain how to choose 
 and optimize individual algorithms on your own.
 
+<table>
+	<thead>
+		<tr>
+			<th>File</th>
+			<th>Content</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><a href="/src/main/java/com/github/kilianB/examples/CompareImages.java">CompareImages.java</a></td>
+			<td>Compare the similarity of two images using a single algorithm and a custom threshold</td>
+		</tr>
+		<tr>
+			<td><a href="/src/main/java/com/github/kilianB/examples/ChainAlgorithms.java">ChainAlgorithms.java</a></td>
+			<td>Chain multiple algorithms to achieve a better precision & recall.</td>
+		</tr>
+		<tr>
+			<td><a href="/src/main/java/com/github/kilianB/examples/MatchMultipleImages.java">MatchMultipleImages.java</a></td>
+			<td>Precompute the hash of multiple images to retrieve all relevant images in a batch.</td>
+		</tr>
+	</tbody>
+</table>
 
-### Check if two images are likely duplicates of each other
+
+#### Hello World: Check if two images are likely duplicates of each other
 ````java
 public static void main(String[] args){
 
@@ -34,7 +79,7 @@ public static void main(String[] args){
 }
 ````
 
-### Check batch of images
+#### Check batch of images
 
 ````java
 public void matchMultipleImagesInMemory() {
@@ -260,7 +305,7 @@ Original Image:
 
 ### Example Application 
 An gui application can be found the in example folder: Be aware that the results will be poor due to only one algorithms be applied at a time.
-Only the first 100 google thumbnails are downloaded and usually there are not many true duplicates present in those. 
+Only the first 100 google thumbnails are downloaded and usually there are not many true duplicates present. 
 <p align="center"><img src="https://user-images.githubusercontent.com/9025925/43670281-2ca48ab6-978a-11e8-822b-fc2414586708.png"/></p>
 
 
