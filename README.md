@@ -1,5 +1,9 @@
 # JImageHash
 
+
+[![GitHub license](https://img.shields.io/github/license/KilianB/JImageHash.svg)](https://github.com/KilianB/JImageHash/blob/master/LICENSE)
+
+
 JImageHash is a performant perceptual image fingerprinting library written entirely in Java. The library returns a similarity score aiming to indentify entities which are likely modifications of the original source while being robust to color and scale transformation.
 
 >  A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
@@ -255,7 +259,7 @@ Original Image:
 ### Example Application 
 An gui application can be found the in example folder: Be aware that the results will be poor due to only one algorithms be applied at a time.
 Only the first 100 google thumbnails are downloaded and usually there are not many true duplicates present in those. 
-<p align="center">https://user-images.githubusercontent.com/9025925/43670281-2ca48ab6-978a-11e8-822b-fc2414586708.png</p>
+<p align="center"><img src="https://user-images.githubusercontent.com/9025925/43670281-2ca48ab6-978a-11e8-822b-fc2414586708.png"/></p>
 
 
 
