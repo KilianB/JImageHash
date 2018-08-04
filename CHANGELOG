@@ -1,5 +1,16 @@
 - Semantic versioning
 
+## [1.0.1] - 4.8.2018
+
+## Changed
+- removed example dependencies from compiled repository jars
+
+## [1.0.0] - 4.8.2018
+- Initial version pushed to Bintray and JCenter
+## Changed
+- Updated javadocs to comply with maven javadoc plugin
+- Smaller bugfixed mainly for the examples
+
 ## [0.1.0] - 3.8.2018
 ## Added
 - BinaryTree class to save & compare precomputed hashes
@@ -7,13 +18,13 @@
 - Examples
 	- Extensive gui example
 - Algorithm identifiers preventing mismatching hashes to be compared
+- InMemoryImageMatcher to match a batch of images
+- Added more default presets for the default matchers.
 
 ## Changed
 - Preparation for maven distribution. Changed package structure
 - Using a dedicated Hash class instead of a BigInteger to represent hash results
-
-
-
+- Renamed ImageMatcher to SingleImagematcher
 
 ## [0.0.8] - 
 ## Added
