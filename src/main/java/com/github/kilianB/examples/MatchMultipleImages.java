@@ -41,7 +41,7 @@ public class MatchMultipleImages {
 		matchMultipleImagesInMemory();
 	}
 
-	public void matchMultipleImagesInMemory(BufferedImage... images) {
+	public void matchMultipleImagesInMemory() {
 
 		InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
 
