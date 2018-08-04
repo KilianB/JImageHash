@@ -15,10 +15,15 @@ public class Node {
 		return left ? leftChild: rightChild;
 	}
 	
-	
+	/**
+	 * Create and set a child of the current node
+	 * @param left if true create the left child if false create the right child
+	 * @return the created node
+	 */
 	public Node createChild(boolean left) {
 		return setChild(left,new Node());
 	}
+	
 	
 	public Node setChild(boolean left, Node newNode) {
 		if(left) {

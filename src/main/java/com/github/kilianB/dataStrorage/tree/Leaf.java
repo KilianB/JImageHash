@@ -17,15 +17,14 @@ public class Leaf<T> extends Node{
 	
 	/**
 	 * Append new data to the leaf
-	 * @param data
+	 * @param data	Value which will be associated with the hash this leaf represents
 	 */
 	public void addData(T data) {
 		this.data.add(data);
 	}
 	
 	/**
-	 * Return a strong reference to the arraylist backing this leaf
-	 * @return
+	 * @return a strong reference to the arraylist backing this leaf
 	 */
 	public ArrayList<T>getData(){
 		return data;

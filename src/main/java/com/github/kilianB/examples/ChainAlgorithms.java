@@ -77,10 +77,10 @@ public class ChainAlgorithms {
 	}
 
 	/**
-	 * Demonstrates how to fully configure a {@link #SingleImageMatcher}. Choose own algorithms
+	 * Demonstrates how to fully configure a SingleImageMatcher. Choose own algorithms
 	 * and thresholds
-	 * @param image1
-	 * @param image2
+	 * @param image1	First image to be matched against 2nd image
+	 * @param image2	Second image to be matched against the first image
 	 */
 	public void chainAlgorithms(BufferedImage image1, BufferedImage image2){
 

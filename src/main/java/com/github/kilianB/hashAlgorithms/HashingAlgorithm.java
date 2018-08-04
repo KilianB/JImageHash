@@ -20,7 +20,7 @@ public abstract class HashingAlgorithm {
 	protected final int bitResoluation;
 	/**
 	 * Promises a key with at approximately bit resolution (+ 1 padding bit). Due to geometric requirements the key might be marginally larger or smaller than specified
-	 * @param bitResolution
+	 * @param bitResolution	The bit count of the final hash
 	 */
 	public HashingAlgorithm(int bitResolution){
 		if(bitResolution < 0) {
@@ -35,9 +35,9 @@ public abstract class HashingAlgorithm {
 	 * A comparison of the hashes relates to the similarity of the images.
 	 * The lower the value the more similar the images are. Equal images will produce a similarity of 0.
 	 * The hash will be preceded by a 1 bit counteracting truncation of 0 bits and a consistent key length.
-	 * @param image
-	 * @return
-	 * @see {@link Hash}
+	 * @param image	Image whose hash will be calculated
+	 * @return	The hash representing the image
+	 * @see Hash
 	 */
 	public abstract Hash hash(BufferedImage image);
 	
@@ -47,10 +47,10 @@ public abstract class HashingAlgorithm {
 	 * A comparison of the hashes relates to the similarity of the images.
 	 * The lower the value the more similar the images are. Equal images will produce a similarity of 0.
 	 * The hash will be preceded by a 1 bit counteracting truncation of 0 bits and a consistent key length.
-	 * @param image
-	 * @return
+	 * @param imageFile The file pointing to the image 
+	 * @return The hash representing the image
 	 * @throws IOException if an error occurs during loading the image
-	 * @see {@link Hash}
+	 * @see Hash
 	 */
 	public Hash hash(File imageFile) throws IOException {
 		return hash(ImageIO.read(imageFile));
@@ -62,7 +62,7 @@ public abstract class HashingAlgorithm {
 	 * @param in	Image to scale
 	 * @param width	new width of the scaled image
 	 * @param height new height of the scaled image
-	 * @return
+	 * @return a grayscaled instance of the image s
 	 */
 	protected BufferedImage getGrayScaledInstance(BufferedImage in, int width, int height){
 
@@ -81,7 +81,7 @@ public abstract class HashingAlgorithm {
 	 * @param in	image to scale
 	 * @param width	new width of the scaled image
 	 * @param height new height of the scaled image
-	 * @return
+	 * @return	an ARGB scaled instance of the image
 	 */
 	protected BufferedImage getScaledInstance(BufferedImage in, int width, int height){
 
@@ -97,7 +97,7 @@ public abstract class HashingAlgorithm {
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the output result.
 	 * The id shall stay consistent throughout restarts of the jvm
-	 * @return
+	 * @return the algorithm id
 	 */
 	public abstract int algorithmId();
 }

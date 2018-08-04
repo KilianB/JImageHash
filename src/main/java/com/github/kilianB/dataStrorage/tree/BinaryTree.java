@@ -78,7 +78,7 @@ public class BinaryTree<T> {
 	/**
 	 * Insert a value associated with the supplied hash in the binary tree (similar
 	 * to a map). Saved values can be found by invoking
-	 * {@link #getElementsWithHemmingDistance}. <p>
+	 * {@link #getElementsWithinHemmingDistance}. <p>
 	 * 
 	 * Nodes which do not exist will be created. Please be aware that similar to
 	 * comparing different hashes for images only hashes produced by the same
@@ -239,8 +239,7 @@ public class BinaryTree<T> {
 	}
 
 	/**
-	 * Return the root of the binary tree
-	 * @return
+	 * @return the root of the binary tree
 	 */
 	public Node getRoot() {
 		return root;
@@ -261,10 +260,10 @@ public class BinaryTree<T> {
 	}
 
 	/**
-	 * Traverse the tree and print all hashes found
+	 * Recursively traverse the tree and print all hashes found
 	 * 
-	 * @param n
-	 * @param curString
+	 * @param n			The current node whos children will be looked at	
+	 * @param curString	The current hash this node represents
 	 */
 	@SuppressWarnings("unchecked")
 	private void printTree(Node n, String curString) {

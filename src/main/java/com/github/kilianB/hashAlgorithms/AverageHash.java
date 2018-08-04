@@ -34,12 +34,13 @@ public class AverageHash extends HashingAlgorithm{
 	 * 
 	 * The average hash requires to re scale the base image according to the required bit resolution.
 	 * 	If the square root of the bit resolution is not a natural number the resolution will be rounded to the next whole 
-	 *  number.<p>
+	 *  number.</p>
 	 *  
+	 *  <pre>
 	 *  64 = 8x8 = 65 bit key
-	 *  128 = 11.3 -> 12 -> 144 bit key
+	 *  128 = 11.3 -&gt; 12 -&gt; 144 bit key
 	 *  256 = 16 x 16 = 256 bit key
-	 *  
+	 *  </pre>
 	 */
 	public AverageHash(int bitResolution) {
 		super(bitResolution);	

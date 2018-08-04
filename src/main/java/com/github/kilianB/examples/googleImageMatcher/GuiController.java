@@ -49,39 +49,36 @@ public class GuiController {
 	@FXML
 	private JFXComboBox<String> alogorithmCombobox;
 
-	@FXML 
+	@FXML
 	private VBox scrollPaneRoot;
-	
+
 	@FXML
 	private Label imageId;
-	
+
 	@FXML
 	private Label matchCount;
-	
+
 	@FXML
 	private ImageView hashImage;
-	
+
 	@FXML
 	private StackPane spinnerPane;
-	
+
 	private BufferedImage currentImage;
-	
-	//Prepare a data structure to easily compare hashes  
-	
+
+	// Prepare a data structure to easily compare hashes
+
 	private HashingAlgorithm aHash = new AverageHash(64);
-	private HashingAlgorithm dHash = new DifferenceHash(32,Precision.Double);
+	private HashingAlgorithm dHash = new DifferenceHash(32, Precision.Double);
 	private HashingAlgorithm pHash = new PerceptiveHash(64);
-	
-	
-	
+
 	private BinaryTree<Image> aBinTree = new BinaryTree<>(true);
 	private BinaryTree<Image> dBinTree = new BinaryTree<>(true);
 	private BinaryTree<Image> pBinTree = new BinaryTree<>(true);
-	
-	//Choose one of the many hashing algorithms
+
+	// Choose one of the many hashing algorithms
 	HashingAlgorithm algo = new PerceptiveHash(32);
-	
-	
+
 	@FXML
 	private void initialize() {
 
@@ -120,11 +117,7 @@ public class GuiController {
 							() ->{
 						newImages.stream().forEach(image -> addImages(image));
 					});
-					newImages.stream().forEach(image -> computeHash(image));
-					
-					//TODO update with current image
-					//updateMasonaryPane();
-					
+					newImages.stream().forEach(image -> computeHash(image));					
 				}).start();
 			}
 		});
@@ -139,75 +132,72 @@ public class GuiController {
 
 	private void updateMasonaryPane(BufferedImage image) {
 		currentImage = image;
-		//Clear pane
+		// Clear pane
 		ObservableList<Node> children = masonaryPane.getChildren();
 		children.clear();
-		
-		
+
 		Hash needleHash = null;
 		BinaryTree<Image> binTree = null;
-		
-		switch(alogorithmCombobox.getSelectionModel().getSelectedIndex()) {
-			case 0: 
+
+		switch (alogorithmCombobox.getSelectionModel().getSelectedIndex()) {
+			case 0:
 				needleHash = aHash.hash(image);
 				binTree = aBinTree;
 				break;
-			case 1: 
+			case 1:
 				needleHash = dHash.hash(image);
 				binTree = dBinTree;
 				break;
-			case 2: 
+			case 2:
 				needleHash = pHash.hash(image);
 				binTree = pBinTree;
 				break;
 		}
-		
-		PriorityQueue<Result<Image>> results = binTree.getElementsWithinHemmingDistance(needleHash, (int)hammingDistance.getValue());
-		
-		for(Result<Image> result: results) {
+
+		PriorityQueue<Result<Image>> results = binTree.getElementsWithinHemmingDistance(needleHash,
+				(int) hammingDistance.getValue());
+
+		for (Result<Image> result : results) {
 			Image javaFxImage = result.getValue();
 			ImageView view = new ImageView(javaFxImage);
-			//view.setFitWidth(100);
-			//view.setFitHeight(100);
-			//They have to be wrapped or the masonary pane will not layout them correctly
-			view.setOnMouseClicked((event)->{
+			// view.setFitWidth(100);
+			// view.setFitHeight(100);
+			// They have to be wrapped or the masonary pane will not layout them correctly
+			view.setOnMouseClicked((event) -> {
 				imageId.setText(javaFxImage.toString());
 			});
-			
-			
-			children.add(new VBox(view,new Label("Distance: " + result.distance)));	
+
+			children.add(new VBox(view, new Label("Distance: " + result.distance)));
 		}
-		
-		hashImage.setImage(SwingFXUtils.toFXImage(needleHash.toImage(10),null));
+
+		hashImage.setImage(SwingFXUtils.toFXImage(needleHash.toImage(10), null));
 		matchCount.setText("Matched: " + children.size());
 		masonaryPane.layout();
-		
+
 	}
 
 	HashSet<BufferedImage> addedImages = new HashSet<BufferedImage>();
-	
+
 	private void computeHash(BufferedImage image) {
-		
-		Image javafxImage = SwingFXUtils.toFXImage(image,null);
-		
+
+		Image javafxImage = SwingFXUtils.toFXImage(image, null);
+
 		aBinTree.addHash(aHash.hash(image), javafxImage);
 		dBinTree.addHash(dHash.hash(image), javafxImage);
 		pBinTree.addHash(pHash.hash(image), javafxImage);
 	}
-	
+
 	private void addImages(BufferedImage image) {
-		ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image,null));
+		ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
 		imageView.setFitWidth(248);
-//		imageView.setFitHeight(250);
+		// imageView.setFitHeight(250);
 		imageView.setPreserveRatio(false);
-		
-		imageView.setOnMouseClicked((event)->{
+
+		imageView.setOnMouseClicked((event) -> {
 			updateMasonaryPane(image);
 		});
-		
+
 		scrollPaneRoot.getChildren().add(imageView);
 	}
-	
-	
-	
+
 }

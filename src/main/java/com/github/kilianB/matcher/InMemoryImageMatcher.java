@@ -45,7 +45,7 @@ public class InMemoryImageMatcher extends ImageMatcher{
 	 * pHash is computationally more expensive and used to inspect possible candidates further
 	 * 
 	 * @param algorithmSetting
-	 * 	How agressive the algorithm advances while comparing images </br>
+	 * 	<p>How agressive the algorithm advances while comparing images </p>
 	 * 	<ul>
 	 *  <li><b>Forgiving:</b>	Matches a bigger range of images</li>
 	 * 	<li><b>Fair:</b> Matches all sample images</li>
@@ -129,7 +129,7 @@ public class InMemoryImageMatcher extends ImageMatcher{
 	 * Return an immutable map copy of the algorithms currently used in the matcher.
 	 * This map is a hard copy of the hashmap and does not updated if the underlying collection
 	 * gets altered
-	 * @return
+	 * @return A map containing all algorithms used in this matcher
 	 */
 	public Map<HashingAlgorithm,AlgoSettings> getAlgorithms(){
 		return Collections.unmodifiableMap(new LinkedHashMap<HashingAlgorithm,AlgoSettings>(steps));
@@ -138,7 +138,7 @@ public class InMemoryImageMatcher extends ImageMatcher{
 	
 	/**
 	 * Add the images to the matcher allowing the image to be found in future searches.
-	 * @param image
+	 * @param images The images whose hash will be added to the matcher
 	 */
 	public void addImages(BufferedImage...images) {
 		for(BufferedImage image : images) {
@@ -148,7 +148,7 @@ public class InMemoryImageMatcher extends ImageMatcher{
 	
 	/**
 	 * Add the image to the matcher allowing the image to be found in future searches.
-	 * @param image
+	 * @param image The image whose hash will be added to the matcher
 	 */
 	public void addImage(BufferedImage image) {
 		if (steps.isEmpty())
@@ -171,7 +171,7 @@ public class InMemoryImageMatcher extends ImageMatcher{
 	 * Search for all similar images passing the algorithm filters supplied to this matcher. 
 	 * If the image itself was added to the tree it will be returned with a distance of 0
 	 * @param image The image other images will be matched against
-	 * @return
+	 * @return	Similar images
 	 * 	Return all images sorted by the <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming distance</a>
 	 *  of the last applied algorithms
 	 */

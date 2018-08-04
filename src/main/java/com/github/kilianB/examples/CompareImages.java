@@ -41,7 +41,6 @@ public class CompareImages {
 		});
 	}
 
-
 	/**
 	 * Compares the similarity of two images.
 	 * @param image1	First image to be matched against 2nd image
@@ -66,6 +65,7 @@ public class CompareImages {
 	 * @param image1	First image to be matched against 2nd image
 	 * @param image2	The second image
 	 * @return	true if the algorithm defines the images to be similar.
+	 * @throws IOException IOerror occurred during image loading
 	 */
 	public boolean compareTwoImages2(File image1, File image2) throws IOException {
 
@@ -79,9 +79,6 @@ public class CompareImages {
 		return similarityScore < 20;
 	}
 
-	
-
-	
 	
 	//Utility function
 	private void formatOutput(String image1, String image2, boolean similar) {

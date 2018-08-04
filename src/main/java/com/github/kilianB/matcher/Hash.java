@@ -11,7 +11,6 @@ import java.math.BigInteger;
  * between instances produced by the same algorithm. Every bit in the hash usually represents 
  * a section of the image containing certain information (hue, brightness, cosine transformation..)
  * @author Kilian
- *
  */
 public class Hash {
 	
@@ -139,7 +138,7 @@ public class Hash {
 	/**
 	 * Return the algorithm identifier specifying by which algorithm and setting 
 	 * this hash was created. The id shall remain constant.
-	 * @return
+	 * @return The algorithm id
 	 */
 	public int getAlgorithmId() {
 		return algorithmId;

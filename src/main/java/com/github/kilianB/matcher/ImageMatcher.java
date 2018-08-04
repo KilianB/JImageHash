@@ -98,7 +98,7 @@ public abstract class ImageMatcher {
 	/**
 	 * Return a strong reference to the algorithm hashmap. Altering this map directly affects the image matcher.
 	 * Be aware that this instance is not thread safe.
-	 * @return
+	 * @return	 A map containing all algorithms used in this matcher
 	 */
 	public Map<HashingAlgorithm,AlgoSettings> getAlgorithms(){
 		return steps;

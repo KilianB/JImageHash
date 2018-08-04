@@ -40,6 +40,7 @@ public class GoogleImageDownloaderMinimal {
 	 * 
 	 * @param searchTerm
 	 *            The search query
+	 * @return the downloaded images
 	 */
 	public static ArrayList<BufferedImage> downloadThumbnailImagesInMemory(String searchTerm) {
 
@@ -51,8 +52,7 @@ public class GoogleImageDownloaderMinimal {
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.SEVERE);
 
 		System.out.println("Download thumbnail images: " + searchTerm);
-		
-		
+
 		/*
 		 * Connect to google
 		 */
@@ -102,6 +102,7 @@ public class GoogleImageDownloaderMinimal {
 
 	/**
 	 * Download the first 100 thumbnail images found on the google image search page
+	 * and save them to disk
 	 * 
 	 * @param searchTerm
 	 *            The search query
@@ -110,8 +111,10 @@ public class GoogleImageDownloaderMinimal {
 	 * @param clearDirectory
 	 *            If true delete all the content found in the target directory
 	 *            before downloading images
+	 * @return the downloaded images
 	 */
-	public static ArrayList<BufferedImage> downloadThumbnailImages(String searchTerm, File targetDirectory, boolean clearDirectory) {
+	public static ArrayList<BufferedImage> downloadThumbnailImages(String searchTerm, File targetDirectory,
+			boolean clearDirectory) {
 
 		if (!targetDirectory.exists()) {
 			targetDirectory.mkdir();
@@ -142,6 +145,13 @@ public class GoogleImageDownloaderMinimal {
 	 */
 	private static Pattern base64Pattern = Pattern.compile("data:image/(?<extension>[a-zA-Z]*);base64,(?<imgData>.*)");
 
+	/**
+	 * 
+	 * @param imgElement
+	 * @return
+	 * @throws IOException
+	 * @throws IllegalStateException
+	 */
 	private static BufferedImage praseImage(DomElement imgElement) throws IOException, IllegalStateException {
 
 		String dataSrc = imgElement.getAttribute("data-src");
