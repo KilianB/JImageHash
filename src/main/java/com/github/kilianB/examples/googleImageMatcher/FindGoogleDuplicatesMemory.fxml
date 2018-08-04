@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.kilianB.examples.GuiController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.kilianB.examples.googleImageMatcher.GuiController">
    <center>
       <ScrollPane fitToWidth="true" prefViewportHeight="290.0" prefViewportWidth="340.0">
          <content> 
@@ -51,7 +51,7 @@
                         <Insets top="10.0" />
                      </VBox.margin>
                   </Label>
-                  <JFXSlider fx:id="hammingDistance" />
+                  <JFXSlider fx:id="hammingDistance" value="20.0" />
                </children>
             </VBox>
             <VBox alignment="CENTER" GridPane.columnIndex="2">
