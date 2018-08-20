@@ -303,7 +303,7 @@ Original Image:
 
 
 ### Example Application 
-An gui application can be found the in example folder: Be aware that the results will be poor due to only one algorithms be applied at a time.
+A gui application can be found the in example folder: Be aware that the results will be poor due to only one algorithms be applied at a time.
 Only the first 100 google thumbnails are downloaded and usually there are not many true duplicates present. 
 <p align="center"><img src="https://user-images.githubusercontent.com/9025925/43670281-2ca48ab6-978a-11e8-822b-fc2414586708.png"/></p>
 
