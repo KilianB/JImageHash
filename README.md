@@ -28,7 +28,7 @@ The project is hosted on bintray and jcenter
 <dependency>
 	<groupId>com.github.kilianB</groupId>
 	<artifactId>JImageHash</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 </dependency>
 ````
 

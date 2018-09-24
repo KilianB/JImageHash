@@ -1,5 +1,14 @@
 - Semantic versioning
 
+## [1.0.2] - 24.9.2018
+
+## Added
+- .editorconfig file for github aesthetics
+
+## Changed 
+- added xml header to pom allowing for valid resolve via maven
+
+
 ## [1.0.1] - 4.8.2018
 
 ## Changed
