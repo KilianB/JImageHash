@@ -1,0 +1,17 @@
+root = true
+
+[*]
+indent_style = tab 
+indent_size = 4 
+
+[*.java]
+indent_style = tab 
+indent_size = 4 
+
+[*.md]
+indent_style = spaces 
+indent_size = 2
+
+[.*]
+indent_style = tab 
+indent_size = 4 
