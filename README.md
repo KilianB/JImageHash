@@ -334,5 +334,5 @@ Distance 9: (False positive). Due to difference hash relying on gradient search 
 
 
 ### TODO
- - [ ] implement rotaional invariant hash
+ - [ ] implement rotaional invariant hash e.g. https://www.idosi.org/mejsr/mejsr24(4)16/75.pdf
 
