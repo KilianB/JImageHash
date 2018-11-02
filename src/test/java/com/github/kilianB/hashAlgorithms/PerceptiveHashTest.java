@@ -57,9 +57,9 @@ class PerceptiveHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(748566082, new PerceptiveHash(14).algorithmId()); //Was 748566082
+				assertEquals(1730712063, new PerceptiveHash(14).algorithmId()); // Was 748566082
 			}, () -> {
-				assertEquals(748566093, new PerceptiveHash(25).algorithmId()); //Was 748566093
+				assertEquals(1730712404, new PerceptiveHash(25).algorithmId()); // Was 748566093
 			});
 		}
 
@@ -78,9 +78,7 @@ class PerceptiveHashTest {
 			}, () -> {
 				assertNotEquals(id1, id2);
 			});
-
 		}
-
 	}
 
 	@Test
@@ -108,10 +106,10 @@ class PerceptiveHashTest {
 
 	}
 
-	
 	/**
-	 * The hashes produced by the same algorithms shall return the same hash on sucessive 
-	 * calls
+	 * The hashes produced by the same algorithms shall return the same hash on
+	 * sucessive calls
+	 * 
 	 * @param d1
 	 */
 	@ParameterizedTest
@@ -122,6 +120,7 @@ class PerceptiveHashTest {
 
 	/**
 	 * The hemming distance of the same image has to be 0
+	 * 
 	 * @deprecated not really a algorithm test case. Same as consistent
 	 * @param d1
 	 */
@@ -133,8 +132,9 @@ class PerceptiveHashTest {
 	}
 
 	/**
-	 * The hemming distance of similar images shall be lower than the distance of 
-	 * vastly different picutres
+	 * The hemming distance of similar images shall be lower than the distance of
+	 * vastly different pictures
+	 * 
 	 * @param d1
 	 */
 	@ParameterizedTest
@@ -143,7 +143,6 @@ class PerceptiveHashTest {
 		Hash lowQualityHash = d1.hash(lowQuality);
 		Hash highQualityHash = d1.hash(highQuality);
 		Hash ballonHash = d1.hash(ballon);
-
 		assertAll(() -> {
 			assertTrue(lowQualityHash.hammingDistance(highQualityHash) < lowQualityHash.hammingDistance(ballonHash));
 		}, () -> {
@@ -153,7 +152,6 @@ class PerceptiveHashTest {
 
 	@SuppressWarnings("unused")
 	private static Stream<HashingAlgorithm> algoInstances() {
-		return Stream.of(new PerceptiveHash(15), new PerceptiveHash(20),
-				new PerceptiveHash(200));
+		return Stream.of(new PerceptiveHash(15), new PerceptiveHash(20), new PerceptiveHash(200));
 	}
 }

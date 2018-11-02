@@ -1,27 +1,49 @@
 - Semantic versioning
 
+
+## [Unreleased -> 2.0.0]
+
+### Fixed
+ - removed unnecessary computation of grayscale image in difference hash
+ - difference hash now computes the padding byte correctly
+ - Typo in hashing algorithm "bitResoluation" -> "bitResolution". Since this is a protected field
+ which most likely is used in any derived hashing algorithm this is classified as a breaking change!
+ - Due to a major version bump the dHash (this is an active TODO) will be revisited and it's implementation
+ might change to not waste one bit. This will lead to all created hashes so far to be invalidated. The algorithm id of dHash will be updated
+ accordingly.
+
+### Changed
+- Starting with version 2 hashes now use Luminocity as given by YCrCb instead of interpolated grayscale values.
+- Hash classes migrate to use FastPixel access speeding up creation of higher key hashes by magnitude
+
+### Added
+ - Minor javadocs addition
+ - dependency on UtilityCode com.github.kilianB
+ 
+### 
+
 ## [1.0.2] - 24.9.2018
 
-## Added
+### Added
 - .editorconfig file for github aesthetics
 
-## Changed 
+### Changed 
 - added xml header to pom allowing for valid resolve via maven
 
 
 ## [1.0.1] - 4.8.2018
 
-## Changed
+### Changed
 - removed example dependencies from compiled repository jars
 
 ## [1.0.0] - 4.8.2018
 - Initial version pushed to Bintray and JCenter
-## Changed
+### Changed
 - Updated javadocs to comply with maven javadoc plugin
 - Smaller bugfixed mainly for the examples
 
 ## [0.1.0] - 3.8.2018
-## Added
+### Added
 - BinaryTree class to save & compare precomputed hashes
 - UnitTests for hash algorthms and basic matchers
 - Examples
@@ -30,12 +52,12 @@
 - InMemoryImageMatcher to match a batch of images
 - Added more default presets for the default matchers.
 
-## Changed
+### Changed
 - Preparation for maven distribution. Changed package structure
 - Using a dedicated Hash class instead of a BigInteger to represent hash results
 - Renamed ImageMatcher to SingleImagematcher
 
 ## [0.0.8] - 
-## Added
+### Added
 - MIT License
 - usage of changelog

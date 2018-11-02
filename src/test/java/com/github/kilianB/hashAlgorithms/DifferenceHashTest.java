@@ -58,17 +58,17 @@ class DifferenceHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(228339096, new DifferenceHash(14, Precision.Simple).algorithmId());
+				assertEquals(-1511422615, new DifferenceHash(14, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(228339437, new DifferenceHash(25, Precision.Simple).algorithmId());
+				assertEquals(-1511412044, new DifferenceHash(25, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-195332169, new DifferenceHash(14, Precision.Double).algorithmId());
+				assertEquals(-1760329942, new DifferenceHash(14, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(-195331828, new DifferenceHash(25, Precision.Double).algorithmId());
+				assertEquals(-1760319371, new DifferenceHash(25, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(265160772, new DifferenceHash(14, Precision.Triple).algorithmId());
+				assertEquals(-369950659, new DifferenceHash(14, Precision.Triple).algorithmId());
 			}, () -> {
-				assertEquals(265161113, new DifferenceHash(25, Precision.Triple).algorithmId());
+				assertEquals(-369940088, new DifferenceHash(25, Precision.Triple).algorithmId());
 			});
 		}
 

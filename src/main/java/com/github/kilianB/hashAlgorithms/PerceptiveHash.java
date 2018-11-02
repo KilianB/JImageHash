@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import org.jtransforms.dct.DoubleDCT_2D;
 
+import com.github.kilianB.graphics.ImageUtil;
+import com.github.kilianB.graphics.ImageUtil.FastPixel;
 import com.github.kilianB.matcher.Hash;
 
 /**
@@ -29,11 +31,11 @@ public class PerceptiveHash extends HashingAlgorithm {
 
 	/**
 	 * 
-	 * @param bitResolution
-	 *            The bit resolution specifies the final length of the generated
-	 *            hash. A higher resolution will increase computation time and space
-	 *            requirement while being able to track finer detail in the image.
-	 *            Be aware that a high key is not always desired.
+	 * @param bitResolution The bit resolution specifies the final length of the
+	 *                      generated hash. A higher resolution will increase
+	 *                      computation time and space requirement while being able
+	 *                      to track finer detail in the image. Be aware that a high
+	 *                      key is not always desired.
 	 */
 	public PerceptiveHash(int bitResolution) {
 		super(bitResolution);
@@ -42,31 +44,29 @@ public class PerceptiveHash extends HashingAlgorithm {
 		this.width = dimension * 4;
 		this.height = dimension * 4;
 		// String and int hashes stays consistent throughout different JVM invocations.
-		algorithmId = Objects.hash(getClass().getName(), this.bitResolution);
+		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
+		// flagged as incompatible
+		algorithmId = Objects.hash(getClass().getName(), this.bitResolution) *31 + 1;
 	}
 
 	@Override
 	public Hash hash(BufferedImage image) {
-		BufferedImage transformed = getScaledInstance(image, width, height);
+		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
+		
+		int[][] lum = fp.getLuma();
 
-		double[][] lum = new double[width][height];
-
-		final double redFactor = 299d / 1000;
-		final double greenFactor = 587d / 1000;
-		final double blueFactor = 114d / 1000;
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				int pixel = transformed.getRGB(x, y);
-				// lum
-				lum[x][y] = redFactor * ((pixel >> 16) & 0xFF) + greenFactor * ((pixel >> 8) & 0xFF)
-						+ blueFactor * (pixel & 0xFF);
+		//int to double conversion ...
+		double[][] lumAsDouble = new double[width][height];
+		
+		for(int x = 0; x < width; x++) {
+			for(int y = 0; y < height; y++) {
+				lumAsDouble[x][y] = lum[x][y]/255d;
 			}
 		}
-
+		
 		DoubleDCT_2D dct = new DoubleDCT_2D(width, height);
 
-		dct.forward(lum, false);
+		dct.forward(lumAsDouble, false);
 
 		// Average value of the (topmost) YxY low frequencies. Skip the first column as
 		// it might be too dominant. Solid color e.g.
@@ -83,7 +83,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 		// calculate the averge of the dct
 		for (int i = 1; i < subWidth + 1; i++) {
 			for (int j = 1; j < subWidth + 1; j++) {
-				avg += lum[i][j] / count;
+				avg += lumAsDouble[i][j] / count;
 			}
 		}
 
@@ -91,7 +91,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 		for (int i = 1; i < subWidth + 1; i++) {
 			for (int j = 1; j < subWidth + 1; j++) {
 
-				if (lum[i][j] < avg) {
+				if (lumAsDouble[i][j] < avg) {
 					hash = hash.shiftLeft(1);
 				} else {
 					hash = hash.shiftLeft(1).add(BigInteger.ONE);

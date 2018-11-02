@@ -56,46 +56,6 @@ public abstract class HashingAlgorithm {
 		return hash(ImageIO.read(imageFile));
 	}
 	
-	
-	/**
-	 * Create a scaled gray image of the buffered image
-	 * @param in	Image to scale
-	 * @param width	new width of the scaled image
-	 * @param height new height of the scaled image
-	 * @return a grayscaled instance of the image s
-	 */
-	protected BufferedImage getGrayScaledInstance(BufferedImage in, int width, int height){
-
-		BufferedImage transformed = new BufferedImage(width,height,BufferedImage.TYPE_BYTE_GRAY);
-		  
-		Graphics2D g=transformed.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-		    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-		g.drawImage(in, 0, 0, width, height, null);
-		g.dispose();
-		return transformed;
-	}
-	
-	/**
-	 * Create a scaled instance of the image
-	 * @param in	image to scale
-	 * @param width	new width of the scaled image
-	 * @param height new height of the scaled image
-	 * @return	an ARGB scaled instance of the image
-	 */
-	protected BufferedImage getScaledInstance(BufferedImage in, int width, int height){
-
-		BufferedImage transformed = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);	  
-		Graphics2D g=transformed.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-		    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-		g.drawImage(in, 0, 0, width, height, null);
-		g.dispose();
-		return transformed;
-	}
-	
-	//TODO add luminocity 
-	
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the output result.
 	 * The id shall stay consistent throughout restarts of the jvm

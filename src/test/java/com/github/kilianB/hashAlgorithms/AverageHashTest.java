@@ -49,7 +49,7 @@ class AverageHashTest {
 
 		/**
 		 * The algorithms id shall stay consistent throughout different instances of the
-		 * jvm. While simple hashcodes do not guarantee this behaviour hash codes
+		 * jvm. While simple hashcodes do not guarantee this behavior hash codes
 		 * created from strings and integers are by contract consistent.
 		 */
 		@Test
@@ -57,9 +57,9 @@ class AverageHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-363161106, new AverageHash(14).algorithmId());
+				assertEquals(1626907603, new AverageHash(14).algorithmId());
 			}, () -> {
-				assertEquals(-363161095, new AverageHash(25).algorithmId());
+				assertEquals(1626907944, new AverageHash(25).algorithmId());
 			});
 		}
 
@@ -110,7 +110,7 @@ class AverageHashTest {
 
 	
 	/**
-	 * The hashes produced by the same algorithms shall return the same hash on sucessive 
+	 * The hashes produced by the same algorithms shall return the same hash on successive 
 	 * calls
 	 * @param d1
 	 */
