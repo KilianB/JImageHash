@@ -81,7 +81,7 @@ public class DifferenceHash extends HashingAlgorithm {
 		
 		this.precision = precision;
 		//String and int hashes stays consistent throughout different JVM invocations.
-		algorithmId = Objects.hash(getClass().getName(),this.bitResoluation,this.precision.name());		
+		algorithmId = Objects.hash(getClass().getName(),this.bitResolution,this.precision.name());		
 	}
 
 	
@@ -117,8 +117,6 @@ public class DifferenceHash extends HashingAlgorithm {
 		if (!precision.equals(Precision.Simple)) {
 			// We need a padding row at the top now.
 			// Caution width and height are swapped
-			transformed = getGrayScaledInstance(image, height, width);
-			data = ((DataBufferByte) transformed.getRaster().getDataBuffer()).getData();
 
 			int height = transformed.getHeight();
 			int width = transformed.getWidth();

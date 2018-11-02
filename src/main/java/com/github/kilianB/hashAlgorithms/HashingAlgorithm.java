@@ -17,7 +17,7 @@ import com.github.kilianB.matcher.Hash;
  */
 public abstract class HashingAlgorithm {
 	
-	protected final int bitResoluation;
+	protected final int bitResolution;
 	/**
 	 * Promises a key with at approximately bit resolution (+ 1 padding bit). Due to geometric requirements the key might be marginally larger or smaller than specified
 	 * @param bitResolution	The bit count of the final hash
@@ -26,7 +26,7 @@ public abstract class HashingAlgorithm {
 		if(bitResolution < 0) {
 			throw new IllegalArgumentException("The bit resolution for hashing algorithms has to be positive");
 		}
-		this.bitResoluation = bitResolution;
+		this.bitResolution = bitResolution;
 	}
 	
 	/**
@@ -93,6 +93,8 @@ public abstract class HashingAlgorithm {
 		g.dispose();
 		return transformed;
 	}
+	
+	//TODO add luminocity 
 	
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the output result.

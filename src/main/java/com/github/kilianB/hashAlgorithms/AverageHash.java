@@ -48,7 +48,7 @@ public class AverageHash extends HashingAlgorithm{
 			this.width = dimension;
 			this.height = dimension;
 			//String and int hashes stays consistent throughout different JVM invocations.
-			algorithmId = Objects.hash(getClass().getName(),this.bitResoluation);
+			algorithmId = Objects.hash(getClass().getName(),this.bitResolution);
 	}
 
 

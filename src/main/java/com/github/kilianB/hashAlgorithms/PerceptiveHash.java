@@ -42,7 +42,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 		this.width = dimension * 4;
 		this.height = dimension * 4;
 		// String and int hashes stays consistent throughout different JVM invocations.
-		algorithmId = Objects.hash(getClass().getName(), this.bitResoluation);
+		algorithmId = Objects.hash(getClass().getName(), this.bitResolution);
 	}
 
 	@Override
