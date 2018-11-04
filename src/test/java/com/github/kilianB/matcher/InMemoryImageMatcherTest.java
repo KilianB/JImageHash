@@ -48,7 +48,7 @@ class InMemoryImageMatcherTest {
 		@DisplayName("Check Similarity")
 		void imageMatches() {
 	
-			InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
+			PersistentImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
 			
 			matcher.addImage(ballon);
 			matcher.addImage(copyright);
@@ -118,7 +118,7 @@ class InMemoryImageMatcherTest {
 		@Test
 		@DisplayName("Empty Matcher")
 		void noAlgorithm() {
-			InMemoryImageMatcher matcher = new InMemoryImageMatcher();
+			PersistentImageMatcher matcher = new InMemoryImageMatcher();
 			BufferedImage dummyImage = new BufferedImage(1,1,0x1);
 			assertThrows(IllegalStateException.class,()->{matcher.getMatchingImages(dummyImage);});
 		}

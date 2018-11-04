@@ -22,7 +22,7 @@ import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
  * @author Kilian
  *
  */
-public class InMemoryImageMatcher extends ImageMatcher{
+public class InMemoryImageMatcher extends ImageMatcher implements PersistentImageMatcher{
 
 	/**
 	 * A preconfigured image matcher chaining dHash and pHash algorithms for 
@@ -79,9 +79,10 @@ public class InMemoryImageMatcher extends ImageMatcher{
 		return matcher;
 	}
 	
-
+	/** keep track of images already added. No reason to rehash*/
 	private HashSet<BufferedImage> addedImages = new HashSet<>();
 	
+	/** Binary Tree holding results for each individual hashing algorithm*/
 	private HashMap<HashingAlgorithm,BinaryTree<BufferedImage>> binTreeMap = new HashMap<>();
 	
 	
@@ -137,19 +138,10 @@ public class InMemoryImageMatcher extends ImageMatcher{
 	
 	
 	/**
-	 * Add the images to the matcher allowing the image to be found in future searches.
-	 * @param images The images whose hash will be added to the matcher
-	 */
-	public void addImages(BufferedImage...images) {
-		for(BufferedImage image : images) {
-			addImage(image);
-		}
-	}
-	
-	/**
 	 * Add the image to the matcher allowing the image to be found in future searches.
 	 * @param image The image whose hash will be added to the matcher
 	 */
+	@Override
 	public void addImage(BufferedImage image) {
 		if (steps.isEmpty())
 			throw new IllegalStateException(
@@ -175,6 +167,7 @@ public class InMemoryImageMatcher extends ImageMatcher{
 	 * 	Return all images sorted by the <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming distance</a>
 	 *  of the last applied algorithms
 	 */
+	@Override
 	public PriorityQueue<Result<BufferedImage>> getMatchingImages(BufferedImage image){
 		
 		if (steps.isEmpty())
