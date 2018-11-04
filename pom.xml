@@ -53,6 +53,12 @@
 			<classifier>with-dependencies</classifier>
 		</dependency>
 
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.197</version>
+		</dependency>
+
 		<!-- Google image downloading dependency -->
 		<dependency>
 			<groupId>net.sourceforge.htmlunit</groupId>
