@@ -22,7 +22,7 @@ import com.github.kilianB.matcher.Hash;
 
 /**
  * @author Kilian
- *
+ * @since 2.0.0
  */
 class RotPHashTest {
 

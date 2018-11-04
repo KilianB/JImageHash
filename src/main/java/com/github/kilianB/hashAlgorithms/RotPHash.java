@@ -20,7 +20,7 @@ import com.github.kilianB.matcher.Hash;
  * cosine transformation on each subsection.
  * 
  * @author Kilian
- *
+ * @since 2.0.0
  */
 public class RotPHash extends HashingAlgorithm {
 
