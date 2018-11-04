@@ -20,6 +20,7 @@ import com.github.kilianB.matcher.Hash;
  */
 public class PerceptiveHash extends HashingAlgorithm {
 
+	private static final long serialVersionUID = 8409228150836051697L;
 	/**
 	 * Unique id identifying the algorithm and it's settings
 	 */

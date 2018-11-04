@@ -3,12 +3,18 @@ package com.github.kilianB.hashAlgorithms;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -99,6 +105,48 @@ class DifferenceHashTest {
 
 	}
 
+	@Nested
+	@DisplayName("Serialization")
+	class Serizalization{
+		
+		HashingAlgorithm originalAlgo;
+		HashingAlgorithm deserializedAlgo;
+		
+		@BeforeEach
+		void serializeAlgo() {
+			originalAlgo = new DifferenceHash(32,Precision.Double);
+		
+			File serFile = new File("AverageHash.ser");
+			
+			//Write to file
+			try(ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(serFile))){
+				os.writeObject(originalAlgo);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			//Read from file
+			try(ObjectInputStream is = new ObjectInputStream(new FileInputStream(serFile))){
+				deserializedAlgo = (HashingAlgorithm) is.readObject();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}finally {
+				if(serFile.exists()) {
+					serFile.delete();
+				}
+			}
+		}
+		
+		@Test
+		void consistentId() {
+			assertEquals(originalAlgo.algorithmId(),deserializedAlgo.algorithmId());
+		}
+		@Test
+		void consistentHash() {
+			assertEquals(originalAlgo.hash(ballon),deserializedAlgo.hash(ballon));
+		}
+	}
 	@Test
 	void keyLength() {
 		// To get comparable hashes the key length has to be consistent for all

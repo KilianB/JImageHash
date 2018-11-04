@@ -5,6 +5,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 
@@ -15,7 +16,9 @@ import com.github.kilianB.matcher.Hash;
  * @author Kilian
  *
  */
-public abstract class HashingAlgorithm {
+public abstract class HashingAlgorithm implements Serializable{
+	
+	private static final long serialVersionUID = 2L;
 	
 	protected final int bitResolution;
 	/**
@@ -62,4 +65,11 @@ public abstract class HashingAlgorithm {
 	 * @return the algorithm id
 	 */
 	public abstract int algorithmId();
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName()+" [" + bitResolution + "]";
+	}
+	
+	
 }

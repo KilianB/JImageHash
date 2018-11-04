@@ -22,6 +22,8 @@ import com.github.kilianB.matcher.Hash;
  */
 public class DifferenceHash extends HashingAlgorithm {
 
+	private static final long serialVersionUID = 7236596241664072005L;
+
 	/**
 	 * Algorithm precision.
 	 * 

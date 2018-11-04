@@ -1,8 +1,6 @@
 package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBufferByte;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -19,6 +17,7 @@ import com.github.kilianB.matcher.Hash;
  */
 public class AverageHash extends HashingAlgorithm {
 
+	private static final long serialVersionUID = -5234612717498362659L;
 	/**
 	 * Unique id identifying the algorithm and it's settings
 	 */

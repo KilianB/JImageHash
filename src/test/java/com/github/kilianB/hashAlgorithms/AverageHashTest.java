@@ -1,22 +1,30 @@
 package com.github.kilianB.hashAlgorithms;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.github.kilianB.hashAlgorithms.AverageHash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 
 class AverageHashTest {
@@ -33,8 +41,7 @@ class AverageHashTest {
 		try {
 			ballon = ImageIO.read(AverageHashTest.class.getClassLoader().getResourceAsStream("ballon.jpg"));
 			copyright = ImageIO.read(AverageHashTest.class.getClassLoader().getResourceAsStream("copyright.jpg"));
-			highQuality = ImageIO
-					.read(AverageHashTest.class.getClassLoader().getResourceAsStream("highQuality.jpg"));
+			highQuality = ImageIO.read(AverageHashTest.class.getClassLoader().getResourceAsStream("highQuality.jpg"));
 			lowQuality = ImageIO.read(AverageHashTest.class.getClassLoader().getResourceAsStream("lowQuality.jpg"));
 			thumbnail = ImageIO.read(AverageHashTest.class.getClassLoader().getResourceAsStream("thumbnail.jpg"));
 
@@ -49,8 +56,8 @@ class AverageHashTest {
 
 		/**
 		 * The algorithms id shall stay consistent throughout different instances of the
-		 * jvm. While simple hashcodes do not guarantee this behavior hash codes
-		 * created from strings and integers are by contract consistent.
+		 * jvm. While simple hashcodes do not guarantee this behavior hash codes created
+		 * from strings and integers are by contract consistent.
 		 */
 		@Test
 		@DisplayName("Consistent AlgorithmIds")
@@ -63,6 +70,9 @@ class AverageHashTest {
 			});
 		}
 
+		/**
+		 * The algorithm ids shall not collide
+		 */
 		@Test
 		@DisplayName("Unique AlgorithmsIds")
 		public void uniquely() {
@@ -78,11 +88,54 @@ class AverageHashTest {
 			}, () -> {
 				assertNotEquals(id1, id2);
 			});
-
 		}
-
 	}
 
+	
+	@Nested
+	@DisplayName("Serialization")
+	class Serizalization{
+		
+		HashingAlgorithm originalAlgo;
+		HashingAlgorithm deserializedAlgo;
+		
+		@BeforeEach
+		void serializeAlgo() {
+			originalAlgo = new AverageHash(32);
+		
+			File serFile = new File("AverageHash.ser");
+			
+			//Write to file
+			try(ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(serFile))){
+				os.writeObject(originalAlgo);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			//Read from file
+			try(ObjectInputStream is = new ObjectInputStream(new FileInputStream(serFile))){
+				deserializedAlgo = (HashingAlgorithm) is.readObject();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}finally {
+				if(serFile.exists()) {
+					serFile.delete();
+				}
+			}
+		}
+		
+		@Test
+		void consistentId() {
+			assertEquals(originalAlgo.algorithmId(),deserializedAlgo.algorithmId());
+		}
+		@Test
+		void consistentHash() {
+			assertEquals(originalAlgo.hash(ballon),deserializedAlgo.hash(ballon));
+		}
+	}
+	
+	
 	@Test
 	void keyLength() {
 		// To get comparable hashes the key length has to be consistent for all
@@ -108,10 +161,10 @@ class AverageHashTest {
 
 	}
 
-	
 	/**
-	 * The hashes produced by the same algorithms shall return the same hash on successive 
-	 * calls
+	 * The hashes produced by the same algorithms shall return the same hash on
+	 * successive calls
+	 * 
 	 * @param d1
 	 */
 	@ParameterizedTest
@@ -122,6 +175,7 @@ class AverageHashTest {
 
 	/**
 	 * The hemming distance of the same image has to be 0
+	 * 
 	 * @deprecated not really a algorithm test case. Same as consistent
 	 * @param d1
 	 */
@@ -133,8 +187,9 @@ class AverageHashTest {
 	}
 
 	/**
-	 * The hemming distance of similar images shall be lower than the distance of 
+	 * The hemming distance of similar images shall be lower than the distance of
 	 * vastly different picutres
+	 * 
 	 * @param d1
 	 */
 	@ParameterizedTest
@@ -153,7 +208,7 @@ class AverageHashTest {
 
 	@SuppressWarnings("unused")
 	private static Stream<HashingAlgorithm> algoInstances() {
-		return Stream.of(new AverageHash(15), new AverageHash(20),
-				new AverageHash(200));
+		return Stream.of(new AverageHash(15), new AverageHash(20), new AverageHash(200));
 	}
+
 }
