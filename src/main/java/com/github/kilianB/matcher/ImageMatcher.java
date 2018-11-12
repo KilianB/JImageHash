@@ -1,5 +1,6 @@
 package com.github.kilianB.matcher;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -127,9 +128,11 @@ public abstract class ImageMatcher {
 	 * @author Kilian
 	 *
 	 */
-	public static class AlgoSettings {
+	public static class AlgoSettings implements Serializable {
+
+		private static final long serialVersionUID = 1L;
 		/**
-		 * Threshold value hash hemmning may be for images to be considered equal
+		 * Threshold value hash hemming may be for images to be considered equal
 		 */
 		float threshold;
 		/**
@@ -175,5 +178,12 @@ public abstract class ImageMatcher {
 			return true;
 		}
 
+		@Override
+		public String toString() {
+			return "AlgoSettings [threshold=" + threshold + ", normalized=" + normalized + "]";
+		}
+
+		
+		
 	}
 }
