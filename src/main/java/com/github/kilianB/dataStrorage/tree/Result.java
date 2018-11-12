@@ -64,7 +64,7 @@ public class Result<T> implements Comparable<Result<T>> {
 
 	@Override
 	public String toString() {
-		return String.format("Result Distance:%3d Value:%s", distance, value);
+		return String.format("Result Distance:%3d, Value:%s", distance, value);
 	}
 
 }

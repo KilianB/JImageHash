@@ -64,17 +64,17 @@ class DifferenceHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-1511422615, new DifferenceHash(14, Precision.Simple).algorithmId());
+				assertEquals(-696464798, new DifferenceHash(14, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-1511412044, new DifferenceHash(25, Precision.Simple).algorithmId());
+				assertEquals(-696434046, new DifferenceHash(25, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-1760329942, new DifferenceHash(14, Precision.Double).algorithmId());
+				assertEquals(-945372125, new DifferenceHash(14, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(-1760319371, new DifferenceHash(25, Precision.Double).algorithmId());
+				assertEquals(-945341373, new DifferenceHash(25, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(-369950659, new DifferenceHash(14, Precision.Triple).algorithmId());
+				assertEquals(-445007158, new DifferenceHash(14, Precision.Triple).algorithmId());
 			}, () -> {
-				assertEquals(-369940088, new DifferenceHash(25, Precision.Triple).algorithmId());
+				assertEquals(-445037910, new DifferenceHash(25, Precision.Triple).algorithmId());
 			});
 		}
 
@@ -171,6 +171,17 @@ class DifferenceHashTest {
 		});
 
 	}
+	
+	/**
+	 * The hash length of the algorithm is at least the supplied bits long
+	 * @param hasher
+	 */
+	@ParameterizedTest
+	@MethodSource(value = "algoInstancesBroad")
+	void keyLengthMinimumBits(HashingAlgorithm hasher) {
+		assertTrue(hasher.hash(ballon).getHashValue().bitLength() >= hasher.bitResolution);
+	}
+
 
 	
 	/**
@@ -219,6 +230,15 @@ class DifferenceHashTest {
 	private static Stream<HashingAlgorithm> algoInstances() {
 		return Stream.of(new DifferenceHash(32, Precision.Simple), new DifferenceHash(32, Precision.Double),
 				new DifferenceHash(32, Precision.Triple));
+	}
+	
+	@SuppressWarnings("unused")
+	private static Stream<HashingAlgorithm> algoInstancesBroad() {
+		HashingAlgorithm[] hasher = new HashingAlgorithm[98];
+		for(int i = 2; i < 100; i++) {
+			hasher[i-2] = new DifferenceHash(i,Precision.Simple);
+		}
+		return Stream.of(hasher);
 	}
 
 }

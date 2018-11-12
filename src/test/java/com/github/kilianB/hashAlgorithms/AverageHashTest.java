@@ -64,9 +64,9 @@ class AverageHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(1626907603, new AverageHash(14).algorithmId());
+				assertEquals(1626907296, new AverageHash(14).algorithmId());
 			}, () -> {
-				assertEquals(1626907944, new AverageHash(25).algorithmId());
+				assertEquals(1626907328, new AverageHash(25).algorithmId());
 			});
 		}
 
@@ -160,6 +160,16 @@ class AverageHashTest {
 		});
 
 	}
+	
+	/**
+	 * The hash length of the algorithm is at least the supplied bits long
+	 * @param hasher
+	 */
+	@ParameterizedTest
+	@MethodSource(value = "algoInstancesBroad")
+	void keyLengthMinimumBits(HashingAlgorithm hasher) {
+		assertTrue(hasher.hash(ballon).getHashValue().bitLength() >= hasher.bitResolution);
+	}
 
 	/**
 	 * The hashes produced by the same algorithms shall return the same hash on
@@ -209,6 +219,15 @@ class AverageHashTest {
 	@SuppressWarnings("unused")
 	private static Stream<HashingAlgorithm> algoInstances() {
 		return Stream.of(new AverageHash(15), new AverageHash(20), new AverageHash(200));
+	}
+	
+	@SuppressWarnings("unused")
+	private static Stream<HashingAlgorithm> algoInstancesBroad() {
+		HashingAlgorithm[] hasher = new HashingAlgorithm[98];
+		for(int i = 2; i < 100; i++) {
+			hasher[i-2] = new AverageHash(i);
+		}
+		return Stream.of(hasher);
 	}
 
 }

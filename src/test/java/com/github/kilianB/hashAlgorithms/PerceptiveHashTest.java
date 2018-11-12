@@ -89,48 +89,48 @@ class PerceptiveHashTest {
 
 	@Nested
 	@DisplayName("Serialization")
-	class Serizalization{
-		
+	class Serizalization {
+
 		HashingAlgorithm originalAlgo;
 		HashingAlgorithm deserializedAlgo;
-		
+
 		@BeforeEach
 		void serializeAlgo() {
 			originalAlgo = new PerceptiveHash(32);
-		
+
 			File serFile = new File("AverageHash.ser");
-			
-			//Write to file
-			try(ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(serFile))){
+
+			// Write to file
+			try (ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(serFile))) {
 				os.writeObject(originalAlgo);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			//Read from file
-			try(ObjectInputStream is = new ObjectInputStream(new FileInputStream(serFile))){
+			// Read from file
+			try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(serFile))) {
 				deserializedAlgo = (HashingAlgorithm) is.readObject();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
-			}finally {
-				if(serFile.exists()) {
+			} finally {
+				if (serFile.exists()) {
 					serFile.delete();
 				}
 			}
 		}
-		
+
 		@Test
 		void consistentId() {
-			assertEquals(originalAlgo.algorithmId(),deserializedAlgo.algorithmId());
+			assertEquals(originalAlgo.algorithmId(), deserializedAlgo.algorithmId());
 		}
+
 		@Test
 		void consistentHash() {
-			assertEquals(originalAlgo.hash(ballon),deserializedAlgo.hash(ballon));
+			assertEquals(originalAlgo.hash(ballon), deserializedAlgo.hash(ballon));
 		}
 	}
-	
-	
+
 	@Test
 	void keyLength() {
 		// To get comparable hashes the key length has to be consistent for all
@@ -154,6 +154,17 @@ class PerceptiveHashTest {
 			assertEquals(ballonHash.getHashValue().bitLength(), thumbnailHash.getHashValue().bitLength());
 		});
 
+	}
+
+	/**
+	 * The hash length of the algorithm is at least the supplied bits long
+	 * 
+	 * @param hasher
+	 */
+	@ParameterizedTest
+	@MethodSource(value = "algoInstancesBroad")
+	void keyLengthMinimumBits(HashingAlgorithm hasher) {
+		assertTrue(hasher.hash(ballon).getHashValue().bitLength() >= hasher.bitResolution);
 	}
 
 	/**
@@ -204,4 +215,14 @@ class PerceptiveHashTest {
 	private static Stream<HashingAlgorithm> algoInstances() {
 		return Stream.of(new PerceptiveHash(15), new PerceptiveHash(20), new PerceptiveHash(200));
 	}
+	
+	@SuppressWarnings("unused")
+	private static Stream<HashingAlgorithm> algoInstancesBroad() {
+		HashingAlgorithm[] hasher = new HashingAlgorithm[98];
+		for(int i = 2; i < 100; i++) {
+			hasher[i-2] = new PerceptiveHash(i);
+		}
+		return Stream.of(hasher);
+	}
+	
 }

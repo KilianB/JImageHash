@@ -25,8 +25,8 @@ public class AverageHash extends HashingAlgorithm {
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
-	private final int height, width;
-	
+	private int height, width;
+
 	private final int pixelCount;
 
 	/**
@@ -43,6 +43,11 @@ public class AverageHash extends HashingAlgorithm {
 	 *                      resolution will be rounded to the next whole number.
 	 *                      </p>
 	 * 
+	 *                      The average hash will produce a hash with at least the
+	 *                      number of bits defined by this argument. In turn this
+	 *                      also means that different bit resolutions may be mapped
+	 *                      to the same final key length.
+	 * 
 	 *                      <pre>
 	 *  64 = 8x8 = 65 bit key
 	 *  128 = 11.3 -&gt; 12 -&gt; 144 bit key
@@ -51,14 +56,20 @@ public class AverageHash extends HashingAlgorithm {
 	 */
 	public AverageHash(int bitResolution) {
 		super(bitResolution);
-		int dimension = (int) Math.round(Math.sqrt(bitResolution));
-		this.width = dimension;
-		this.height = dimension;
-		this.pixelCount = width*height;
+
+		/*
+		 * Figure out how big our resized image has to be in order to create a hash with
+		 * approximately bit resolution bits while trying to stay as squared as possible
+		 * to not introduce bias via stretching or shrinking the image asymmetrically.
+		 */
+		computeDimension(bitResolution);
+
+		// Get the smallest key difference which is equal or bigger!
+		this.pixelCount = width * height;
 		// String and int hashes stays consistent throughout different JVM invocations.
 		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
-		// flagged as incompatible
-		algorithmId = Objects.hash(getClass().getName(), this.bitResolution) * 31 + 1;
+		// flagged as incompatible. Dimension are what makes average hashes unique.
+		algorithmId = Objects.hash(getClass().getName(), height, width);
 	}
 
 	@Override
@@ -69,11 +80,11 @@ public class AverageHash extends HashingAlgorithm {
 		int[][] luminocity = fp.getLuma();
 
 		// Calculate the average color of the entire image
-		
+
 		double avgPixelValue = 0;
-		
-		for(int x = 0; x < width; x++) {
-			for(int y = 0; y < height; y++) {
+
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
 				avgPixelValue += ((double) luminocity[x][y] / pixelCount);
 			}
 		}
@@ -81,11 +92,11 @@ public class AverageHash extends HashingAlgorithm {
 		// Padding bit
 		BigInteger hash = BigInteger.ONE;
 
-		for(int x = 0; x < width; x++) {
-			for(int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
 				if (luminocity[x][y] < avgPixelValue) {
 					hash = hash.shiftLeft(1);
-				}else {
+				} else {
 					hash = hash.shiftLeft(1).add(BigInteger.ONE);
 				}
 			}
@@ -98,4 +109,22 @@ public class AverageHash extends HashingAlgorithm {
 		return algorithmId;
 	}
 
+	private void computeDimension(int bitResolution) {
+
+		// Allow for slightly non symmetry to get closer to the true bit resolution
+		int dimension = (int) Math.round(Math.sqrt(bitResolution));
+
+		// Lets allow for a +1 or -1 asymmetry and find the most fitting value
+		int lowerBound = (dimension * (dimension - 1)) + 1;
+		int normalBound = (dimension * dimension) + 1;
+		int higherBound = (dimension * (dimension + 1)) + 1;
+
+		this.height = dimension;
+		this.width = dimension;
+		if (lowerBound >= bitResolution && width > 1) {
+			this.width--;
+		} else if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
+			this.width++;
+		}
+	}
 }
