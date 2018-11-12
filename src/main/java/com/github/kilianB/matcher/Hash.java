@@ -79,7 +79,7 @@ public class Hash {
 //		if(this.hash.bitLength() != h.hash.bitLength()) {
 //			throw new IllegalArgumentException("Can't compare two hash values with unequal length");
 //		}
-		return this.hashValue.xor(h.hashValue).bitCount();
+		return hammingDistanceFast(h);
 	}
 
 	/**
@@ -107,6 +107,33 @@ public class Hash {
 	 */
 	public int hammingDistanceFast(Hash h) {
 		return this.hashValue.xor(h.hashValue).bitCount();
+	}
+	
+	/**
+	 * Calculate the hamming distance of 2 hash values. The distance of two hashes
+	 * is the difference of the individual bits found in the hash.
+	 * <p>
+	 * The hamming distance falls within [0-bitResolution]. Lower values indicate
+	 * closer similarity while identical images must return a score of 0. On the
+	 * flip side score of 0 does not mean images have to be identical!
+	 * <p>
+	 * 
+	 * A longer hash (higher bitResolution) will increase the average hamming
+	 * distance returned. While this method allows for the most accurate fine tuning
+	 * of the distance {@link #normalizedHammingDistance(Hash)} is hash length
+	 * independent.
+	 * <p>
+	 *
+	 * Please be aware that only hashes produced by the same algorithm with the same
+	 * settings will return meaningful result and should be compared. This method
+	 * will <b>NOT</b> check if the hashes are compatible.
+	 * 
+	 * @param bInt A big integer representing a hash 
+	 * @return similarity value ranging between [0 - hash length]
+	 * @see #hammingDistance(Hash)
+	 */
+	public int hammingDistanceFast(BigInteger bInt) {
+		return this.hashValue.xor(bInt).bitCount();
 	}
 
 	/**
