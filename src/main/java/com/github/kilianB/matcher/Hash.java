@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 
+import com.github.kilianB.StringUtil;
+
 /**
  * A wrapper class combining image hashes and their producing algorithm allowing
  * for meaningful analysis. Hashes are created from images downscaling
@@ -27,13 +29,13 @@ public class Hash {
 	 * Hashes are constructed by left shifting BigIntegers with either Zero or One
 	 * depending on the condition found in the image. Preceding 0's will be
 	 * truncated therefore it is the algorithms responsibility to add a 1 padding
-	 * bit at the beginning 
-	 * new BigInteger("011011) 
-	 * new BigInteger("000101) 
-	 * 1xxxxx
+	 * bit at the beginning new BigInteger("011011) new BigInteger("000101) 1xxxxx
 	 * 
 	 */
 	private BigInteger hashValue;
+
+	/** How many bits this hash has. 0 bits at the beginning are dropped */
+	private int hashLength;
 
 	/**
 	 * Creates a Hash object with the specified hashValue and algorithmId. To allow
@@ -41,11 +43,13 @@ public class Hash {
 	 * algorithm.
 	 * 
 	 * @param hashValue   The hash value describing the image
-	 * @param algorithmId Unique identifier of the algorithm used to create this hash
+	 * @param algorithmId Unique identifier of the algorithm used to create this
+	 *                    hash
 	 */
-	public Hash(BigInteger hashValue, int algorithmId) {
+	public Hash(BigInteger hashValue, int hashLength, int algorithmId) {
 		this.hashValue = hashValue;
 		this.algorithmId = algorithmId;
+		this.hashLength = hashLength;
 	}
 
 	/**
@@ -108,7 +112,7 @@ public class Hash {
 	public int hammingDistanceFast(Hash h) {
 		return this.hashValue.xor(h.hashValue).bitCount();
 	}
-	
+
 	/**
 	 * Calculate the hamming distance of 2 hash values. The distance of two hashes
 	 * is the difference of the individual bits found in the hash.
@@ -128,7 +132,7 @@ public class Hash {
 	 * settings will return meaningful result and should be compared. This method
 	 * will <b>NOT</b> check if the hashes are compatible.
 	 * 
-	 * @param bInt A big integer representing a hash 
+	 * @param bInt A big integer representing a hash
 	 * @return similarity value ranging between [0 - hash length]
 	 * @see #hammingDistance(Hash)
 	 */
@@ -158,7 +162,8 @@ public class Hash {
 	public double normalizedHammingDistance(Hash h) {
 		// We expect both integers to contain the same bit key lengths!
 		// -1 due to the preceding padding bit
-		return hammingDistance(h) / ((double) this.hashValue.bitLength() - 1);
+		return hammingDistance(h) / hashLength;
+		// ((double) this.hashValue.bitLength() - 1);
 	}
 
 	/**
@@ -182,7 +187,8 @@ public class Hash {
 	 */
 	public double normalizedHammingDistanceFast(Hash h) {
 		// We expect both integers to contain the same bit key lengths!
-		return hammingDistanceFast(h) / ((double) this.hashValue.bitLength() - 1);
+		return hammingDistanceFast(h) / hashLength;
+		// ((double) this.hashValue.bitLength() - 1);
 	}
 
 	/**
@@ -206,8 +212,8 @@ public class Hash {
 	 * Creates a visual representation of the hash mapping the hash values to the
 	 * section of the rescaled image used to generate the hash.
 	 * 
-	 * starting with version 2.0.0 this method returns a rotated and mirrored. image. 
-	 * Could be added as a fix but it's not a high priority right now.
+	 * starting with version 2.0.0 this method returns a rotated and mirrored.
+	 * image. Could be added as a fix but it's not a high priority right now.
 	 * 
 	 * @param blockSize Stretch factor.Due to rescaling the image was shrunk down
 	 *                  during hash creation.
@@ -238,9 +244,30 @@ public class Hash {
 		}
 		return bi;
 	}
+	
+	/**
+	 * @return the hash resolution in bits
+	 */
+	public int getBitResolution() {
+		return hashLength;
+	}
+
+	//TODO
+	public byte[] toByteArray() {
+		byte[] bArray = hashValue.toByteArray();
+
+		if (hashValue.bitLength() % 8 != 0) {
+			return bArray;
+		} else {
+			byte[] bArrayWithoutSign = new byte[bArray.length - 1];
+			System.arraycopy(bArray, 1, bArrayWithoutSign, 0, bArray.length - 1);
+			return bArrayWithoutSign;
+		}
+	}
 
 	public String toString() {
-		return "Hash: " + hashValue.toString(2) + " [algoId: " + algorithmId + "]";
+		return "Hash: " + StringUtil.fillString("0", hashLength, hashValue.toString(2)) + " [algoId: " + algorithmId
+				+ "]";
 	}
 
 	@Override

@@ -89,42 +89,14 @@ public class DifferenceHash extends HashingAlgorithm {
 		algorithmId = Objects.hash(getClass().getName(), height, width, this.precision.name()) * 31 + 1;
 	}
 
-	/**
-	 * @param bitResolution
-	 */
-	private void computeDimensions(int bitResolution) {
-		int dimension = (int) Math.round(Math.sqrt(bitResolution + 1));
-
-		// width //height
-		int lowerBound = (dimension - 1) * (dimension - 1) + 1;
-		int normalBound = (dimension - 1) * (dimension) + 1;
-		int higherBound = (dimension - 1) * (dimension + 1) + 1;
-
-		this.width = dimension;
-		this.height = dimension;
-		if (lowerBound >= bitResolution) {	
-			this.height--;
-		} else {
-			if (higherBound < bitResolution) {
-				this.width++;
-				this.height++;
-			} else {
-				if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
-					this.height++;
-				}
-			}
-		}
-	}
-
 	@Override
-	public Hash hash(BufferedImage image) {
+	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
 		// Use data buffer for faster access
 
 		int[][] lum = fp.getLuma();
 
 		// Calculate the left to right gradient
-		BigInteger hash = BigInteger.ONE;
 		for (int x = 1; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (lum[x][y] >= lum[x - 1][y]) {
@@ -162,7 +134,31 @@ public class DifferenceHash extends HashingAlgorithm {
 				}
 			}
 		}
-		return new Hash(hash, algorithmId);
+		return hash;
+	}
+
+	/**
+	 * @param bitResolution
+	 */
+	private void computeDimensions(int bitResolution) {
+		int dimension = (int) Math.round(Math.sqrt(bitResolution + 1));
+
+		// width //height
+		int normalBound = (dimension - 1) * (dimension);
+		int higherBound = (dimension - 1) * (dimension + 1);
+
+		this.width = dimension;
+		this.height = dimension;
+
+		if (higherBound < bitResolution) {
+			this.width++;
+			this.height++;
+		} else {
+			if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
+				this.height++;
+			}
+		}
+
 	}
 
 	@Override

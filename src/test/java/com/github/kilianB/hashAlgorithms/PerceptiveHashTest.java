@@ -164,7 +164,7 @@ class PerceptiveHashTest {
 	@ParameterizedTest
 	@MethodSource(value = "algoInstancesBroad")
 	void keyLengthMinimumBits(HashingAlgorithm hasher) {
-		assertTrue(hasher.hash(ballon).getHashValue().bitLength() >= hasher.bitResolution);
+		assertTrue(hasher.hash(ballon).getBitResolution() >= hasher.bitResolution);
 	}
 
 	/**

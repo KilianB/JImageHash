@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -150,13 +149,13 @@ class AverageHashTest {
 		Hash thumbnailHash = d1.hash(thumbnail);
 
 		assertAll(() -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), copyrightHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), copyrightHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), lowQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), lowQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), highQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), highQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), thumbnailHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), thumbnailHash.getBitResolution());
 		});
 
 	}
@@ -168,7 +167,7 @@ class AverageHashTest {
 	@ParameterizedTest
 	@MethodSource(value = "algoInstancesBroad")
 	void keyLengthMinimumBits(HashingAlgorithm hasher) {
-		assertTrue(hasher.hash(ballon).getHashValue().bitLength() >= hasher.bitResolution);
+		assertTrue(hasher.hash(ballon).getBitResolution() >= hasher.bitResolution);
 	}
 
 	/**

@@ -73,8 +73,7 @@ public class AverageHash extends HashingAlgorithm {
 	}
 
 	@Override
-	public Hash hash(BufferedImage image) {
-
+	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
 
 		int[][] luminocity = fp.getLuma();
@@ -90,8 +89,6 @@ public class AverageHash extends HashingAlgorithm {
 		}
 		// Create hash
 		// Padding bit
-		BigInteger hash = BigInteger.ONE;
-
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (luminocity[x][y] < avgPixelValue) {
@@ -101,7 +98,7 @@ public class AverageHash extends HashingAlgorithm {
 				}
 			}
 		}
-		return new Hash(hash, algorithmId);
+		return hash;
 	}
 
 	@Override
@@ -115,16 +112,14 @@ public class AverageHash extends HashingAlgorithm {
 		int dimension = (int) Math.round(Math.sqrt(bitResolution));
 
 		// Lets allow for a +1 or -1 asymmetry and find the most fitting value
-		int lowerBound = (dimension * (dimension - 1)) + 1;
-		int normalBound = (dimension * dimension) + 1;
-		int higherBound = (dimension * (dimension + 1)) + 1;
+		int normalBound = (dimension * dimension);
+		int higherBound = (dimension * (dimension + 1));
 
 		this.height = dimension;
 		this.width = dimension;
-		if (lowerBound >= bitResolution && width > 1) {
-			this.width--;
-		} else if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
+		if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
 			this.width++;
 		}
 	}
+
 }

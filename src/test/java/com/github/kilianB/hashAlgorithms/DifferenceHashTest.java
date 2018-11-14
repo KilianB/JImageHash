@@ -66,15 +66,15 @@ class DifferenceHashTest {
 			assertAll(() -> {
 				assertEquals(-696464798, new DifferenceHash(14, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-696434046, new DifferenceHash(25, Precision.Simple).algorithmId());
+				assertEquals(-696433085, new DifferenceHash(25, Precision.Simple).algorithmId());
 			}, () -> {
 				assertEquals(-945372125, new DifferenceHash(14, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(-945341373, new DifferenceHash(25, Precision.Double).algorithmId());
+				assertEquals(-945340412, new DifferenceHash(25, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(-445007158, new DifferenceHash(14, Precision.Triple).algorithmId());
+				assertEquals(445007158, new DifferenceHash(14, Precision.Triple).algorithmId());
 			}, () -> {
-				assertEquals(-445037910, new DifferenceHash(25, Precision.Triple).algorithmId());
+				assertEquals(445038871, new DifferenceHash(25, Precision.Triple).algorithmId());
 			});
 		}
 
@@ -161,13 +161,13 @@ class DifferenceHashTest {
 		Hash thumbnailHash = d1.hash(thumbnail);
 
 		assertAll(() -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), copyrightHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), copyrightHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), lowQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), lowQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), highQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), highQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), thumbnailHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), thumbnailHash.getBitResolution());
 		});
 
 	}
@@ -179,7 +179,7 @@ class DifferenceHashTest {
 	@ParameterizedTest
 	@MethodSource(value = "algoInstancesBroad")
 	void keyLengthMinimumBits(HashingAlgorithm hasher) {
-		assertTrue(hasher.hash(ballon).getHashValue().bitLength() >= hasher.bitResolution);
+		assertTrue(hasher.hash(ballon).getBitResolution() >= hasher.bitResolution);
 	}
 
 

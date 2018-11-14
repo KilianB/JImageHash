@@ -42,11 +42,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 	 */
 	public PerceptiveHash(int bitResolution) {
 		super(bitResolution);
-
 		computeDimensions(bitResolution);
-//		int dimension = (int) Math.round(Math.sqrt(bitResolution))+1;
-//		this.width = dimension * 4;
-//		this.height = dimension * 4;
 //		// String and int hashes stays consistent throughout different JVM invocations.
 		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
 		// flagged as incompatible
@@ -54,7 +50,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 	}
 
 	@Override
-	public Hash hash(BufferedImage image) {
+	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
 
 		int[][] lum = fp.getLuma();
@@ -92,7 +88,6 @@ public class PerceptiveHash extends HashingAlgorithm {
 			}
 		}
 
-		BigInteger hash = BigInteger.ONE;
 		for (int i = 1; i < subWidth + 1; i++) {
 			for (int j = 1; j < subHeight + 1; j++) {
 
@@ -103,40 +98,27 @@ public class PerceptiveHash extends HashingAlgorithm {
 				}
 			}
 		}
-		return new Hash(hash, algorithmId);
+		return hash;
 	}
 
 	private void computeDimensions(int bitResolution) {
 
 		// bitRes = (width/4)^2;
 		int dimension = (int) Math.round(Math.sqrt(bitResolution)) * 4;
-
 		// width //height
-		int lowerBound = ((dimension / 4)) * (dimension / 4 - 1) + 1;
-		int normalBound = ((dimension / 4) * (dimension / 4 ) + 1);
-		int higherBound = ((dimension / 4) * (dimension / 4 + 1) + 1);
+		int normalBound = ((dimension / 4) * (dimension / 4));
+		int higherBound = ((dimension / 4) * (dimension / 4 + 1));
 
 		this.width = dimension;
 		this.height = dimension;
-		if (lowerBound >= bitResolution) {
-			//-4 but due to truncate it's enough?
-			this.height--;
-		} else {
-			if (higherBound < bitResolution) {
-				this.width++;
-				this.height++;
-			} else {
-				if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
-					this.height+=4;
-				}
-			}
-		}
-	}
 
-	public static void main(String[] args) throws IOException {
-		BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
-		for (int i = 1; i < 100; i++) {
-			System.out.println(i + " Perc:" + new PerceptiveHash(i).hash(bi).getHashValue().bitLength() + "\n");
+		if (higherBound < bitResolution) {
+			this.width++;
+			this.height++;
+		} else {
+			if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
+				this.height += 4;
+			}
 		}
 	}
 
@@ -145,4 +127,11 @@ public class PerceptiveHash extends HashingAlgorithm {
 		return algorithmId;
 	}
 
+	public static void main(String[] args) {
+		BufferedImage bi = new BufferedImage(1, 1, 0x5);
+		for (int i = 1; i < 100; i++) {
+			Hash h = new PerceptiveHash(i).hash(bi);
+			System.out.println("Perc: " + i + " " + h.getBitResolution() + ": " + h + " " + h.getHashValue().bitLength());
+		}
+	}
 }
