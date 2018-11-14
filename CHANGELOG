@@ -17,8 +17,10 @@
 - Hash classes migrate to use FastPixel access speeding up creation of higher key hashes by magnitude
 
 ### Added
+ - Rotational Invariant Hash
  - Minor javadocs addition
  - dependency on UtilityCode com.github.kilianB
+
  
 ### 
 

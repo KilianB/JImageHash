@@ -153,8 +153,11 @@ Each algorithm comes with individual properties
   <tr><td>AverageHash</td>  <td>Color based</td> <td>Slow. Not robust against hue/sat changes</td> </tr>
   <tr><td>DifferenceHash</td> <td>Gradient based</td> <td>Generally prefered algorithm. Fast and accurate</td> </tr>
   <tr><td>Perceptive Hash</td> <td>Frequency based</td> <td>In some cases more accurate than dHash. Best accuracy / bitResolution </td> </tr>  
+  <tr><td>RotPHash *</td> <td>Frequency based (rotational invariant)</td> <td>In some cases more accurate than dHash. Best accuracy / bitResolution </td> </tr>  
+  <tr><td>HogHash*</td> <td>Directional Gradient based</td> <td>A hashing algorithm based on hog feature detection which extracts gradients and pools them by angles</td> </tr>  
 </table>
 
+* these hases are included starting with version 2.
 
 ````java
 
