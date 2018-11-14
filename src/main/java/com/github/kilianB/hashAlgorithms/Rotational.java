@@ -52,13 +52,13 @@ public class Rotational extends HashingAlgorithm {
 		centerY = centerX;
 
 	}
-
+	
 	@Override
-	public Hash hash(BufferedImage image) {
+	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 
 		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
 
-		int hash[] = new int[bitResolution];
+		int hashArr[] = new int[bitResolution];
 		// TODO count is deterministic. We can calculate it once at the beginning and
 		// use it. No need to recompute all the time
 		int count[] = new int[bitResolution];
@@ -71,26 +71,23 @@ public class Rotational extends HashingAlgorithm {
 					// Everything beyond this column will be outside as well.
 					continue;
 				}
-				hash[bucket] += fp.getLuma(x, y);
+				hashArr[bucket] += fp.getLuma(x, y);
 				count[bucket]++;
 			}
 		}
-
-		BigInteger finalHash = BigInteger.ONE;
-
 		for (int i = 0; i < bitResolution; i++) {
-			hash[i] /= count[i];
+			hashArr[i] /= count[i];
 		}
 
 		for (int i = 1; i < bitResolution; i++) {
-			if (hash[i] >= hash[i - 1]) {
-				finalHash = finalHash.shiftLeft(1);
+			if (hashArr[i] >= hashArr[i - 1]) {
+				hash = hash.shiftLeft(1);
 			} else {
-				finalHash = finalHash.shiftLeft(1).add(BigInteger.ONE);
+				hash = hash.shiftLeft(1).add(BigInteger.ONE);
 			}
 		}
 
-		return new Hash(finalHash, algorithmId);
+		return hash;
 	}
 
 	public int computePartition(double originalX, double originalY) {
@@ -108,5 +105,4 @@ public class Rotational extends HashingAlgorithm {
 	public int algorithmId() {
 		return algorithmId;
 	}
-
 }

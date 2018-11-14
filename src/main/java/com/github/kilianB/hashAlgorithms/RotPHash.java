@@ -83,7 +83,7 @@ public class RotPHash extends HashingAlgorithm {
 	}
 
 	@Override
-	public Hash hash(BufferedImage image) {
+	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 
 		// 0. Preprocessing. Extract Luminosity
 		BufferedImage transformed = ImageUtil.getScaledInstance(image, width, height);
@@ -112,7 +112,6 @@ public class RotPHash extends HashingAlgorithm {
 		}
 
 		// 2. Construct the final hash
-		BigInteger finalHash = BigInteger.ONE;
 
 		int length = 0;
 		for (int i = 0; i < buckets; i++) {
@@ -138,16 +137,16 @@ public class RotPHash extends HashingAlgorithm {
 					break;
 
 				if (arr[j] >= arr[j + 1]) {
-					finalHash = finalHash.shiftLeft(1);
+					hash = hash.shiftLeft(1);
 				} else {
-					finalHash = finalHash.shiftLeft(1).add(BigInteger.ONE);
+					hash = hash.shiftLeft(1).add(BigInteger.ONE);
 				}
 				length++;
 			}
 		}
-		return new Hash(finalHash, algorithmId);
+		return hash;
 	}
-
+	
 	protected int computePartition(double originalX, double originalY) {
 		// Compute euclidean distance to the center
 		originalX -= centerX;

@@ -1,7 +1,6 @@
 package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -9,8 +8,6 @@ import org.jtransforms.dct.DoubleDCT_2D;
 
 import com.github.kilianB.graphics.ImageUtil;
 import com.github.kilianB.graphics.ImageUtil.FastPixel;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * Calculate a hash based on the frequency of an image using the DCT T2. This
@@ -125,13 +122,5 @@ public class PerceptiveHash extends HashingAlgorithm {
 	@Override
 	public int algorithmId() {
 		return algorithmId;
-	}
-
-	public static void main(String[] args) {
-		BufferedImage bi = new BufferedImage(1, 1, 0x5);
-		for (int i = 1; i < 100; i++) {
-			Hash h = new PerceptiveHash(i).hash(bi);
-			System.out.println("Perc: " + i + " " + h.getBitResolution() + ": " + h + " " + h.getHashValue().bitLength());
-		}
 	}
 }

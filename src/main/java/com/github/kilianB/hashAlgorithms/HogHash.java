@@ -37,7 +37,8 @@ public class HogHash extends HashingAlgorithm {
 	}
 
 	@Override
-	public Hash hash(BufferedImage image) {
+	protected BigInteger hash(BufferedImage image, BigInteger hash) {
+		
 
 		// Fit direction to 0 - 180 instead of
 		boolean unsignedGradients = true;
@@ -128,10 +129,6 @@ public class HogHash extends HashingAlgorithm {
 		// block normalization 2 x 2 hist shifting window
 
 		double[][][] normalizedHog = new double[xCells][yCells][numBins];
-
-		// Create hash
-		// Padding bit
-		BigInteger hash = BigInteger.ONE;
 
 		for (int xCell = 0; xCell < xCells; xCell++) {
 			// Construct intermediary vector
@@ -258,8 +255,10 @@ public class HogHash extends HashingAlgorithm {
 //			e.printStackTrace();
 //		}
 
-		return new Hash(hash, algorithmId);
+		
+		return hash;
 	}
+	
 
 	@Override
 	public int algorithmId() {
