@@ -8,17 +8,26 @@
  - difference hash now computes the padding byte correctly
  - Typo in hashing algorithm "bitResoluation" -> "bitResolution". Since this is a protected field
  which most likely is used in any derived hashing algorithm this is classified as a breaking change!
- - Due to a major version bump the dHash (this is an active TODO) will be revisited and it's implementation
+ - Due to a major version bump the dHash will be revisited and it's implementation
  might change to not waste one bit. This will lead to all created hashes so far to be invalidated. The algorithm id of dHash will be updated
  accordingly.
 
 ### Changed
-- Starting with version 2 hashes now use Luminocity as given by YCrCb instead of interpolated grayscale values.
+- The hashing algorithm was refactored and now has to implement a different method signature returning a big integer instead of a hash object. 
+	In preparation to drop the no information 1 padding bit
+- Starting with version 2 hashes now use Luminosity as given by YCrCb instead of interpolated grayscale values.
+- The bitResolution argument in hashing algorithms now follows the contract that the resulting hash has at least the number of bits specified.. All hash algorithms are updated to follow the earlier mentioned rule. 
+  Additionally the precomputation step of images now allows a 1 pixel deviation between width and height to allow for closer matching images.
 - Hash classes migrate to use FastPixel access speeding up creation of higher key hashes by magnitude
+- test cases to reflect changes
+- the algorithm id of each algorithm is altered to reflect incompatibility.
+- default image matchers have different thresholds due to changed key precisions returned by default algorithm settings
 
 ### Added
  - Minor javadocs addition
  - dependency on UtilityCode com.github.kilianB
+ - Hashing algorithms are serializable 
+ - Database image matcher
  
 ### 
 

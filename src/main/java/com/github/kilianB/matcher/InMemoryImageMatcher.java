@@ -22,7 +22,7 @@ import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
  * @author Kilian
  *
  */
-public class InMemoryImageMatcher extends ImageMatcher implements PersistentImageMatcher{
+public class InMemoryImageMatcher extends ImageMatcher{
 
 	/**
 	 * A preconfigured image matcher chaining dHash and pHash algorithms for 
@@ -45,7 +45,7 @@ public class InMemoryImageMatcher extends ImageMatcher implements PersistentImag
 	 * pHash is computationally more expensive and used to inspect possible candidates further
 	 * 
 	 * @param algorithmSetting
-	 * 	<p>How agressive the algorithm advances while comparing images </p>
+	 * 	<p>How aggressive the algorithm advances while comparing images </p>
 	 * 	<ul>
 	 *  <li><b>Forgiving:</b>	Matches a bigger range of images</li>
 	 * 	<li><b>Fair:</b> Matches all sample images</li>
@@ -141,7 +141,6 @@ public class InMemoryImageMatcher extends ImageMatcher implements PersistentImag
 	 * Add the image to the matcher allowing the image to be found in future searches.
 	 * @param image The image whose hash will be added to the matcher
 	 */
-	@Override
 	public void addImage(BufferedImage image) {
 		if (steps.isEmpty())
 			throw new IllegalStateException(
@@ -167,7 +166,6 @@ public class InMemoryImageMatcher extends ImageMatcher implements PersistentImag
 	 * 	Return all images sorted by the <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming distance</a>
 	 *  of the last applied algorithms
 	 */
-	@Override
 	public PriorityQueue<Result<BufferedImage>> getMatchingImages(BufferedImage image){
 		
 		if (steps.isEmpty())

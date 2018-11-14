@@ -162,8 +162,7 @@ public class Hash {
 	public double normalizedHammingDistance(Hash h) {
 		// We expect both integers to contain the same bit key lengths!
 		// -1 due to the preceding padding bit
-		return hammingDistance(h) / hashLength;
-		// ((double) this.hashValue.bitLength() - 1);
+		return hammingDistance(h) / (double)hashLength;
 	}
 
 	/**
@@ -187,8 +186,7 @@ public class Hash {
 	 */
 	public double normalizedHammingDistanceFast(Hash h) {
 		// We expect both integers to contain the same bit key lengths!
-		return hammingDistanceFast(h) / hashLength;
-		// ((double) this.hashValue.bitLength() - 1);
+		return hammingDistanceFast(h) / (double)hashLength;
 	}
 
 	/**
