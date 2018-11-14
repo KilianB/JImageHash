@@ -32,6 +32,30 @@ class BinaryTreeTest {
 		assertEquals(1, r.value);
 		assertEquals(0, r.distance);
 	}
+	
+	@Test
+	void searchExactItemZero() {
+		//Doesn't fail
+		String bits  = "00001010";
+		Hash hash = createHash(bits,0);
+		binTree.addHash(hash,0);
+		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(hash,0);
+		assertEquals(1,results.size());
+	}
+	
+	@Test
+	void searchDistantItemZero() {
+		//Doesn't fail
+		String bits   = "00001010";
+		String bits1  = "10001010";
+		Hash hash = createHash(bits,0);
+		Hash hash1 = createHash(bits1,0);
+		
+		binTree.addHash(hash,0);
+		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(hash1,1);
+		assertEquals(1,results.size());
+	}
+	
 
 	@Test
 	void searchDistantItem() {
@@ -154,8 +178,7 @@ class BinaryTreeTest {
 		//Adding the same hash will increase the hash count
 		binTree.addHash(hash, 0);
 		assertEquals(3,binTree.getHashCount());
-	}
-	
+	}	
 	
 	/**
 	 * Create a dummy hash 
