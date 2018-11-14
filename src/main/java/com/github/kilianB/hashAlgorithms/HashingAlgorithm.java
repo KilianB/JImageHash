@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.BitSet;
 
 import javax.imageio.ImageIO;
 
@@ -18,8 +17,8 @@ import com.github.kilianB.matcher.Hash;
  */
 public abstract class HashingAlgorithm implements Serializable {
 
-	//TODO maybe move to bitsets? not efficient for small keys
-	
+	// TODO maybe move to bitsets? not efficient for small keys
+
 	private static final long serialVersionUID = 2L;
 
 	protected final int bitResolution;
@@ -85,29 +84,37 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * distance can be calculated due to xoring without issue the normalized
 	 * distance requires the potential length of the key to be known.
 	 * 
-	 * @param image    Image whose hash will be calculated
-	 * @param hash the big integer used to store the hash value
+	 * @param image Image whose hash will be calculated
+	 * @param hash  the big integer used to store the hash value
 	 * @return the hash encoded as a big integer
 	 */
 	protected abstract BigInteger hash(BufferedImage image, BigInteger hash);
 
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the
-	 * output result. The id shall stay consistent throughout restarts of the jvm
+	 * output result. The id shall stay consistent throughout restarts of the jvm.
 	 * 
-	 * @return the algorithm id
+	 * <p>
+	 * Even if different bitResolutions are used in the constructor
+	 * {@link #HashingAlgorithm(int)} the algorithId <b>MUST</b> return the same id
+	 * for two instances if the returned hashes for the same input will always be
+	 * equal. Therefore instead of checking against the bitResolution the actual
+	 * resolution as returned by {@link #getKeyResolution()} should be used.
+	 * 
+	 * @return the algorithm id identifying this hashing algorithm
 	 */
 	public abstract int algorithmId();
 
 	/**
 	 * 
-	 * @return the actual bit resolution of the hash. Be aware that the underlying biginteger does 
-	 * not guarantee to hold the specified number of bits when {@link java.math.BigInteger#bitCount()}
+	 * @return the actual bit resolution of the hash. Be aware that the underlying
+	 *         biginteger does not guarantee to hold the specified number of bits
+	 *         when {@link java.math.BigInteger#bitCount()}
 	 */
 	public int getKeyResolution() {
 		if (keyResolution < 0) {
 			BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
-			keyResolution = this.hash(bi, BigInteger.ONE).bitLength()-1;
+			keyResolution = this.hash(bi, BigInteger.ONE).bitLength() - 1;
 		}
 		return keyResolution;
 	}
