@@ -235,7 +235,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 
 		switch (algorithmSetting) {
 		case Forgiving:
-			matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 20);
+			matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 25);
 			matcher.addHashingAlgorithm(new PerceptiveHash(32), 15);
 			break;
 		case Fair:
@@ -247,7 +247,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			matcher.addHashingAlgorithm(new PerceptiveHash(32), 6);
 			break;
 		case Quality:
-			matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 15);
+			matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 20);
 			matcher.addHashingAlgorithm(new PerceptiveHash(32), 15);
 		}
 		return matcher;
@@ -265,6 +265,12 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			if (!doesTableExist("ImageHasher")) {
 				stmt.execute("CREATE TABLE ImageHasher (Id INTEGER PRIMARY KEY, SerializeData BLOB)");
 			}
+			
+			if (!doesTableExist("HashingAlgos")) {
+				stmt.execute("CREATE TABLE HashingAlgos (Id VARCHAR PRIMARY KEY, keyLength INTEGER)");
+			}
+
+			
 		}
 	}
 
@@ -520,6 +526,8 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 				// Url
 				
 				//TODO Not entirely possible if we drop the sign bit is it?
+				
+				
 				BigInteger bInt = new BigInteger(rs.getBytes(2));
 				int distance = targetHash.hammingDistanceFast(bInt);
 				if (distance <= maxDistance) {
@@ -575,6 +583,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			Hash sampleHash = hasher.hash(bi);
 			int bytes = (int) Math.ceil(sampleHash.getHashValue().bitLength() / 8d);
 			stmt.execute("CREATE TABLE " + tableName + " (url VARCHAR(260) PRIMARY KEY, hash BINARY(" + bytes + "))");
+			stmt.execute("MERGE INTO HashingAlgos (Id,keyLength) VALUES("+tableName+","+bytes+") ");
 		}
 	}
 
