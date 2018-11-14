@@ -3,12 +3,18 @@ package com.github.kilianB.hashAlgorithms;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -58,17 +64,17 @@ class DifferenceHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-1511422615, new DifferenceHash(14, Precision.Simple).algorithmId());
+				assertEquals(-696464798, new DifferenceHash(14, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-1511412044, new DifferenceHash(25, Precision.Simple).algorithmId());
+				assertEquals(-696433085, new DifferenceHash(25, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-1760329942, new DifferenceHash(14, Precision.Double).algorithmId());
+				assertEquals(-945372125, new DifferenceHash(14, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(-1760319371, new DifferenceHash(25, Precision.Double).algorithmId());
+				assertEquals(-945340412, new DifferenceHash(25, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(-369950659, new DifferenceHash(14, Precision.Triple).algorithmId());
+				assertEquals(445007158, new DifferenceHash(14, Precision.Triple).algorithmId());
 			}, () -> {
-				assertEquals(-369940088, new DifferenceHash(25, Precision.Triple).algorithmId());
+				assertEquals(445038871, new DifferenceHash(25, Precision.Triple).algorithmId());
 			});
 		}
 
@@ -99,6 +105,48 @@ class DifferenceHashTest {
 
 	}
 
+	@Nested
+	@DisplayName("Serialization")
+	class Serizalization{
+		
+		HashingAlgorithm originalAlgo;
+		HashingAlgorithm deserializedAlgo;
+		
+		@BeforeEach
+		void serializeAlgo() {
+			originalAlgo = new DifferenceHash(32,Precision.Double);
+		
+			File serFile = new File("AverageHash.ser");
+			
+			//Write to file
+			try(ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(serFile))){
+				os.writeObject(originalAlgo);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			//Read from file
+			try(ObjectInputStream is = new ObjectInputStream(new FileInputStream(serFile))){
+				deserializedAlgo = (HashingAlgorithm) is.readObject();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}finally {
+				if(serFile.exists()) {
+					serFile.delete();
+				}
+			}
+		}
+		
+		@Test
+		void consistentId() {
+			assertEquals(originalAlgo.algorithmId(),deserializedAlgo.algorithmId());
+		}
+		@Test
+		void consistentHash() {
+			assertEquals(originalAlgo.hash(ballon),deserializedAlgo.hash(ballon));
+		}
+	}
 	@Test
 	void keyLength() {
 		// To get comparable hashes the key length has to be consistent for all
@@ -113,16 +161,27 @@ class DifferenceHashTest {
 		Hash thumbnailHash = d1.hash(thumbnail);
 
 		assertAll(() -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), copyrightHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), copyrightHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), lowQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), lowQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), highQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), highQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), thumbnailHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), thumbnailHash.getBitResolution());
 		});
 
 	}
+	
+	/**
+	 * The hash length of the algorithm is at least the supplied bits long
+	 * @param hasher
+	 */
+	@ParameterizedTest
+	@MethodSource(value = "algoInstancesBroad")
+	void keyLengthMinimumBits(HashingAlgorithm hasher) {
+		assertTrue(hasher.hash(ballon).getBitResolution() >= hasher.bitResolution);
+	}
+
 
 	
 	/**
@@ -171,6 +230,15 @@ class DifferenceHashTest {
 	private static Stream<HashingAlgorithm> algoInstances() {
 		return Stream.of(new DifferenceHash(32, Precision.Simple), new DifferenceHash(32, Precision.Double),
 				new DifferenceHash(32, Precision.Triple));
+	}
+	
+	@SuppressWarnings("unused")
+	private static Stream<HashingAlgorithm> algoInstancesBroad() {
+		HashingAlgorithm[] hasher = new HashingAlgorithm[98];
+		for(int i = 2; i < 100; i++) {
+			hasher[i-2] = new DifferenceHash(i,Precision.Simple);
+		}
+		return Stream.of(hasher);
 	}
 
 }

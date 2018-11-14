@@ -22,6 +22,8 @@ import com.github.kilianB.matcher.Hash;
  */
 public class DifferenceHash extends HashingAlgorithm {
 
+	private static final long serialVersionUID = 7236596241664072005L;
+
 	/**
 	 * Algorithm precision.
 	 * 
@@ -47,7 +49,7 @@ public class DifferenceHash extends HashingAlgorithm {
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
-	private final int height, width;
+	private int height, width;
 
 	/**
 	 * Precision used to calculate the hash
@@ -78,37 +80,23 @@ public class DifferenceHash extends HashingAlgorithm {
 	public DifferenceHash(int bitResolution, Precision precision) {
 		super(bitResolution);
 
-		// width * height = bitResolution -> (height + 1) * height =
-		// bitResolution
-
-		// Substitute
-		// (x * (x+1)) = y
-		// x^2 + x = y -> 1/2 * ( +- sqrt(4y + 1) - 1)
-
-		// only look at the positive part and truncate
-		int x = (int) Math.round(0.5 * (Math.sqrt(4 * bitResolution + 1) - 1));
-
-		height = x;
-		// Width +1 for padding
-		width = x + 1;
+		computeDimensions(bitResolution);
 
 		this.precision = precision;
 		// String and int hashes stays consistent throughout different JVM invocations.
 		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
 		// flagged as incompatible
-		algorithmId = Objects.hash(getClass().getName(), this.bitResolution, this.precision.name()) * 31 + 1;
-		;
+		algorithmId = Objects.hash(getClass().getName(), height, width, this.precision.name()) * 31 + 1;
 	}
 
 	@Override
-	public Hash hash(BufferedImage image) {
+	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
 		// Use data buffer for faster access
 
 		int[][] lum = fp.getLuma();
 
 		// Calculate the left to right gradient
-		BigInteger hash = BigInteger.ONE;
 		for (int x = 1; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (lum[x][y] >= lum[x - 1][y]) {
@@ -146,9 +134,33 @@ public class DifferenceHash extends HashingAlgorithm {
 				}
 			}
 		}
-		return new Hash(hash, algorithmId);
+		return hash;
 	}
-	
+
+	/**
+	 * @param bitResolution
+	 */
+	private void computeDimensions(int bitResolution) {
+		int dimension = (int) Math.round(Math.sqrt(bitResolution + 1));
+
+		// width //height
+		int normalBound = (dimension - 1) * (dimension);
+		int higherBound = (dimension - 1) * (dimension + 1);
+
+		this.width = dimension;
+		this.height = dimension;
+
+		if (higherBound < bitResolution) {
+			this.width++;
+			this.height++;
+		} else {
+			if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
+				this.height++;
+			}
+		}
+
+	}
+
 	@Override
 	public int algorithmId() {
 		return algorithmId;

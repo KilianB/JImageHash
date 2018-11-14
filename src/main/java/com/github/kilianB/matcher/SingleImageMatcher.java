@@ -56,7 +56,7 @@ public class SingleImageMatcher extends ImageMatcher {
 
 		switch (algorithmSetting) {
 			case Forgiving:
-				matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 20);
+				matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 25);
 				matcher.addHashingAlgorithm(new PerceptiveHash(32), 15);
 				break;
 			case Fair:
@@ -68,7 +68,7 @@ public class SingleImageMatcher extends ImageMatcher {
 				matcher.addHashingAlgorithm(new PerceptiveHash(32), 6);
 				break;
 			case Quality:
-				matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 15);
+				matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 20);
 				matcher.addHashingAlgorithm(new PerceptiveHash(32), 15);
 		}
 		return matcher;

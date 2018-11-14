@@ -1,6 +1,7 @@
 package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -8,6 +9,7 @@ import org.jtransforms.dct.DoubleDCT_2D;
 
 import com.github.kilianB.graphics.ImageUtil;
 import com.github.kilianB.graphics.ImageUtil.FastPixel;
+import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.matcher.Hash;
 
 /**
@@ -20,6 +22,7 @@ import com.github.kilianB.matcher.Hash;
  */
 public class PerceptiveHash extends HashingAlgorithm {
 
+	private static final long serialVersionUID = 8409228150836051697L;
 	/**
 	 * Unique id identifying the algorithm and it's settings
 	 */
@@ -27,7 +30,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
-	private final int height, width;
+	private int height, width;
 
 	/**
 	 * 
@@ -39,38 +42,35 @@ public class PerceptiveHash extends HashingAlgorithm {
 	 */
 	public PerceptiveHash(int bitResolution) {
 		super(bitResolution);
-
-		int dimension = (int) Math.round(Math.sqrt(bitResolution));
-		this.width = dimension * 4;
-		this.height = dimension * 4;
-		// String and int hashes stays consistent throughout different JVM invocations.
+		computeDimensions(bitResolution);
+//		// String and int hashes stays consistent throughout different JVM invocations.
 		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
 		// flagged as incompatible
-		algorithmId = Objects.hash(getClass().getName(), this.bitResolution) *31 + 1;
+		algorithmId = Objects.hash(getClass().getName(), this.bitResolution) * 31 + 1;
 	}
 
 	@Override
-	public Hash hash(BufferedImage image) {
+	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
-		
+
 		int[][] lum = fp.getLuma();
 
-		//int to double conversion ...
+		// int to double conversion ...
 		double[][] lumAsDouble = new double[width][height];
-		
-		for(int x = 0; x < width; x++) {
-			for(int y = 0; y < height; y++) {
-				lumAsDouble[x][y] = lum[x][y]/255d;
+
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				lumAsDouble[x][y] = lum[x][y] / 255d;
 			}
 		}
-		
+
 		DoubleDCT_2D dct = new DoubleDCT_2D(width, height);
 
 		dct.forward(lumAsDouble, false);
 
 		// Average value of the (topmost) YxY low frequencies. Skip the first column as
 		// it might be too dominant. Solid color e.g.
-		// TODO DCT walk dow in a triangular motion. Skipping the entire edge neglects
+		// TODO DCT walk down in a triangular motion. Skipping the entire edge neglects
 		// several important frequencies. Maybe just skip
 		// just the upper corner.
 		double avg = 0;
@@ -78,18 +78,18 @@ public class PerceptiveHash extends HashingAlgorithm {
 		// Take a look at a forth of the pixel matrix. The lower right corner does not
 		// yield much information.
 		int subWidth = (int) (width / 4d);
-		int count = subWidth * subWidth;
+		int subHeight = (int) (height / 4d);
+		int count = subWidth * subHeight;
 
-		// calculate the averge of the dct
+		// calculate the average of the dct
 		for (int i = 1; i < subWidth + 1; i++) {
-			for (int j = 1; j < subWidth + 1; j++) {
+			for (int j = 1; j < subHeight + 1; j++) {
 				avg += lumAsDouble[i][j] / count;
 			}
 		}
 
-		BigInteger hash = BigInteger.ONE;
 		for (int i = 1; i < subWidth + 1; i++) {
-			for (int j = 1; j < subWidth + 1; j++) {
+			for (int j = 1; j < subHeight + 1; j++) {
 
 				if (lumAsDouble[i][j] < avg) {
 					hash = hash.shiftLeft(1);
@@ -98,7 +98,28 @@ public class PerceptiveHash extends HashingAlgorithm {
 				}
 			}
 		}
-		return new Hash(hash, algorithmId);
+		return hash;
+	}
+
+	private void computeDimensions(int bitResolution) {
+
+		// bitRes = (width/4)^2;
+		int dimension = (int) Math.round(Math.sqrt(bitResolution)) * 4;
+		// width //height
+		int normalBound = ((dimension / 4) * (dimension / 4));
+		int higherBound = ((dimension / 4) * (dimension / 4 + 1));
+
+		this.width = dimension;
+		this.height = dimension;
+
+		if (higherBound < bitResolution) {
+			this.width++;
+			this.height++;
+		} else {
+			if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
+				this.height += 4;
+			}
+		}
 	}
 
 	@Override
@@ -106,4 +127,11 @@ public class PerceptiveHash extends HashingAlgorithm {
 		return algorithmId;
 	}
 
+	public static void main(String[] args) {
+		BufferedImage bi = new BufferedImage(1, 1, 0x5);
+		for (int i = 1; i < 100; i++) {
+			Hash h = new PerceptiveHash(i).hash(bi);
+			System.out.println("Perc: " + i + " " + h.getBitResolution() + ": " + h + " " + h.getHashValue().bitLength());
+		}
+	}
 }

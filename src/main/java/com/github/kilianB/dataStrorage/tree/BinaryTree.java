@@ -34,7 +34,7 @@ import com.github.kilianB.matcher.Hash;
  * Using a tree like structure allows to prune searches once the distance of the
  * current branch deviates further away than the threshold would allow. <p>
  * 
- * Currently the tree only allows traversel from the root node allowing to
+ * Currently the tree only allows traversal from the root node allowing to
  * search all hashes which are within a given distance from a needle. A more
  * performant optimization might save the leaves in a hash structure and keep a
  * reference to the parent nodes allowing to start searching from the leaf

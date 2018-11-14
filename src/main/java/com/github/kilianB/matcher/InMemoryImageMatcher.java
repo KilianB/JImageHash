@@ -45,7 +45,7 @@ public class InMemoryImageMatcher extends ImageMatcher{
 	 * pHash is computationally more expensive and used to inspect possible candidates further
 	 * 
 	 * @param algorithmSetting
-	 * 	<p>How agressive the algorithm advances while comparing images </p>
+	 * 	<p>How aggressive the algorithm advances while comparing images </p>
 	 * 	<ul>
 	 *  <li><b>Forgiving:</b>	Matches a bigger range of images</li>
 	 * 	<li><b>Fair:</b> Matches all sample images</li>
@@ -79,9 +79,10 @@ public class InMemoryImageMatcher extends ImageMatcher{
 		return matcher;
 	}
 	
-
+	/** keep track of images already added. No reason to rehash*/
 	private HashSet<BufferedImage> addedImages = new HashSet<>();
 	
+	/** Binary Tree holding results for each individual hashing algorithm*/
 	private HashMap<HashingAlgorithm,BinaryTree<BufferedImage>> binTreeMap = new HashMap<>();
 	
 	
@@ -135,16 +136,6 @@ public class InMemoryImageMatcher extends ImageMatcher{
 		return Collections.unmodifiableMap(new LinkedHashMap<HashingAlgorithm,AlgoSettings>(steps));
 	}
 	
-	
-	/**
-	 * Add the images to the matcher allowing the image to be found in future searches.
-	 * @param images The images whose hash will be added to the matcher
-	 */
-	public void addImages(BufferedImage...images) {
-		for(BufferedImage image : images) {
-			addImage(image);
-		}
-	}
 	
 	/**
 	 * Add the image to the matcher allowing the image to be found in future searches.
