@@ -165,5 +165,20 @@ public class RotPHash extends HashingAlgorithm {
 		return "RotPHash [algorithmId=" + algorithmId + ", truncateKey=" + truncateKey + ", bitResolution="
 				+ bitResolution + "]";
 	}
+	
+	@Override
+	public int getKeyResolution() {
+		if (keyResolution < 0) {
+			if(truncateKey) {
+				keyResolution = this.bitResolution;
+			}else {
+				BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
+				keyResolution = this.hash(bi, BigInteger.ONE).bitLength() - 1;
+			}
+			
+		}
+		return keyResolution;
+	}
+	
 
 }

@@ -128,13 +128,13 @@ class RotPHashTest {
 		Hash thumbnailHash = d1.hash(thumbnail);
 
 		assertAll(() -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), copyrightHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), copyrightHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), lowQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), lowQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), highQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), highQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), thumbnailHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), thumbnailHash.getBitResolution());
 		});
 	}
 
@@ -146,13 +146,13 @@ class RotPHashTest {
 	void keyLengthExact() {
 
 		HashingAlgorithm hasher = new RotPHash(5, true);
-		assertEquals(5, hasher.hash(lenna).getHashValue().bitLength());
+		assertEquals(5, hasher.hash(lenna).getBitResolution());
 
 		hasher = new RotPHash(25, true);
-		assertEquals(25, hasher.hash(lenna).getHashValue().bitLength());
+		assertEquals(25, hasher.hash(lenna).getBitResolution());
 
 		hasher = new RotPHash(200, true);
-		assertEquals(200, hasher.hash(lenna).getHashValue().bitLength());
+		assertEquals(200, hasher.hash(lenna).getBitResolution());
 	}
 
 	/**

@@ -122,9 +122,9 @@ class HogHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(1626907603, new AverageHash(14).algorithmId());
+				assertEquals(1626907296, new AverageHash(14).algorithmId());
 			}, () -> {
-				assertEquals(1626907944, new AverageHash(25).algorithmId());
+				assertEquals(1626907328, new AverageHash(25).algorithmId());
 			});
 		}
 
@@ -162,13 +162,13 @@ class HogHashTest {
 		Hash thumbnailHash = d1.hash(thumbnail);
 
 		assertAll(() -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), copyrightHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), copyrightHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), lowQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), lowQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), highQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), highQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), thumbnailHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), thumbnailHash.getBitResolution());
 		});
 
 	}
