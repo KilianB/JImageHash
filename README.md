@@ -7,15 +7,15 @@
  [ ![Download](https://api.bintray.com/packages/kilianb/maven/JImageHash/images/download.svg) ](https://bintray.com/kilianb/maven/JImageHash/_latestVersion)
 
 
-JImageHash is a performant perceptual image fingerprinting library written entirely in Java. The library returns a similarity score aiming to indentify entities which are likely modifications of the original source while being robust to color and scale transformation.
+JImageHash is a performant perceptual image fingerprinting library written entirely in Java. The library returns a similarity score aiming to identify entities which are likely modifications of the original source while being robust to color, scale and rotational transformation.
 
 >  A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
 
-This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">kind of like that</a>" and incorporates several improvements i.e. adjustable hash resolution and diagonal gradient detection. A comprehensive overview of perceptual image hashing can be found in this <a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">paper</a> by Christoph Zauner. 
+This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">kind of like that</a>" and incorporates several improvements i.e. adjustable hash resolution, diagonal gradient detection, rotational invariant hash. A comprehensive overview of perceptual image hashing can be found in this <a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">paper</a> by Christoph Zauner. 
 
 ## Maven - Bintray
 
-The project is hosted on bintray and jcenter
+The project is hosted on bintray and jcenter. Please be aware that hashes created with versions 1.x.x are not compatible with versions >= 2.0.0
 
 ````
 <repositories>
@@ -57,6 +57,14 @@ and optimize individual algorithms on your own.
 		<tr>
 			<td><a href="/src/main/java/com/github/kilianB/examples/MatchMultipleImages.java">MatchMultipleImages.java</a></td>
 			<td>Precompute the hash of multiple images to retrieve all relevant images in a batch.</td>
+		</tr>
+		<tr>
+			<td><a href="/src/main/java/com/github/kilianB/examples/DatabaseExample.java">DatabaseExample.java</a></td>
+			<td>Store hashes persistently in a database. Serialize and Deserialize the matcher.</td>
+		</tr>
+		<tr>
+			<td><a href="/src/main/java/com/github/kilianB/examples/AlgorithmBenchmark.java">AlgorithmBenchmark.java</a></td>
+			<td>Test the algorithm settings against your images to see which settings are correct.</td>
 		</tr>
 	</tbody>
 </table>
@@ -144,6 +152,41 @@ public void matchMultipleImagesInMemory() {
 </table>
 
 
+#### Persistently Store Hashes (New Version 2.0.0)
+
+The database image matcher allows you to store hashes persistently between jvm lifecycles.
+
+````Java
+	//0. Either create the matcher yourself
+		
+	String dbName = "imageHashDB";
+	String userName = "root";
+	String password = "";
+	
+	DatabaseImageMatcher db = new DatabaseImageMatcher(dbName,userName,password);
+	
+	// Proceed as normal
+	db.addHashingAlgorithm(new AverageHash(32),25);
+	db.addHashingAlgorithm(new PerceptiveHash(20),15);
+	
+	db.addImage(new File("ImageFile.png"));
+	db.addImage("UniqueId",BufferedImage);
+	
+	//Opposed to all other matchers you either get a filename or the unique id returned
+	PriorityQueue results = db.getMatchingImages(...);
+	
+	//1. Connect via a connection object
+	Class.forName("org.h2.Driver");
+	Connection conn = DriverManager.getConnection("jdbc:h2:~/" + dbName, userName, password);
+	db = DatabaseImageMatcher.createDefaultMatcher(conn);
+	
+	
+	//2. Load from database
+	db = DatabaseImageMatcher.getFromDatabase(conn,1);
+	
+	//2.1 to load from database it has to be saved to the database first
+	db.serializeToDatabase(1);
+````
 
 ## Hashing algorithm
 
@@ -153,11 +196,11 @@ Each algorithm comes with individual properties
   <tr><td>AverageHash</td>  <td>Color based</td> <td>Slow. Not robust against hue/sat changes</td> </tr>
   <tr><td>DifferenceHash</td> <td>Gradient based</td> <td>Generally prefered algorithm. Fast and accurate</td> </tr>
   <tr><td>Perceptive Hash</td> <td>Frequency based</td> <td>In some cases more accurate than dHash. Best accuracy / bitResolution </td> </tr>  
-  <tr><td>RotPHash *</td> <td>Frequency based (rotational invariant)</td> <td>In some cases more accurate than dHash. Best accuracy / bitResolution </td> </tr>  
-  <tr><td>HogHash*</td> <td>Directional Gradient based</td> <td>A hashing algorithm based on hog feature detection which extracts gradients and pools them by angles</td> </tr>  
+  <tr><td>RotPHash *</td> <td>Frequency based (rotational invariant)</td> <td> Rotational invariant version of pHash</td> </tr>  
+  <tr><td>HogHash*</td> <td>Directional Gradient based</td> <td>A hashing algorithm based on hog feature detection which extracts gradients and pools them by angles. Currently work in progress and not ready yet</td> </tr>  
 </table>
 
-* these hases are included starting with version 2.
+* these hashes are included starting with version 2.
 
 ````java
 
@@ -235,11 +278,86 @@ public boolean compareTwoImages(BufferedImage image1, BufferedImage image2) {
 Describes the tradeoff between false positives and false negatives. Also see his comments on Equal Error Rate which are applicable if you want to minimze the amount of falsely categorized images.
 
 
+## Use the benchmark utility to see how algorithms react to individual images
+
+Figuring out which algorithm to use with which settings is a bit tricky. Starting with version 2.0.0 the `AlgorithmBenchmarker` allows you to directly look at your test images and composes statistics on how the individual algorithm are doing.
+
+````Java
+
+//Easy setup. Configure a SingleImageMatcher with the algorithms you want to test.
+
+	SingleImageMatcher matcher = new SingleImageMatcher();
+	
+	//Add a bunch of algorithms using normalized hamming distance with a 40% treshold
+	matcher.addHashingAlgorithm(new AverageHash(16), 0.4f, true);
+	matcher.addHashingAlgorithm(new AverageHash(64), 0.4f, true);
+	matcher.addHashingAlgorithm(new PerceptiveHash(16), 0.4f, true);
+	matcher.addHashingAlgorithm(new PerceptiveHash(64), 0.4f, true);
+	matcher.addHashingAlgorithm(new DifferenceHash(16, Precision.Simple), 0.4f, true);
+	matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.4f, true);
+	matcher.addHashingAlgorithm(new DifferenceHash(16, Precision.Double), 0.4f, true);
+	matcher.addHashingAlgorithm(new HogHash(64), 0.4f, true);
+	matcher.addHashingAlgorithm(new RotPHash(64), 0.4f, true);
+
+	//Create the benchmarker 
+	AlgorithmBenchmarker bm = new AlgorithmBenchmarker(matcher);
+
+ 	//Add test images  Category label, image file
+	bm.addTestImages(new TestData(0, new File("src/test/resources/ballon.jpg")));
+	bm.addTestImages(new TestData(1, new File("src/test/resources/copyright.jpg")));
+	bm.addTestImages(new TestData(1, new File("src/test/resources/highQuality.jpg")));
+	bm.addTestImages(new TestData(1, new File("src/test/resources/lowQuality.jpg")));
+	bm.addTestImages(new TestData(1, new File("src/test/resources/thumbnail.jpg")));
+
+	//Enjoy your html file
+	bm.asHTML();
+
+````
+You will get something like this:
+
+![statistics](https://user-images.githubusercontent.com/9025925/48593402-ff9bff80-e94c-11e8-9213-70900e619667.png)
+
+Lets run down the table and see if we can interpret the results:
+Each image is tested against each other with each hashing algorithm. If two images are carrying the same class label they are expected to be matched. Yellow numbers indicating a mismatch. If categories are matching a lower number is better. Distinct categories should produce a higher number.
+
+The <b>avg match</b> category displays the average distance of all the images in the same category. 
+The <b>avg distinct</b> column shows the avergae distance of all images which are not in the same category.
+
+The actual value of these isn't really important. It doesn't matter if the avg match is at .2 or .5 as long as the delta between match and distinct is big enough to work with.
+
+The perceptive hash is showing a great differentiation between matches and distinct images. We can see that the difference hash (16) is struggling. When using this algorithm you may want to increase the bit resolution to achieve a better result as seen in the 64 version. 
+The HogHash (not yet released) and RotPHash demonstrate  how this matrix can help fine tuning algorithms. While they fail to identify distinct images using the 40% settings they are in fact able to differentiate the images if the threshold is correctly adjusted to a more suited value of .2 and .1 respectively.
+
+At the bottom of the table you can find a confusion matrix allowing you to calculate recall or any other metric as desired.
+
+<b>Precision</b> indicates that if images are considered a match how likely are they matched. It's noted that due to chaining algorithms a weak precision value can be increased.
+
+
+The same algorithms as before, but with other types of images:!
+
+````Java
+	//Running the test with your expected type of images is important!!
+	db.addTestImages(new TestData(0, new File("src/test/resources/ballon.jpg")));
+
+	//Rotated images
+	db.addTestImages(new TestData(2, new File("src/test/resources/Lenna.png")));
+	db.addTestImages(new TestData(2, new File("src/test/resources/Lenna90.png")));
+	db.addTestImages(new TestData(2, new File("src/test/resources/Lenna180.png")));
+	db.addTestImages(new TestData(2, new File("src/test/resources/Lenna270.png")));
+````
+
+![rot](https://user-images.githubusercontent.com/9025925/48594271-4a6b4680-e950-11e8-8a9e-8c871584b37d.png)
+
+
+Who would have guessed that the rotation invariant hash will be the best algorithm when dealing with rotated images. Suddenly all other algorithms fail. If the treshold of the RotPHash algorithm gets adjusted to .1 it would be able to identify all images perfectly.
+
+
+
 ## Key bit resolution
 
 Using the bit resolution setting you may alter the resulting hash length as well as the hash resolution. Altering the key resolution offers a trade off between computation time, storage space and feature detection quality. 
 
-Note a huge resolution is **not** always preferable as image fingerprinting shall be more concerned about broad feature and structure of an image rather than individual details. Resolution ranges between from 32 - 128 bit have proven to be suitable values.
+<b>Note</b> a huge resolution is **not** always preferable as image fingerprinting shall be more concerned about broad feature and structure of an image rather than individual details. Resolution ranges between from 32 - 128 bit have proven to be suitable values.
 
 Original Image:
 <p align="center"><img src="https://user-images.githubusercontent.com/9025925/36540877-562da094-17dc-11e8-95cf-f2da269258f4.jpg"></p>
@@ -334,8 +452,4 @@ Distance 9: (False positive). Due to difference hash relying on gradient search 
 
 ### Known Bugs
 - Perceptive hash relies on JTransform which fails to close a threadpool upon calculating large DCT matrices resulting in the JVM not to terminate. If you want to calculate a perceptive hash with a large bit resolution call `ConcurrencyUtils.shutdownThreadPoolAndAwaitTermination();` if you want to terminate the program.
-
-
-### TODO
- - [ ] implement rotaional invariant hash e.g. https://www.idosi.org/mejsr/mejsr24(4)16/75.pdf
 
