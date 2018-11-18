@@ -162,7 +162,7 @@ public class Hash {
 	public double normalizedHammingDistance(Hash h) {
 		// We expect both integers to contain the same bit key lengths!
 		// -1 due to the preceding padding bit
-		return hammingDistance(h) / (double)hashLength;
+		return hammingDistance(h) / (double) hashLength;
 	}
 
 	/**
@@ -186,7 +186,7 @@ public class Hash {
 	 */
 	public double normalizedHammingDistanceFast(Hash h) {
 		// We expect both integers to contain the same bit key lengths!
-		return hammingDistanceFast(h) / (double)hashLength;
+		return hammingDistanceFast(h) / (double) hashLength;
 	}
 
 	/**
@@ -242,7 +242,7 @@ public class Hash {
 		}
 		return bi;
 	}
-	
+
 	/**
 	 * @return the hash resolution in bits
 	 */
@@ -250,17 +250,31 @@ public class Hash {
 		return hashLength;
 	}
 
-	//TODO
+	/**
+	 * Return the byte representation of the big integer with the leading zero byte
+	 * stripped if present. The BigInteger class prepends a sign byte if necessary
+	 * to indicate the signum of the number. Since our hashes are always positive we
+	 * can get rid of it and reduce the space requirement in our db by 1 byte.
+	 * 
+	 * <p>
+	 * To reconstruct the big integer value we can simply prepend a [0x00] byte even
+	 * if it wasn't present in the first place. The constructor
+	 * {@link java.math.BigInteger(byte[])} will take care of it.
+	 * 
+	 * @return the byte representation of the big integer without an artificial sign
+	 *         byte.
+	 */
 	public byte[] toByteArray() {
 		byte[] bArray = hashValue.toByteArray();
 
-		if (hashValue.bitLength() % 8 != 0) {
+		if (bArray[0] != 0) {
 			return bArray;
 		} else {
 			byte[] bArrayWithoutSign = new byte[bArray.length - 1];
 			System.arraycopy(bArray, 1, bArrayWithoutSign, 0, bArray.length - 1);
 			return bArrayWithoutSign;
 		}
+
 	}
 
 	public String toString() {

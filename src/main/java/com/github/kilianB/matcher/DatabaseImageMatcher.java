@@ -23,16 +23,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import org.h2.tools.DeleteDbFiles;
+
 import com.github.kilianB.dataStrorage.tree.Result;
-import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
+import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * A naive database based image matcher implementation. Images indexed by this
@@ -80,6 +81,17 @@ import com.github.kilianB.matcher.ImageMatcher.Setting;
  * image matcher.
  * 
  * <p>
+ * 2 + n Tables are generated to save vales:
+ * 
+ * <ol>
+ * <li>ImageHasher(id,serialize): Allows to serialize an image matcher to the
+ * database</li>
+ * <li>HashingAlgos(id,keyLenght): Saves the bit resolution of each hashing
+ * algorithm</li>
+ * <li>... n a table for each hashing algorithm used in an image matcher</li>
+ * </ol>
+ * 
+ * <p>
  * For each and every match the hashes have to be read from the database. This
  * allows to persistently stores hashes but might not be as efficient as the
  * {@link InMemoryImageMatcher}. Optimizations may include to store 0 or 1 level
@@ -91,10 +103,15 @@ import com.github.kilianB.matcher.ImageMatcher.Setting;
  */
 public class DatabaseImageMatcher extends ImageMatcher implements Serializable, AutoCloseable {
 
+	private static final Logger LOG = Logger.getLogger(DatabaseImageMatcher.class.getName());
+
 	private static final long serialVersionUID = 1L;
 
 	/** Database connection. Maybe use connection pooling? */
 	private transient Connection conn;
+
+	// TODO not necessary?
+	// private /*transient*/ HashMap<HashingAlgorithm,Integer> bitLength;
 
 	/**
 	 * Attempts to establish a connection to the given database URL using the h2
@@ -108,7 +125,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * 
 	 * @param user     the database user on whose behalf the connection is being
 	 *                 made
-	 * @param password the user's password
+	 * @param password the user's password. May be empty
 	 * @return an image matcher backed by the database
 	 * @exception SQLException if a database access error occurs or the url is
 	 *                         {@code null}
@@ -145,7 +162,8 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 
 	/**
 	 * Get a database image matcher which previously was serialized using
-	 * {@link #serializeToDatabase(int)}.
+	 * {@link #serializeToDatabase(int)}. If the serialized matcher does not exist
+	 * the connection will be closed.
 	 * 
 	 * @param conn the database connection
 	 * @param id   the id supplied to the serializeDatabase call
@@ -166,7 +184,16 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 					e.printStackTrace();
 				}
 			}
+		} catch (org.h2.jdbc.JdbcSQLException exception) {
+			if (exception.getMessage().contains("Table \"IMAGEHASHER\" not found")) {
+				LOG.warning("Tried to retrieve matcher from not compatible database");
+			} else {
+				// Rethrow
+				throw exception;
+			}
 		}
+		// If not present
+		conn.close();
 		return null;
 	}
 
@@ -174,8 +201,15 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * Get a database image matcher which previously got serialized by calling
 	 * {@link #serializeToDatabase(int)} on the object.
 	 * 
-	 * @param conn the database connection
-	 * @param id   the id supplied to the serializeDatabase call
+	 * * @param subname the database file name. By default the file looks at the
+	 * base directory of the user.
+	 * <p>
+	 * <code>"jdbc:h2:~/" + subname</code>
+	 * 
+	 * @param user     the database user on whose behalf the connection is being
+	 *                 made
+	 * @param password the user's password. May be empty
+	 * @param id       the id supplied to the serializeDatabase call
 	 * @return the image matcher found in the database or null if not present
 	 * @throws SQLException if an SQL exception occurs
 	 */
@@ -265,12 +299,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			if (!doesTableExist("ImageHasher")) {
 				stmt.execute("CREATE TABLE ImageHasher (Id INTEGER PRIMARY KEY, SerializeData BLOB)");
 			}
-			
-			if (!doesTableExist("HashingAlgos")) {
-				stmt.execute("CREATE TABLE HashingAlgos (Id VARCHAR PRIMARY KEY, keyLength INTEGER)");
-			}
-
-			
 		}
 	}
 
@@ -331,6 +359,24 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	public void addImage(File imageFile) throws IOException, SQLException {
 		BufferedImage img = ImageIO.read(imageFile);
 		addImage(imageFile.getAbsolutePath(), img);
+	}
+
+	/**
+	 * Index the images. This enables the image matcher to find the image in future
+	 * searches. The database image matcher does not store the image data itself but
+	 * indexes the hash bound to the absolute path of the image.
+	 * 
+	 * The path of the file has to be unique in order for this operation to return
+	 * deterministic results.
+	 * 
+	 * @param images The images whose hash will be added to the matcher
+	 * @throws IOException  if an error exists reading the file
+	 * @throws SQLException if an SQL error occurs
+	 */
+	public void addImages(File... images) throws IOException, SQLException {
+		for (File img : images) {
+			addImage(img);
+		}
 	}
 
 	/**
@@ -465,6 +511,8 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 */
 	public PriorityQueue<Result<String>> getMatchingImages(BufferedImage image) throws SQLException {
 
+		System.out.println("Get matching images: " + image);
+
 		if (steps.isEmpty())
 			throw new IllegalStateException(
 					"Please supply at least one hashing algorithm prior to invoking the match method");
@@ -478,7 +526,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 
 			int threshold = 0;
 			if (settings.normalized) {
-				int hashLength = targetHash.getHashValue().bitLength();
+				int hashLength = targetHash.getBitResolution();
 				threshold = Math.round(settings.threshold * hashLength);
 			} else {
 				threshold = (int) settings.threshold;
@@ -498,6 +546,37 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	}
 
 	/**
+	 * Drop all data in the tables and delete the database files. This method
+	 * currently only supports h2 databases. After this method terminates
+	 * successfully all further method calls of this object will throw an
+	 * SQLException if applicable.
+	 * 
+	 * <p>
+	 * Calling this method will close() all database connections. Therefore calling
+	 * close() on this object is not necessary.
+	 * 
+	 * @throws SQLException if an SQL error occurs
+	 */
+	public void deleteDatabase() throws SQLException {
+
+		try (Statement stm = conn.createStatement()) {
+			String url = conn.getMetaData().getURL();
+			String needle = "jdbc:h2:";
+			if (url.startsWith(needle)) {
+				int dbNameIndex = url.lastIndexOf("/");
+				String path = url.substring(needle.length(), dbNameIndex);
+				String dbName = url.substring(dbNameIndex + 1);
+				close();
+				DeleteDbFiles.execute(path, dbName, true);
+			} else {
+				String msg = "deleteDatabase currently not supported for non h2 drivers.";
+				LOG.severe(msg);
+				throw new UnsupportedOperationException(msg);
+			}
+		}
+	}
+
+	/**
 	 * Return all url descriptors which describe images within the provided
 	 * hammington distance of the supplied hash
 	 * 
@@ -507,7 +586,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * @return all urls within distance x of the supplied hash
 	 * @throws SQLException if an SQL error occurs
 	 */
-	private List<Result<String>> getSimilarImages(Hash targetHash, int maxDistance, HashingAlgorithm hasher)
+	protected List<Result<String>> getSimilarImages(Hash targetHash, int maxDistance, HashingAlgorithm hasher)
 			throws SQLException {
 
 		String tableName = resolveTableName(hasher);
@@ -524,11 +603,17 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			ResultSet rs = stmt.executeQuery("SELECT url,hash FROM " + tableName);
 			while (rs.next()) {
 				// Url
-				
-				//TODO Not entirely possible if we drop the sign bit is it?
-				
-				
-				BigInteger bInt = new BigInteger(rs.getBytes(2));
+
+				// TODO check
+				byte[] bytes = rs.getBytes(2);
+
+				BigInteger bInt;
+
+				// We are always save to pad with 0 bytes for signum
+				byte[] bArrayWithSign = new byte[bytes.length + 1];
+				System.arraycopy(bytes, 0, bArrayWithSign, 1, bytes.length);
+				bInt = new BigInteger(bArrayWithSign);
+
 				int distance = targetHash.hammingDistanceFast(bInt);
 				if (distance <= maxDistance) {
 					String url = rs.getString(1);
@@ -539,7 +624,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 		return urls;
 	}
 
-	private void addImage(HashingAlgorithm hashAlgo, String url, BufferedImage image) throws SQLException {
+	protected void addImage(HashingAlgorithm hashAlgo, String url, BufferedImage image) throws SQLException {
 		String tableName = resolveTableName(hashAlgo);
 
 		if (!doesTableExist(tableName)) {
@@ -548,15 +633,11 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 		try (PreparedStatement insertHash = conn
 				.prepareStatement("MERGE INTO " + tableName + " (url,hash) VALUES(?,?)")) {
 			Hash hash = hashAlgo.hash(image);
-			// insertHash.setString(1, tableName);
-
-			System.out.println(hashAlgo + " " + hash + " " + hash.getHashValue().bitLength());
-			System.out.println(hashAlgo + " " + hash + " " + hash.getHashValue().toByteArray().length);
-			
-			System.out.println(Arrays.toString(hash.getHashValue().toByteArray()));
-			
 			insertHash.setString(1, url);
-			//insertHash.setBytes(2, hash.getHashValue().toByteArray());
+			// TODO we are using to byte array to drop the leading 0 byte
+			System.out.println(tableName + " " + Arrays.toString(hash.toByteArray()));
+			System.out.println(tableName + " " + Arrays.toString(hash.getHashValue().toByteArray()) + " "
+					+ hash.toByteArray().length);
 			insertHash.setBytes(2, hash.toByteArray());
 			insertHash.execute();
 		}
@@ -581,9 +662,11 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			// have
 			BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
 			Hash sampleHash = hasher.hash(bi);
-			int bytes = (int) Math.ceil(sampleHash.getHashValue().bitLength() / 8d);
+			int bytes = (int) Math.ceil(sampleHash.getBitResolution() / 8d);
+
+			System.out.println("Bit Res: " + sampleHash.getBitResolution() + " " + tableName);
+
 			stmt.execute("CREATE TABLE " + tableName + " (url VARCHAR(260) PRIMARY KEY, hash BINARY(" + bytes + "))");
-			stmt.execute("MERGE INTO HashingAlgos (Id,keyLength) VALUES("+tableName+","+bytes+") ");
 		}
 	}
 
@@ -594,7 +677,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * @return true if a table with the name exists, false otherwise
 	 * @throws SQLException if an SQLError occurs
 	 */
-	private boolean doesTableExist(String tableName) throws SQLException {
+	protected boolean doesTableExist(String tableName) throws SQLException {
 		DatabaseMetaData metadata = conn.getMetaData();
 		ResultSet res = metadata.getTables(null, null, tableName.toUpperCase(), new String[] { "TABLE" });
 		boolean exist = res.next();
@@ -608,9 +691,16 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * @return the table name to identify the table used to save hashes produced by
 	 *         this algorithm into
 	 */
-	private String resolveTableName(HashingAlgorithm hashAlgo) {
-		//if algorithm id is negative an SQL error will be thrown. Replace sign by random symbol.
-		return hashAlgo.getClass().getSimpleName() + (hashAlgo.algorithmId() > 0 ? hashAlgo.algorithmId() : "m"+Math.abs(hashAlgo.algorithmId()));
+	protected String resolveTableName(HashingAlgorithm hashAlgo) {
+		// if algorithm id is negative an SQL error will be thrown. Replace sign by
+		// random symbol.
+		return hashAlgo.getClass().getSimpleName()
+				+ (hashAlgo.algorithmId() > 0 ? hashAlgo.algorithmId() : "m" + Math.abs(hashAlgo.algorithmId()));
+	}
+
+	@Override
+	public String toString() {
+		return "DatabaseImageMatcher [steps=" + steps + "]";
 	}
 
 	// Serialization
@@ -626,60 +716,9 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void close() throws SQLException {
 		conn.commit();
 		conn.close();
-	}
-
-	public static void main(String[] args) {
-
-		try {
-			DatabaseImageMatcher matcher = new DatabaseImageMatcher("imageHash", "sa", "");
-			matcher.addHashingAlgorithm(new AverageHash(32), 5);
-			matcher.addHashingAlgorithm(new AverageHash(5), 5);
-			matcher.addHashingAlgorithm(new AverageHash(20), 5);
-			matcher.addHashingAlgorithm(new AverageHash(35), 5);
-
-			matcher.serializeToDatabase(0);
-
-			File ballonImage = new File("ballon.jpg");
-			File copyright = new File("copyright.jpg");
-			File highQuality = new File("highQuality.jpg");
-			File loqQuality = new File("lowQuality.jpg");
-			File thumbnail = new File("thumbnail.jpg");
-
-			BufferedImage bimg = ImageIO.read(ballonImage);
-
-			// matcher.addImage(ballonImage);
-			PriorityQueue<Result<String>> images = matcher.getMatchingImages(bimg);
-			System.out.println(images);
-
-			images = matcher.getMatchingImages(copyright);
-			System.out.println("Copy: " + images);
-
-			matcher.addImage(copyright);
-			matcher.addImage(highQuality);
-
-			images = matcher.getMatchingImages(copyright);
-			System.out.println("Copy: " + images);
-
-			matcher.clearHashingAlgorithms(true);
-			matcher.addHashingAlgorithm(new AverageHash(32), 5);
-			images = matcher.getMatchingImages(copyright);
-			System.out.println("Copy: " + images);
-//			DatabaseImageMatcher matcher1 = DatabaseImageMatcher.getFromDatabase("imageHash", "sa", "", 0);
-//
-//			System.out.println(matcher.getAlgorithms());
-//			System.out.println(matcher1.getAlgorithms());
-
-			matcher.close();
-//			matcher1.close();
-
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 }
