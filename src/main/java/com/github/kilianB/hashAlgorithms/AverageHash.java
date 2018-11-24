@@ -6,11 +6,9 @@ import java.util.Objects;
 
 import com.github.kilianB.graphics.ImageUtil;
 import com.github.kilianB.graphics.ImageUtil.FastPixel;
-import com.github.kilianB.matcher.Hash;
 
 /**
- * Calculate a hash value based on the average color in an image. This hash
- * reacts to changes in hue and saturation and is arguably slow
+ * Calculate a hash value based on the average luminosity in an image.
  * 
  * @author Kilian
  *
@@ -56,7 +54,6 @@ public class AverageHash extends HashingAlgorithm {
 	 */
 	public AverageHash(int bitResolution) {
 		super(bitResolution);
-
 		/*
 		 * Figure out how big our resized image has to be in order to create a hash with
 		 * approximately bit resolution bits while trying to stay as squared as possible
@@ -66,6 +63,7 @@ public class AverageHash extends HashingAlgorithm {
 
 		// Get the smallest key difference which is equal or bigger!
 		this.pixelCount = width * height;
+
 		// String and int hashes stays consistent throughout different JVM invocations.
 		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
 		// flagged as incompatible. Dimension are what makes average hashes unique.
@@ -87,8 +85,8 @@ public class AverageHash extends HashingAlgorithm {
 				avgPixelValue += ((double) luminocity[x][y] / pixelCount);
 			}
 		}
+		
 		// Create hash
-		// Padding bit
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (luminocity[x][y] < avgPixelValue) {
