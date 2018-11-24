@@ -6,8 +6,6 @@ import java.util.PriorityQueue;
 
 import com.github.kilianB.matcher.Hash;
 
-//TODO do we have issues with the binary tree
-
 /**
  * A not thread safe binary tree implementation used to quickly compute the
  * <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming distance</a>
@@ -86,7 +84,7 @@ public class BinaryTree<T> {
 	/**
 	 * Insert a value associated with the supplied hash in the binary tree (similar
 	 * to a map). Saved values can be found by invoking
-	 * {@link #getElementsWithinHemmingDistance}.
+	 * {@link #getElementsWithinHammingDistance}.
 	 * <p>
 	 * 
 	 * Nodes which do not exist will be created. Please be aware that similar to
@@ -117,13 +115,9 @@ public class BinaryTree<T> {
 			}
 		}
 
-		// TODO shall we do it recursively?
 		BigInteger hashValue = hash.getHashValue();
 		int depth = hash.getBitResolution();
 		int ommitedBits = depth - hash.getHashValue().bitLength();
-		// int depth = hash.getHashValue().bitLength();
-
-		System.out.println("Omitted bits: " + ommitedBits + " Depth: " + depth);
 
 		Node currentNode = root;
 
@@ -140,8 +134,6 @@ public class BinaryTree<T> {
 		// Compute outstanding bits
 		for (int i = depth - 1 - ommitedBits; i > 0; i--) {
 			boolean bit = hashValue.testBit(i);
-
-			System.out.println("Bit: " + bit);
 			Node tempNode = currentNode.getChild(bit);
 			if (tempNode == null) {
 				currentNode = currentNode.createChild(bit);
@@ -164,7 +156,7 @@ public class BinaryTree<T> {
 	}
 
 	/**
-	 * Return all elements of the tree whose hemming distance is smaller or equal
+	 * Return all elements of the tree whose hamming distance is smaller or equal
 	 * than the supplied max distance.
 	 * 
 	 * If the tree is configured to ensureHashConsistency this function will throw
@@ -181,7 +173,7 @@ public class BinaryTree<T> {
 	 *         criteria. The results returned are ordered to return the closest
 	 *         match first.
 	 */
-	public PriorityQueue<Result<T>> getElementsWithinHemmingDistance(Hash hash, int maxDistance) {
+	public PriorityQueue<Result<T>> getElementsWithinHammingDistance(Hash hash, int maxDistance) {
 
 		if (ensureHashConsistency && algoId != hash.getAlgorithmId()) {
 			throw new IllegalStateException("Tried to add an incompatible hash to the binary tree");
@@ -211,7 +203,7 @@ public class BinaryTree<T> {
 				@SuppressWarnings("unchecked")
 				Leaf<T> leaf = (Leaf<T>) info.node;
 				for (T o : leaf.getData()) {
-					result.add(new Result<T>(o, info.distance));
+					result.add(new Result<T>(o, info.distance,info.distance/(double)treeDepth));
 				}
 				continue;
 			}
@@ -253,7 +245,9 @@ public class BinaryTree<T> {
 		Node node;
 		int distance;
 		int depth;
-		String curPath; // TODO just debug
+		
+		/** Current path of the node. Used for debugging*/
+		String curPath;
 
 		public NodeInfo(Node node, int distance, int depth, String curPath) {
 			this.node = node;

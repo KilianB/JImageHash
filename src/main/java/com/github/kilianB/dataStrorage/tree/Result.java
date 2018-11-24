@@ -3,7 +3,7 @@ package com.github.kilianB.dataStrorage.tree;
 /**
  * Search result returned when querying the tree
  * 
- * @author Kilians
+ * @author Kilian
  *
  */
 public class Result<T> implements Comparable<Result<T>> {
@@ -15,12 +15,16 @@ public class Result<T> implements Comparable<Result<T>> {
 	 * The hamming distance to the actual hash supplied during the search
 	 */
 	public int distance;
-	// TODO maybe add the hash as big integer this result was found at (also save it
-	// in the leaf?)
+	
+	/**
+	 * The normalized hamming distance to the actual hash supplied during the search
+	 */
+	public double normalizedHammingDistance;
 
-	public Result(T value, int distance) {
+	public Result(T value, int distance, double normalizedDistance) {
 		this.value = value;
 		this.distance = distance;
+		this.normalizedHammingDistance = normalizedDistance;
 	}
 
 	public T getValue() {
@@ -33,7 +37,7 @@ public class Result<T> implements Comparable<Result<T>> {
 
 	@Override
 	public int compareTo(Result<T> o) {
-		return distance > o.distance ? 1 : distance == o.distance ? 0 : -1;
+		return normalizedHammingDistance > o.normalizedHammingDistance ? 1 : normalizedHammingDistance == o.normalizedHammingDistance ? 0 : -1;
 	}
 
 	@Override
@@ -64,7 +68,7 @@ public class Result<T> implements Comparable<Result<T>> {
 
 	@Override
 	public String toString() {
-		return String.format("Result Distance:%3d, Value:%s", distance, value);
+		return String.format("Result Distance:%3d Normalized Distance %.3f, Value:%s", distance, normalizedHammingDistance, value);
 	}
 
 }

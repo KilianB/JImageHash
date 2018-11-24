@@ -18,7 +18,6 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -30,10 +29,7 @@ import javax.imageio.ImageIO;
 import org.h2.tools.DeleteDbFiles;
 
 import com.github.kilianB.dataStrorage.tree.Result;
-import com.github.kilianB.hashAlgorithms.DifferenceHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 
 /**
  * A naive database based image matcher implementation. Images indexed by this
@@ -109,9 +105,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 
 	/** Database connection. Maybe use connection pooling? */
 	private transient Connection conn;
-
-	// TODO not necessary?
-	// private /*transient*/ HashMap<HashingAlgorithm,Integer> bitLength;
 
 	/**
 	 * Attempts to establish a connection to the given database URL using the h2
@@ -264,26 +257,8 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 */
 	public static DatabaseImageMatcher createDefaultMatcher(Setting algorithmSetting, Connection dbConnection)
 			throws SQLException {
-
 		DatabaseImageMatcher matcher = new DatabaseImageMatcher(dbConnection);
-
-		switch (algorithmSetting) {
-		case Forgiving:
-			matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 25);
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 15);
-			break;
-		case Fair:
-			matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 15);
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 10);
-			break;
-		case Strict:
-			matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 10);
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 6);
-			break;
-		case Quality:
-			matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 20);
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 15);
-		}
+		matcher.addDefaultHashingAlgorithms(matcher,algorithmSetting);
 		return matcher;
 	}
 
@@ -604,20 +579,18 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			while (rs.next()) {
 				// Url
 
-				// TODO check
 				byte[] bytes = rs.getBytes(2);
-
-				BigInteger bInt;
 
 				// We are always save to pad with 0 bytes for signum
 				byte[] bArrayWithSign = new byte[bytes.length + 1];
 				System.arraycopy(bytes, 0, bArrayWithSign, 1, bytes.length);
-				bInt = new BigInteger(bArrayWithSign);
+				BigInteger bInt = new BigInteger(bArrayWithSign);
 
 				int distance = targetHash.hammingDistanceFast(bInt);
+				double normalizedDistance = distance / (double)targetHash.getBitResolution();
 				if (distance <= maxDistance) {
 					String url = rs.getString(1);
-					urls.add(new Result<String>(url, distance));
+					urls.add(new Result<String>(url, distance,normalizedDistance));
 				}
 			}
 		}
@@ -634,10 +607,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 				.prepareStatement("MERGE INTO " + tableName + " (url,hash) VALUES(?,?)")) {
 			Hash hash = hashAlgo.hash(image);
 			insertHash.setString(1, url);
-			// TODO we are using to byte array to drop the leading 0 byte
-			System.out.println(tableName + " " + Arrays.toString(hash.toByteArray()));
-			System.out.println(tableName + " " + Arrays.toString(hash.getHashValue().toByteArray()) + " "
-					+ hash.toByteArray().length);
 			insertHash.setBytes(2, hash.toByteArray());
 			insertHash.execute();
 		}

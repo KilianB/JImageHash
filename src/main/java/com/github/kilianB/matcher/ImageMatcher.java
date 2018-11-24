@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.github.kilianB.hashAlgorithms.DifferenceHash;
+import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 
 public abstract class ImageMatcher {
 
@@ -14,6 +17,7 @@ public abstract class ImageMatcher {
 	 * @author Kilian
 	 *
 	 */
+	// TODO rename description. It'S not set 
 	public enum Setting {
 		/**
 		 * Most permissive setting. Many images will be matched. Be aware of false
@@ -51,6 +55,34 @@ public abstract class ImageMatcher {
 	}
 
 	/**
+	 * Factory helper method to configure a default hashing algorithm. Implementing
+	 * classes may use this utility function to prevent repetitive code but are free
+	 * to redefine what each setting stands for.
+	 * 
+	 * @param matcherToConfigure The matcher to add algorithm to
+	 * @param settings           the configuration level of the matcher
+	 */
+	protected void addDefaultHashingAlgorithms(ImageMatcher matcherToConfigure, Setting settings) {
+		switch (settings) {
+		case Forgiving:
+			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 0.78f);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.5f);
+			break;
+		case Fair:
+			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 0.78f);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.3125f);
+			break;
+		case Strict:
+			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 0.3125f);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.1875f);
+			break;
+		case Quality:
+			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 0.625f);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.46875f);
+		}
+	}
+
+	/**
 	 * Contains multiple hashing algorithms applied in the order they were added to
 	 * the image matcher
 	 */
@@ -60,12 +92,17 @@ public abstract class ImageMatcher {
 	 * Append a new hashing algorithm which will be executed after all hash
 	 * algorithms passed the test.
 	 * 
+	 * <p>
+	 * This method assumes the normalized hamming distance. If the definite distance
+	 * shall be used take a look at
+	 * {@link #addHashingAlgorithm(HashingAlgorithm, float, boolean)}
+	 * 
 	 * @param algo      The algorithms to be added
-	 * @param threshold the threshold the hemming distance may be in order to pass
-	 *                  as identical image
+	 * @param threshold maximum normalized hamming distance between hashes in order
+	 *                  to pass as identical image
 	 */
 	public void addHashingAlgorithm(HashingAlgorithm algo, float threshold) {
-		addHashingAlgorithm(algo, threshold, false);
+		addHashingAlgorithm(algo, threshold, true);
 	}
 
 	/**
@@ -73,11 +110,11 @@ public abstract class ImageMatcher {
 	 * algorithms passed the test.
 	 * 
 	 * @param algo       The algorithms to be added
-	 * @param threshold  the threshold the hemming distance may be in order to pass
+	 * @param threshold  the threshold the hamming distance may be in order to pass
 	 *                   as identical image.
-	 * @param normalized Weather the normalized or default hemming distance shall be
+	 * @param normalized Weather the normalized or default hamming distance shall be
 	 *                   used. The normalized hamming distance will be in range of
-	 *                   [0-1] while the hemming distance depends on the length of
+	 *                   [0-1] while the hamming distance depends on the length of
 	 *                   the hash
 	 */
 	public void addHashingAlgorithm(HashingAlgorithm algo, float threshold, boolean normalized) {
@@ -121,6 +158,31 @@ public abstract class ImageMatcher {
 		return steps;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((steps == null) ? 0 : steps.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ImageMatcher other = (ImageMatcher) obj;
+		if (steps == null) {
+			if (other.steps != null)
+				return false;
+		} else if (!steps.equals(other.steps))
+			return false;
+		return true;
+	}
+
 	/**
 	 * Settings used while computing if an algorithms consideres two images to be a
 	 * close match
@@ -132,11 +194,11 @@ public abstract class ImageMatcher {
 
 		private static final long serialVersionUID = 1L;
 		/**
-		 * Threshold value hash hemming may be for images to be considered equal
+		 * Threshold value hash hamming may be for images to be considered equal
 		 */
 		float threshold;
 		/**
-		 * Use normalized or ordinary hemming distance during calculation
+		 * Use normalized or ordinary hamming distance during calculation
 		 */
 		boolean normalized;
 
@@ -151,6 +213,20 @@ public abstract class ImageMatcher {
 			} else {
 				return hash.hammingDistanceFast(hash1) <= threshold;
 			}
+		}
+
+		/**
+		 * @return the threshold
+		 */
+		public float getThreshold() {
+			return threshold;
+		}
+
+		/**
+		 * @return if the normalized hamming distance shall be used.
+		 */
+		public boolean isNormalized() {
+			return normalized;
 		}
 
 		@Override
@@ -183,7 +259,5 @@ public abstract class ImageMatcher {
 			return "AlgoSettings [threshold=" + threshold + ", normalized=" + normalized + "]";
 		}
 
-		
-		
 	}
 }
