@@ -28,9 +28,6 @@ public class RotPHash extends HashingAlgorithm {
 
 	private static final long serialVersionUID = -7498910506857652806L;
 
-	/** Unique identifier of the algorithm */
-	private final int algorithmId;
-
 	/** If parts of the key shall be truncated */
 	private final boolean truncateKey;
 
@@ -58,9 +55,9 @@ public class RotPHash extends HashingAlgorithm {
 	 * @param bitResolution The desired bit resolution of the created hash
 	 */
 	public RotPHash(int bitResolution) {
-		this(bitResolution,false);
+		this(bitResolution, false);
 	}
-	
+
 	/**
 	 * Create a Rotational Invariant Perceptive Hasher
 	 * 
@@ -80,16 +77,12 @@ public class RotPHash extends HashingAlgorithm {
 
 		// A rough approximation to get to the desired key length.
 		buckets = (int) (Math.sqrt(this.bitResolution * 1.27)) + 3;
-		/* TODO this can be calculated more accurately by computing the 
-		 * bucket bounds (circumference of each bucket and computing the number
-		 * of pixels mapped to the bucket beforehand. This would also allow us 
-		 * to more accurately specify the percent share of data we throw away when 
-		 * calculating the dct transform. 
+		/*
+		 * TODO this can be calculated more accurately by computing the bucket bounds
+		 * (circumference of each bucket and computing the number of pixels mapped to
+		 * the bucket beforehand. This would also allow us to more accurately specify
+		 * the percent share of data we throw away when calculating the dct transform.
 		 */
-		
-		
-		// Unique id to identify hashes
-		algorithmId = Objects.hash(getClass().getName(), this.bitResolution, truncateKey);
 
 		// To fill all buckets reliable we need at least 2 pixels due to rotation on
 		// each side as well as an even number to comply with symmetry constraints.
@@ -135,7 +128,7 @@ public class RotPHash extends HashingAlgorithm {
 
 //		int charNeeded = StringUtil.charsNeeded(buckets);
 //		String debugFormat = "Count %"+charNeeded+"d Bucket %"+charNeeded+"d Avg: %.2f %n";
-		
+
 		int length = 0;
 		for (int i = 0; i < buckets; i++) {
 			// Sort lum values to get a dct independent of initial rotation
@@ -146,20 +139,19 @@ public class RotPHash extends HashingAlgorithm {
 				arr[j] = values[i].get(j);
 			}
 
-			//Compute dct of each bucket and calculate the average
+			// Compute dct of each bucket and calculate the average
 			DoubleDCT_1D dct = new DoubleDCT_1D(arr.length);
 			dct.forward(arr, false);
-			
+
 			double avg = 0;
-			int count = arr.length/4-1;
+			int count = arr.length / 4 - 1;
 			for (int j = 2; j < count; j++) {
-				avg += (arr[j]/(count-2));
+				avg += (arr[j] / (count - 2));
 			}
-				
-			/* 
-			 * The first two fields should always be ignored. Their values are 
-			 * way out of magnitude in order to add any kind of distinguishing 
-			 * capabilities of the hash  
+
+			/*
+			 * The first two fields should always be ignored. Their values are way out of
+			 * magnitude in order to add any kind of distinguishing capabilities of the hash
 			 */
 			for (int j = 2; j < count; j++) {
 
@@ -178,7 +170,7 @@ public class RotPHash extends HashingAlgorithm {
 		}
 		return hash;
 	}
-	
+
 	protected int computePartition(double originalX, double originalY) {
 		// Compute euclidean distance to the center
 		originalX -= centerX;
@@ -188,28 +180,25 @@ public class RotPHash extends HashingAlgorithm {
 	}
 
 	@Override
-	public int algorithmId() {
-		return algorithmId;
-	}
-
-	@Override
-	public String toString() {
-		return "RotPHash ["+bitResolution + "]";
-	}
-	
-	@Override
 	public int getKeyResolution() {
+		// We can compute this more quickly than the super class. so we might as well do
+		// it
 		if (keyResolution < 0) {
-			if(truncateKey) {
+			if (truncateKey) {
 				keyResolution = this.bitResolution;
-			}else {
+			} else {
 				BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
 				keyResolution = this.hash(bi, BigInteger.ONE).bitLength() - 1;
 			}
-			
+
 		}
 		return keyResolution;
 	}
-	
+
+	@Override
+	protected int precomputeAlgoId() {
+		return Objects.hash(getClass().getName(), this.width, this.height, this.truncateKey);
+
+	}
 
 }

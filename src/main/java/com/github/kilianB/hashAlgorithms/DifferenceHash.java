@@ -38,10 +38,6 @@ public class DifferenceHash extends HashingAlgorithm {
 	}
 
 	/**
-	 * Unique id identifying the algorithm and it's settings
-	 */
-	private final int algorithmId;
-	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
 	private int height, width;
@@ -78,10 +74,6 @@ public class DifferenceHash extends HashingAlgorithm {
 		computeDimensions(bitResolution);
 
 		this.precision = precision;
-		// String and int hashes stays consistent throughout different JVM invocations.
-		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
-		// flagged as incompatible
-		algorithmId = Objects.hash(getClass().getName(), height, width, this.precision.name()) * 31 + 1;
 	}
 
 	@Override
@@ -157,8 +149,9 @@ public class DifferenceHash extends HashingAlgorithm {
 	}
 
 	@Override
-	public int algorithmId() {
-		return algorithmId;
+	protected int precomputeAlgoId() {
+		// + 1 to ensure id is incompatible to earlier version
+		return Objects.hash(getClass().getName(), height, width, this.precision.name()) * 31 + 1;
 	}
 
 }

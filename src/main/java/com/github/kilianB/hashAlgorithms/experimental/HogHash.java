@@ -37,8 +37,6 @@ public class HogHash extends HashingAlgorithm {
 
 	protected static final long serialVersionUID = 5353878339786219609L;
 
-	private final int algorithmId;
-
 	/** The width of the rescaled image */
 	protected int width;
 	/** The height of the rescaled image */
@@ -89,17 +87,13 @@ public class HogHash extends HashingAlgorithm {
 
 		this.xCells = width / cellWidth;
 		this.yCells = height / cellWidth;
-		
-		double estimatedLength = width / cellWidth * height / cellWidth * numBins;
-	
-		algorithmId = Objects.hash(getClass().getName(), estimatedLength);
 	}
 
 	/**
 	 * Create a hog hasher with the target bit resolution.
 	 * 
-	 * Default values of 4 bins per cell (0°,45°,90°,135°) 
-	 * and a cell width of 2 pixels per cell are assumed.
+	 * Default values of 4 bins per cell (0°,45°,90°,135°) and a cell width of 2
+	 * pixels per cell are assumed.
 	 * 
 	 * @param bitResolution the bit resolution of the final hash. The hash will be
 	 *                      at least the specified bits but may be bigger due to
@@ -153,43 +147,12 @@ public class HogHash extends HashingAlgorithm {
 		if (estimatedLength < bitResolution) {
 			height += 2;
 		}
-		estimatedLength = width / cellWidth * height / cellWidth * numBins;
-
 		this.width = width;
 		this.height = height;
 
 		this.xCells = width / cellWidth;
 		this.yCells = height / cellWidth;
-
-		algorithmId = Objects.hash(getClass().getName(), estimatedLength);
-
 	}
-
-//	/**
-//	 * @param bitResolution
-//	 */
-//	public HogHash(int bitResolution) {
-//		super(bitResolution);
-//
-//		// Fit direction to 0 - 180 instead of
-//		// boolean unsignedGradients = true;
-//
-//		this.width = 64;
-//		this.height = 64;
-//		this.cellWidth = 4;
-//
-//		
-//
-//		// How many pixels does a cell have in each direction
-//		this.xCells = width / cellWidth;
-//		this.yCells = height / cellWidth;
-//
-//		// How many gradient histogram binds does each cell contain?
-//
-//		this.numBins = 4;
-//
-//		algorithmId = Objects.hash(getClass().getName(), bitResolution);
-//	}
 
 	@Override
 	protected BigInteger hash(BufferedImage image, BigInteger hash) {
@@ -207,8 +170,9 @@ public class HogHash extends HashingAlgorithm {
 		// Block normalization 2 x 2 hist kernel "shifting window"
 		double[][][] normalizedHog = blockNormalization(hog);
 
-		//toImage(new File("HogNormalized" + image.hashCode() + ".png"), image, Color.RED, normalizedHog);
-		//toImage(new File("Hog" + image.hashCode() + ".png"), image, Color.RED, hog);
+		// toImage(new File("HogNormalized" + image.hashCode() + ".png"), image,
+		// Color.RED, normalizedHog);
+		// toImage(new File("Hog" + image.hashCode() + ".png"), image, Color.RED, hog);
 
 		for (int xCell = 0; xCell < xCells; xCell++) {
 			// Construct intermediary vector
@@ -242,7 +206,7 @@ public class HogHash extends HashingAlgorithm {
 
 		double magnitude[][] = new double[width][height];
 		double direction[][] = new double[width][height];
-		
+
 		// 0 Compute magnitude and direction from horizontal and vertical gradients.
 		// with 101 kernels
 		for (int x = 1; x < width - 1; x++) {
@@ -310,8 +274,6 @@ public class HogHash extends HashingAlgorithm {
 					vectorLength += (hog[xCell][yCell][bin] * hog[xCell][yCell][bin]);
 				}
 
-				
-				
 				// Lower bin
 				if (yCell < yCells - 1) {
 					for (int bin = 0; bin < numBins; bin++) {
@@ -352,7 +314,7 @@ public class HogHash extends HashingAlgorithm {
 					}
 
 				}
-				
+
 				double normFactor = Math.sqrt(vectorLength);
 				// System.out.println(vectorLength + " " + normFactor);
 				// Here we deviate a little bit from the traditional hog. We don't need the 3k++
@@ -368,7 +330,8 @@ public class HogHash extends HashingAlgorithm {
 	}
 
 	/**
-	 * Create a visual representation of the 
+	 * Create a visual representation of the
+	 * 
 	 * @param outputFile
 	 * @param originalImage
 	 * @param gradientColor
@@ -525,9 +488,14 @@ public class HogHash extends HashingAlgorithm {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName()+ " [numBins=" + numBins + "]";
+	}
 
 	@Override
-	public int algorithmId() {
-		return algorithmId;
+	protected int precomputeAlgoId() {
+		return Objects.hash(getClass().getName(), width,height,cellWidth,numBins);
 	}
 }

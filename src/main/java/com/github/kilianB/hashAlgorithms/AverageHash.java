@@ -16,10 +16,7 @@ import com.github.kilianB.graphics.ImageUtil.FastPixel;
 public class AverageHash extends HashingAlgorithm {
 
 	private static final long serialVersionUID = -5234612717498362659L;
-	/**
-	 * Unique id identifying the algorithm and it's settings
-	 */
-	private final int algorithmId;
+
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
@@ -63,11 +60,6 @@ public class AverageHash extends HashingAlgorithm {
 
 		// Get the smallest key difference which is equal or bigger!
 		this.pixelCount = width * height;
-
-		// String and int hashes stays consistent throughout different JVM invocations.
-		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
-		// flagged as incompatible. Dimension are what makes average hashes unique.
-		algorithmId = Objects.hash(getClass().getName(), height, width);
 	}
 
 	@Override
@@ -99,11 +91,6 @@ public class AverageHash extends HashingAlgorithm {
 		return hash;
 	}
 
-	@Override
-	public int algorithmId() {
-		return algorithmId;
-	}
-
 	private void computeDimension(int bitResolution) {
 
 		// Allow for slightly non symmetry to get closer to the true bit resolution
@@ -118,6 +105,16 @@ public class AverageHash extends HashingAlgorithm {
 		if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
 			this.width++;
 		}
+	}
+
+	@Override
+	protected int precomputeAlgoId() {
+		/*
+		 *  String and int hashes stays consistent throughout different JVM invocations.
+		 *  Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
+		 *  flagged as incompatible. Dimension are what makes average hashes unique therefore, even
+		 */
+		return Objects.hash(getClass().getName(), height, width);
 	}
 
 }

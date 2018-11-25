@@ -83,10 +83,4 @@ public class HogHashDual extends HogHash {
 
 		return hash;
 	}
-
-	@Override
-	public String toString() {
-		return "HogHashDual [numBins=" + numBins + "]";
-	}
-
 }

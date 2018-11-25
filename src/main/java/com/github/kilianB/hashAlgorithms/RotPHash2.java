@@ -26,9 +26,6 @@ public class RotPHash2 extends HashingAlgorithm {
 
 	private static final long serialVersionUID = -7498910506857652806L;
 
-	/** Unique identifier of the algorithm */
-	private final int algorithmId;
-
 	/** If parts of the key shall be truncated */
 	private final boolean truncateKey;
 
@@ -78,9 +75,6 @@ public class RotPHash2 extends HashingAlgorithm {
 
 		// A rough approximation to get to the desired key length.
 		buckets = (int) (Math.sqrt(this.bitResolution * 1.27)) + 3;
-
-		// Unique id to identify hashes
-		algorithmId = Objects.hash(getClass().getName(), this.bitResolution, truncateKey);
 
 		// To fill all buckets reliable we need at least 2 pixels due to rotation on
 		// each side as well as an even number to comply with symmetry constraints.
@@ -179,16 +173,6 @@ public class RotPHash2 extends HashingAlgorithm {
 	}
 
 	@Override
-	public int algorithmId() {
-		return algorithmId;
-	}
-
-	@Override
-	public String toString() {
-		return "RotPHash [" + bitResolution + "]";
-	}
-
-	@Override
 	public int getKeyResolution() {
 		if (keyResolution < 0) {
 			if (truncateKey) {
@@ -200,6 +184,11 @@ public class RotPHash2 extends HashingAlgorithm {
 
 		}
 		return keyResolution;
+	}
+
+	@Override
+	protected int precomputeAlgoId() {
+		return  Objects.hash(getClass().getName(), this.width,this.height, truncateKey);
 	}
 
 }

@@ -31,10 +31,7 @@ import com.github.kilianB.hashAlgorithms.filter.Kernel;
 public class AverageKernelHash extends HashingAlgorithm {
 
 	private static final long serialVersionUID = -5234612717498362659L;
-	/**
-	 * Unique id identifying the algorithm and it's settings
-	 */
-	private final int algorithmId;
+
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
@@ -95,11 +92,6 @@ public class AverageKernelHash extends HashingAlgorithm {
 		computeDimension(bitResolution);
 
 		filters = new ArrayList<Kernel>(Arrays.asList(Require.deepNonNull(kernels, "The kernel may not be null")));
-
-		// String and int hashes stays consistent throughout different JVM invocations.
-		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
-		// flagged as incompatible. Dimension are what makes average hashes unique.
-		algorithmId = Objects.hash(getClass().getName(), height, width, filters);
 	}
 
 	@Override
@@ -136,11 +128,6 @@ public class AverageKernelHash extends HashingAlgorithm {
 		return hash;
 	}
 
-	@Override
-	public int algorithmId() {
-		return algorithmId;
-	}
-
 	/**
 	 * Compute the resize width and height for our image.
 	 * 
@@ -161,6 +148,11 @@ public class AverageKernelHash extends HashingAlgorithm {
 		if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
 			this.width++;
 		}
+	}
+
+	@Override
+	protected int precomputeAlgoId() {
+		return Objects.hash(getClass().getName(), height, width, filters);
 	}
 
 }

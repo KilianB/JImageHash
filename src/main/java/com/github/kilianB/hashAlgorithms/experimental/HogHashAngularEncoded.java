@@ -12,6 +12,8 @@ import com.github.kilianB.graphics.ImageUtil.FastPixel;
  */
 public class HogHashAngularEncoded extends HogHash {
 
+	private static final long serialVersionUID = 8174228394380201299L;
+
 	/**
 	 * @param bitResolution
 	 */

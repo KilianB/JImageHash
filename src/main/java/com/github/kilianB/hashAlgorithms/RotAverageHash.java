@@ -22,9 +22,6 @@ public class RotAverageHash extends HashingAlgorithm {
 
 	private static final long serialVersionUID = 1L;
 
-	/** Unique identifier of the algorithm */
-	private final int algorithmId;
-
 	/** Width of the rescaled image */
 	private int width;
 
@@ -48,8 +45,7 @@ public class RotAverageHash extends HashingAlgorithm {
 	 */
 	public RotAverageHash(int bitResolution) {
 		super(bitResolution);
-		algorithmId = Objects.hash(getClass().getName(), this.bitResolution);
-
+		
 		int bucketPixelWidth = 2;
 
 		// To fill all buckets reliable we need 2 pixels due to rotation.
@@ -124,7 +120,8 @@ public class RotAverageHash extends HashingAlgorithm {
 	}
 
 	@Override
-	public int algorithmId() {
-		return algorithmId;
+	protected int precomputeAlgoId() {
+		//These variables are enough to uniquely identify the hashing algorithm
+		return Objects.hash(getClass().getName(), width,height);
 	}
 }

@@ -20,10 +20,7 @@ import com.github.kilianB.graphics.ImageUtil.FastPixel;
 public class PerceptiveHash extends HashingAlgorithm {
 
 	private static final long serialVersionUID = 8409228150836051697L;
-	/**
-	 * Unique id identifying the algorithm and it's settings
-	 */
-	private final int algorithmId;
+
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
@@ -40,10 +37,6 @@ public class PerceptiveHash extends HashingAlgorithm {
 	public PerceptiveHash(int bitResolution) {
 		super(bitResolution);
 		computeDimensions(bitResolution);
-//		// String and int hashes stays consistent throughout different JVM invocations.
-		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
-		// flagged as incompatible
-		algorithmId = Objects.hash(getClass().getName(), this.bitResolution) * 31 + 1;
 	}
 
 	@Override
@@ -120,7 +113,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 	}
 
 	@Override
-	public int algorithmId() {
-		return algorithmId;
+	protected int precomputeAlgoId() {
+		return Objects.hash(getClass().getName(),height,width) * 31 + 1;
 	}
 }

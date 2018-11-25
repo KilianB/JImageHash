@@ -4,8 +4,6 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.graphics.ImageUtil;
 import com.github.kilianB.graphics.ImageUtil.FastPixel;
@@ -18,16 +16,12 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 public class MedianHash extends HashingAlgorithm {
 
 	private static final long serialVersionUID = -5234612717498362659L;
-	/**
-	 * Unique id identifying the algorithm and it's settings
-	 */
-	private final int algorithmId;
+
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
 	private int height, width;
 
-	private final int pixelCount;
 
 	/**
 	 * @param bitResolution
@@ -40,14 +34,6 @@ public class MedianHash extends HashingAlgorithm {
 		 * to not introduce bias via stretching or shrinking the image asymmetrically.
 		 */
 		computeDimension(bitResolution);
-
-		// Get the smallest key difference which is equal or bigger!
-		this.pixelCount = width * height;
-
-		// String and int hashes stays consistent throughout different JVM invocations.
-		// Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
-		// flagged as incompatible. Dimension are what makes average hashes unique.
-		algorithmId = Objects.hash(getClass().getName(), height, width);
 	}
 
 	@Override
@@ -82,10 +68,6 @@ public class MedianHash extends HashingAlgorithm {
 		return hash;
 	}
 
-	@Override
-	public int algorithmId() {
-		return algorithmId;
-	}
 
 	private void computeDimension(int bitResolution) {
 
@@ -101,6 +83,11 @@ public class MedianHash extends HashingAlgorithm {
 		if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
 			this.width++;
 		}
+	}
+
+	@Override
+	protected int precomputeAlgoId() {
+		return  Objects.hash(getClass().getName(), height, width);
 	}
 
 }
