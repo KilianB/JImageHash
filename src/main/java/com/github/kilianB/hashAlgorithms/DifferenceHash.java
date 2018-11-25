@@ -1,16 +1,11 @@
 package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import javax.imageio.ImageIO;
-
 import com.github.kilianB.graphics.ImageUtil;
 import com.github.kilianB.graphics.ImageUtil.FastPixel;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * Calculates a hash based on gradient tracking. This hash is cheap to compute
