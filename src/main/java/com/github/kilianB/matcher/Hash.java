@@ -4,17 +4,24 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 
+import com.github.kilianB.Require;
 import com.github.kilianB.StringUtil;
 
 /**
  * A wrapper class combining image hashes and their producing algorithm allowing
- * for meaningful analysis. Hashes are created from images downscaling
- * information and enabling quick comparison between instances produced by the
- * same algorithm. Every bit in the hash usually represents a section of the
- * image containing certain information (hue, brightness, cosine
- * transformation..)
+ * for meaningful analysis.
+ * 
+ * <p>
+ * Hashes are bit encoded encoded values e.g. 0101011101
+ * 
+ * <p>
+ * They are created from images down scaling information and enabling quick
+ * comparison between instances produced by the same algorithm. Every bit in the
+ * hash usually represents a section of the image containing certain information
+ * (hue, brightness, color, frequencies or gradients)
  * 
  * @author Kilian
+ * @since 1.0.0
  */
 public class Hash {
 
@@ -33,6 +40,7 @@ public class Hash {
 	 * 
 	 */
 	private BigInteger hashValue;
+	// maybe move to bitsets//Mutable inetegers? not efficient for small keys?
 
 	/** How many bits this hash has. 0 bits at the beginning are dropped */
 	private int hashLength;
@@ -79,10 +87,6 @@ public class Hash {
 		if (this.algorithmId != h.algorithmId) {
 			throw new IllegalArgumentException("Can't compare two hash values created by different algorithms");
 		}
-//		Not necessary since the algorithms id already covers hash length
-//		if(this.hash.bitLength() != h.hash.bitLength()) {
-//			throw new IllegalArgumentException("Can't compare two hash values with unequal length");
-//		}
 		return hammingDistanceFast(h);
 	}
 
@@ -160,9 +164,12 @@ public class Hash {
 	 * @return similarity value ranging between [0 - 1]
 	 */
 	public double normalizedHammingDistance(Hash h) {
+		if (this.algorithmId != h.algorithmId) {
+			throw new IllegalArgumentException("Can't compare two hash values created by different algorithms");
+		}
 		// We expect both integers to contain the same bit key lengths!
 		// -1 due to the preceding padding bit
-		return hammingDistance(h) / (double) hashLength;
+		return normalizedHammingDistanceFast(h);
 	}
 
 	/**
@@ -187,6 +194,34 @@ public class Hash {
 	public double normalizedHammingDistanceFast(Hash h) {
 		// We expect both integers to contain the same bit key lengths!
 		return hammingDistanceFast(h) / (double) hashLength;
+	}
+
+	/**
+	 * Check if the bit at the given position is set
+	 * 
+	 * @param position of the bit. An index of 0 points to the lowest (rightmost bit)
+	 * @return true if the bit is set (1) or false if it's not set (0)
+	 * @throws IllegalArgumentException if the supplied index is outside the hash
+	 *                                  bound
+	 * @since 2.0.0
+	 */
+	public boolean getBit(int position) {
+		Require.inRange(position, 0, this.getBitResolution() - 1, "Bit out of bounds");
+		return getBitUnsafe(position);
+	}
+
+	/**
+	 * Check if the bit at the given position of the hash is set. This method does
+	 * not check the bounds of the supplied argument.
+	 * 
+	 * @param position of the bit.  An index of 0 points to the lowest (rightmost bit)
+	 * @return true if the bit is set (1). False if it's not set (0) ot the index is
+	 *         bigger than the hash length.
+	 * @throws ArithmeticExceptino if position is negative
+	 * @since 2.0.0
+	 */
+	public boolean getBitUnsafe(int position) {
+		return hashValue.testBit(position);
 	}
 
 	/**
