@@ -22,31 +22,40 @@ import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
 import com.github.kilianB.matcher.SingleImageMatcher;
 
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.web.WebView;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+
 /**
  * The algorithm benchmark is a utility class allowing to check how multiple
- * hashing algorithms perform for certain images images.
+ * hashing algorithms perform for certain images.
  * 
  * @author Kilian
  * @since 2.0.0
  */
 public class AlgorithmBenchmarker {
 
-	/** HTML base template*/
+	/** HTML base template */
 	private static String htmlBase = buildHtmlBase();
 
-	/** Format used to cut off decimal numbers*/
+	/** Format used to cut off decimal numbers */
 	private DecimalFormat df = new DecimalFormat("0.000");
-	
+
 	/** Shall a speed benchmark be added to the report **/
 	private boolean timming;
 
-	/** The image matcher holding the hashing algorithms and settings */
+	/** The image matcher holding individual hashing algorithms and settings */
 	private SingleImageMatcher imageMatcher;
-	
+
 	/** The images to test */
 	private List<TestData> imagesToTest = new ArrayList<>();
 
-	/**  Algorithms extracted from the image matcher */
+	/** Algorithms extracted from the image matcher */
 	private Map<HashingAlgorithm, AlgoSettings> algorithmsToTest;
 
 	/**
@@ -111,6 +120,24 @@ public class AlgorithmBenchmarker {
 			// output to console if we can't print to file
 			System.out.println(output);
 		}
+	}
+
+	/**
+	 * Compute the benchmark and display the content in a JavaFX window. Every call
+	 * of this method recomputes the benchmark and creates a new file.
+	 */
+	public void display() {
+		String html = constructHTML();
+		new Thread(()-> {
+			// As long as https://bugs.openjdk.java.net/browse/JDK-8090933 isn't fixed we
+			// have to use this construct
+			try {
+				Application.launch(BenchmarkApplication.class, html);
+			} catch (IllegalStateException state) {
+				// JavaFX already running
+				new BenchmarkApplication().spawnWindow(html);
+			}
+		},"Display Algorithm Benchmark").start();
 	}
 
 	private String constructHTML() {
@@ -357,9 +384,13 @@ public class AlgorithmBenchmarker {
 					// Precision
 					int truePositive = (int) statMap.get(h)[2].getCount();
 					int falsePositive = (int) statMap.get(h)[3].getCount();
-
-					htmlBuilder.append("<td>").append(df.format(truePositive / (double) (truePositive + falsePositive)))
-							.append("</td>");
+					htmlBuilder.append("<td>");
+					if (truePositive > 0 || falsePositive > 0) {
+						htmlBuilder.append(df.format(truePositive / (double) (truePositive + falsePositive)));
+					} else {
+						htmlBuilder.append("-");
+					}
+					htmlBuilder.append("</td>");
 				}
 			}
 			if (i == 4) {
@@ -379,7 +410,7 @@ public class AlgorithmBenchmarker {
 	 * 
 	 * @param htmlBuilder
 	 */
-	long appendTimmingBenchmark(StringBuilder htmlBuilder) {
+	private long appendTimmingBenchmark(StringBuilder htmlBuilder) {
 
 		// timming
 
@@ -432,18 +463,19 @@ public class AlgorithmBenchmarker {
 	}
 
 	/**
-	 * A labeled image used to benchmark hashing algorithms. 
+	 * A labeled image used to benchmark hashing algorithms.
+	 * 
 	 * @author Kilian
 	 * @since 2.0.0
 	 */
 	public static class TestData implements Comparable<TestData> {
 
-		/** A character representation of the file for easy feedback*/
+		/** A character representation of the file for easy feedback */
 		private String name;
-		
-		/** The category of the image. Same categories equals similar images*/
+
+		/** The category of the image. Same categories equals similar images */
 		private int category;
-		
+
 		/** The image to test */
 		private BufferedImage bImage;
 
@@ -451,7 +483,7 @@ public class AlgorithmBenchmarker {
 		 * 
 		 * @param category The image category. Images with the same category are
 		 *                 expected to be classified as similar images
-		 * @param f The Fie pointing to the image
+		 * @param f        The Fie pointing to the image
 		 */
 		public TestData(int category, File f) {
 			try {
@@ -510,6 +542,7 @@ public class AlgorithmBenchmarker {
 
 	/**
 	 * Construct the html frame to embed the benchmark result into
+	 * 
 	 * @return an html template
 	 */
 	private static String buildHtmlBase() {
@@ -533,8 +566,9 @@ public class AlgorithmBenchmarker {
 
 	/**
 	 * Utility StringBuilder to allow formating text
+	 * 
 	 * @author Kilian
-	 *
+	 * @since 2.0.0
 	 */
 	private static class StringBuilderI {
 		StringBuilder internal = new StringBuilder();
@@ -556,6 +590,53 @@ public class AlgorithmBenchmarker {
 
 	/**
 	 * 
+	 * @author Kilian
+	 * @since 2.0.0
 	 */
+	public static class BenchmarkApplication extends Application {
+
+		@Override
+		public void start(Stage primaryStage) throws Exception {
+			// Main entry point if javafx is not already started
+			spawnNewWindow(primaryStage, getParameters().getRaw().get(0));
+		}
+
+		/**
+		 * Spawn subsequent windows if Javafx is already spawned. Application.launch can
+		 * only be called once, therefore a work around is needed.
+		 * 
+		 * @param html to display
+		 */
+		public void spawnWindow(String html) {
+			Platform.runLater(() -> {
+				spawnNewWindow(new Stage(), html);
+			});
+		}
+
+		/**
+		 * Spawn a full screen windows with a webview displaying the html content
+		 * 
+		 * @param stage       of the window
+		 * @param htmlContent the content to display
+		 */
+		private void spawnNewWindow(Stage stage, String htmlContent) {
+
+			WebView webView = new WebView();
+			webView.getEngine().loadContent(htmlContent);
+
+			// Fullscreen
+
+			Rectangle2D screen = Screen.getPrimary().getVisualBounds();
+
+			double w = screen.getWidth();
+			double h = screen.getHeight();
+			Scene scene = new Scene(webView, w, h);
+			stage.setTitle("Image Hash Benchmarker");
+			stage.getIcons().add(new Image("imageHashLogo.png"));
+			stage.setScene(scene);
+			stage.show();
+		}
+
+	}
 
 }
