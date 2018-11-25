@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.github.kilianB.hashAlgorithms.experimental.HogHash;
 import com.github.kilianB.matcher.Hash;
 
 /**
@@ -41,68 +42,6 @@ class HogHashTest {
 			lowQuality = ImageIO.read(AverageHashTest.class.getClassLoader().getResourceAsStream("lowQuality.jpg"));
 			thumbnail = ImageIO.read(AverageHashTest.class.getClassLoader().getResourceAsStream("thumbnail.jpg"));
 			lena = ImageIO.read(AverageHashTest.class.getClassLoader().getResourceAsStream("Lenna.png"));
-			//Distance
-			
-			HogHash h = new HogHash(32);
-			
-			Hash ballHash = h.hash(ballon);
-			Hash copyHash = h.hash(copyright);
-			Hash hqHash = h.hash(highQuality);
-			Hash lqHash = h.hash(lowQuality);
-			Hash thumHash = h.hash(thumbnail);
-			Hash lenaHash = h.hash(lena);
-			
-			System.out.println("Similar images");
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","HQ - HQ: ",hqHash.normalizedHammingDistance(hqHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","HQ - LQ: ",lqHash.normalizedHammingDistance(hqHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","HQ - Copy: ",hqHash.normalizedHammingDistance(copyHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","HQ - Thumb",hqHash.normalizedHammingDistance(thumHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","LQ - Copy",lqHash.normalizedHammingDistance(copyHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","LQ - Thumb",lqHash.normalizedHammingDistance(thumHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","Copy - Thumb",copyHash.normalizedHammingDistance(thumHash));
-			
-			System.out.println("Unlike Images");
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","HQ - Ballon: ",hqHash.normalizedHammingDistance(ballHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","HQ - Lena: ",hqHash.normalizedHammingDistance(lenaHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","LQ - Ballon",lqHash.normalizedHammingDistance(ballHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","LQ - Lena",lqHash.normalizedHammingDistance(lenaHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","Copy - Ballon",copyHash.normalizedHammingDistance(ballHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","Copy - Lena",copyHash.normalizedHammingDistance(lenaHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","Thumb - Ballon",thumHash.normalizedHammingDistance(ballHash));
-			System.out.printf("<tr><td>%s</td><td>%.3f</td></tr>%n","Thumb - Lena",thumHash.normalizedHammingDistance(lenaHash));
-
-			/*
-			 
-			 0.0
-				0.28098765432098766
-				0.11703703703703704
-				0.31209876543209875
-				0.4049382716049383
-				0.388641975308642
-				0.4162962962962963
-				Ballon
-				0.4928395061728395
-				0.4854320987654321
-				0.4854320987654321
-				0.5017283950617284
-			 */
-			
-			/*
-			 
-			 0.0
-				0.2915681639085894
-				0.1194641449960599
-				0.3186761229314421
-				0.42206461780929866
-				0.3955870764381403
-				0.4239558707643814
-				Ballon
-				0.49613869188337273
-				0.48447596532702913
-				0.49141055949566587
-				0.5059101654846335
-			 */
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -186,7 +125,7 @@ class HogHashTest {
 	}
 
 	/**
-	 * The hemming distance of the same image has to be 0
+	 * The hamming distance of the same image has to be 0
 	 * @deprecated not really a algorithm test case. Same as consistent
 	 * @param d1
 	 */
@@ -198,8 +137,8 @@ class HogHashTest {
 	}
 
 	/**
-	 * The hemming distance of similar images shall be lower than the distance of 
-	 * vastly different picutres
+	 * The hamming distance of similar images shall be lower than the distance of 
+	 * vastly different pictures
 	 * @param d1
 	 */
 	@ParameterizedTest
