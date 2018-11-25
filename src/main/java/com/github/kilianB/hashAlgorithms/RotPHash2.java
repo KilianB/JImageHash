@@ -10,8 +10,6 @@ import java.util.Objects;
 
 import org.jtransforms.dct.DoubleDCT_1D;
 
-import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.StringUtil;
 import com.github.kilianB.graphics.ImageUtil;
 import com.github.kilianB.graphics.ImageUtil.FastPixel;
 
@@ -24,7 +22,7 @@ import com.github.kilianB.graphics.ImageUtil.FastPixel;
  * @author Kilian
  * @since 2.0.0
  */
-public class RotPHash extends HashingAlgorithm {
+public class RotPHash2 extends HashingAlgorithm {
 
 	private static final long serialVersionUID = -7498910506857652806L;
 
@@ -57,10 +55,10 @@ public class RotPHash extends HashingAlgorithm {
 	 * 
 	 * @param bitResolution The desired bit resolution of the created hash
 	 */
-	public RotPHash(int bitResolution) {
-		this(bitResolution,false);
+	public RotPHash2(int bitResolution) {
+		this(bitResolution, false);
 	}
-	
+
 	/**
 	 * Create a Rotational Invariant Perceptive Hasher
 	 * 
@@ -74,20 +72,13 @@ public class RotPHash extends HashingAlgorithm {
 	 *                      bits long, but most likely longer. All keys produced
 	 *                      with the same settings will have the same length.
 	 */
-	public RotPHash(int bitResolution, boolean truncateKey) {
+	public RotPHash2(int bitResolution, boolean truncateKey) {
 		super(bitResolution);
 		this.truncateKey = truncateKey;
 
 		// A rough approximation to get to the desired key length.
 		buckets = (int) (Math.sqrt(this.bitResolution * 1.27)) + 3;
-		/* TODO this can be calculated more accurately by computing the 
-		 * bucket bounds (circumference of each bucket and computing the number
-		 * of pixels mapped to the bucket beforehand. This would also allow us 
-		 * to more accurately specify the percent share of data we throw away when 
-		 * calculating the dct transform. 
-		 */
-		
-		
+
 		// Unique id to identify hashes
 		algorithmId = Objects.hash(getClass().getName(), this.bitResolution, truncateKey);
 
@@ -116,6 +107,8 @@ public class RotPHash extends HashingAlgorithm {
 			values[i] = new ArrayList<Integer>();
 		}
 
+		int count = 0;
+
 		// 1. Map each pixel into a circle bucket. (Currently we ignore parts of the
 		// image if they do not fit inside a cropped circle)
 		for (int x = 0; x < width; x++) {
@@ -128,57 +121,55 @@ public class RotPHash extends HashingAlgorithm {
 					continue;
 				}
 				values[bucket].add(fp.getLuma(x, y));
+				count++;
 			}
 		}
 
 		// 2. Construct the final hash
 
-//		int charNeeded = StringUtil.charsNeeded(buckets);
-//		String debugFormat = "Count %"+charNeeded+"d Bucket %"+charNeeded+"d Avg: %.2f %n";
-		
-		int length = 0;
-		for (int i = 0; i < buckets; i++) {
+		double[] featureArray = new double[count];
+
+		// flatten 2 d list to 1d array
+		int curIndex = 0;
+		for (int bucket = 0; bucket < buckets; bucket++) {
 			// Sort lum values to get a dct independent of initial rotation
-			Collections.sort(values[i]);
-
-			double[] arr = new double[values[i].size()];
-			for (int j = 0; j < arr.length; j++) {
-				arr[j] = values[i].get(j);
-			}
-
-			//Compute dct of each bucket and calculate the average
-			DoubleDCT_1D dct = new DoubleDCT_1D(arr.length);
-			dct.forward(arr, false);
-			
-			double avg = 0;
-			int count = arr.length/4-1;
-			for (int j = 2; j < count; j++) {
-				avg += (arr[j]/(count-2));
-			}
-				
-			/* 
-			 * The first two fields should always be ignored. Their values are 
-			 * way out of magnitude in order to add any kind of distinguishing 
-			 * capabilities of the hash  
-			 */
-			for (int j = 2; j < count; j++) {
-
-				// We discard parts of the information of the last layer if we need a specific
-				// length key
-				if (this.truncateKey && length == bitResolution - 1)
-					break;
-
-				if (arr[j] >= avg) {
-					hash = hash.shiftLeft(1);
-				} else {
-					hash = hash.shiftLeft(1).add(BigInteger.ONE);
-				}
-				length++;
+			Collections.sort(values[bucket]);
+			for (int feature : values[bucket]) {
+				featureArray[curIndex++] = feature;
 			}
 		}
+
+		// Compute dct
+		DoubleDCT_1D dct = new DoubleDCT_1D(featureArray.length);
+		dct.forward(featureArray, false);
+
+		// Average value of the (topmost) YxY low frequencies. Skip the first column as
+		// it might be too dominant. Solid color e.g.
+		// TODO DCT walk down in a triangular motion. Skipping the entire edge neglects
+		// several important frequencies. Maybe just skip
+		// just the upper corner.
+		double avg = 0;
+
+		// Take a look at a forth of the pixel matrix. The lower right corner does not
+		// yield much information.
+		int subWidth = (int) (count / 4d);
+
+		// calculate the average of the dct
+		for (int i = 1; i < subWidth + 1; i++) {
+			avg += featureArray[i] / subWidth;
+		}
+
+		for (int i = 1; i < subWidth + 1; i++) {
+			if (featureArray[i] < avg) {
+				hash = hash.shiftLeft(1);
+			} else {
+				hash = hash.shiftLeft(1).add(BigInteger.ONE);
+			}
+		}
+		
 		return hash;
 	}
-	
+
 	protected int computePartition(double originalX, double originalY) {
 		// Compute euclidean distance to the center
 		originalX -= centerX;
@@ -194,22 +185,21 @@ public class RotPHash extends HashingAlgorithm {
 
 	@Override
 	public String toString() {
-		return "RotPHash ["+bitResolution + "]";
+		return "RotPHash [" + bitResolution + "]";
 	}
-	
+
 	@Override
 	public int getKeyResolution() {
 		if (keyResolution < 0) {
-			if(truncateKey) {
+			if (truncateKey) {
 				keyResolution = this.bitResolution;
-			}else {
+			} else {
 				BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
 				keyResolution = this.hash(bi, BigInteger.ONE).bitLength() - 1;
 			}
-			
+
 		}
 		return keyResolution;
 	}
-	
 
 }

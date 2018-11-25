@@ -168,7 +168,7 @@ class RotPHashTest {
 	}
 
 	/**
-	 * The hemming distance of the same image has to be 0
+	 * The hamming distance of the same image has to be 0
 	 * 
 	 * @deprecated not really a algorithm test case. Same as consistent
 	 * @param d1
@@ -181,8 +181,8 @@ class RotPHashTest {
 	}
 
 	/**
-	 * The hemming distance of similar images shall be lower than the distance of
-	 * vastly different picutres
+	 * The hamming distance of similar images shall be lower than the distance of
+	 * vastly different pictures
 	 * 
 	 * @param d1
 	 */
