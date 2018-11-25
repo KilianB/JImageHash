@@ -72,8 +72,6 @@ public class ChainAlgorithms {
 		//Will return false
 		System.out.println("Strict Matcher : Images are likely "
 				+ (strict.checkSimilarity(img1, img2) ? "duplicates" : "distinct"));
-		
-
 	}
 
 	/**

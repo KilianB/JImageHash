@@ -154,7 +154,7 @@ public class GuiController {
 				break;
 		}
 
-		PriorityQueue<Result<Image>> results = binTree.getElementsWithinHemmingDistance(needleHash,
+		PriorityQueue<Result<Image>> results = binTree.getElementsWithinHammingDistance(needleHash,
 				(int) hammingDistance.getValue());
 
 		for (Result<Image> result : results) {

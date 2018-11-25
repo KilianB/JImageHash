@@ -26,7 +26,7 @@ class BinaryTreeTest {
 		Hash hash = createHash("101010100011",0);
 
 		binTree.addHash(hash, 1);
-		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(hash, 100);
+		PriorityQueue<Result> results = binTree.getElementsWithinHammingDistance(hash, 100);
 
 		Result r = results.peek();
 		assertEquals(1, r.value);
@@ -39,7 +39,7 @@ class BinaryTreeTest {
 		String bits  = "00001010";
 		Hash hash = createHash(bits,0);
 		binTree.addHash(hash,0);
-		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(hash,0);
+		PriorityQueue<Result> results = binTree.getElementsWithinHammingDistance(hash,0);
 		assertEquals(1,results.size());
 	}
 	
@@ -52,7 +52,7 @@ class BinaryTreeTest {
 		Hash hash1 = createHash(bits1,0);
 		
 		binTree.addHash(hash,0);
-		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(hash1,1);
+		PriorityQueue<Result> results = binTree.getElementsWithinHammingDistance(hash1,1);
 		assertEquals(1,results.size());
 	}
 	
@@ -63,7 +63,7 @@ class BinaryTreeTest {
 		Hash needle = createHash("101010101111", 0);
 
 		binTree.addHash(hash, 1);
-		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(needle, 100);
+		PriorityQueue<Result> results = binTree.getElementsWithinHammingDistance(needle, 100);
 
 		Result r = results.peek();
 		assertEquals(1, r.value);
@@ -76,7 +76,7 @@ class BinaryTreeTest {
 		Hash needle = createHash("101010101111", 0);
 
 		binTree.addHash(hash, 1);
-		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(needle, 1);
+		PriorityQueue<Result> results = binTree.getElementsWithinHammingDistance(needle, 1);
 
 		assertEquals(0, results.size());
 	}
@@ -87,7 +87,7 @@ class BinaryTreeTest {
 		Hash needle = createHash("101010101111", 0);
 
 		binTree.addHash(hash, 1);
-		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(needle, 2);
+		PriorityQueue<Result> results = binTree.getElementsWithinHammingDistance(needle, 2);
 
 		assertEquals(1, results.size());
 	}
@@ -100,7 +100,7 @@ class BinaryTreeTest {
 		binTree.addHash(hash, 2);
 		binTree.addHash(hash, 3);
 
-		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(hash, 0);
+		PriorityQueue<Result> results = binTree.getElementsWithinHammingDistance(hash, 0);
 
 		assertEquals(3, results.size());
 	}
@@ -117,7 +117,7 @@ class BinaryTreeTest {
 		binTree.addHash(hash1, 3);
 		binTree.addHash(hash1, 3);
 
-		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(hash, 0);
+		PriorityQueue<Result> results = binTree.getElementsWithinHammingDistance(hash, 0);
 
 		assertEquals(3, results.size());
 	}
@@ -134,7 +134,7 @@ class BinaryTreeTest {
 		binTree.addHash(hash1, 3);
 		binTree.addHash(hash1, 3);
 
-		PriorityQueue<Result> results = binTree.getElementsWithinHemmingDistance(hash, 2);
+		PriorityQueue<Result> results = binTree.getElementsWithinHammingDistance(hash, 2);
 
 		assertEquals(6, results.size());
 	}
@@ -158,7 +158,7 @@ class BinaryTreeTest {
 
 		binTree.addHash(hash, 0);
 		assertThrows(IllegalStateException.class, () -> {
-			binTree.getElementsWithinHemmingDistance(hash1, 10);
+			binTree.getElementsWithinHammingDistance(hash1, 10);
 		});
 	}
 
