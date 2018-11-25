@@ -19,7 +19,6 @@ import javax.imageio.ImageIO;
 
 import org.h2.tools.DeleteDbFiles;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +30,10 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
  * @author Kilian
  *
  */
-// TODO 5.4.0 Snapshot @TestMethodOrder
+/*
+ * TODO Starting with JUnit 5.4.0 Snapshot @TestMethodOrder reordering methods
+ * may allow us to construct more test more meaningful scenarios.
+ */
 class DatabaseImageMatcherTest {
 
 	private static BufferedImage ballon;
@@ -61,10 +63,11 @@ class DatabaseImageMatcherTest {
 
 	@Test
 	void deleteDatabase() {
+		DatabaseImageMatcher matcher;
 		try {
 			String dbName = "testDelete";
 			// Getsd closed by deleteDatabse
-			DatabaseImageMatcher matcher = new DatabaseImageMatcher(dbName, "rootTest", "");
+			matcher = new DatabaseImageMatcher(dbName, "rootTest", "");
 			File dbFile = new File(System.getProperty("user.home") + "/" + dbName + ".mv.db");
 			assertTrue(dbFile.exists());
 			matcher.deleteDatabase();
@@ -116,8 +119,7 @@ class DatabaseImageMatcherTest {
 			}
 		}
 	}
-	
-	
+
 	@Test
 	void addAndClearAlgorithms() {
 		String user = "rootTest";
@@ -140,9 +142,8 @@ class DatabaseImageMatcherTest {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-		}		
+		}
 	}
-	
 
 	@Test
 	void serializeAndDeSeriazlize() {
@@ -158,7 +159,7 @@ class DatabaseImageMatcherTest {
 			matcher.serializeToDatabase(0);
 
 			DatabaseImageMatcher deserialized = DatabaseImageMatcher.getFromDatabase(dbName, user, password, 0);
-			//Close before assertion to ensure it's called
+			// Close before assertion to ensure it's called
 			deserialized.close();
 			assertEquals(matcher, deserialized);
 		} catch (SQLException | ClassNotFoundException e) {
@@ -197,8 +198,6 @@ class DatabaseImageMatcherTest {
 					assertEquals("Ballon", results.peek().value);
 				});
 
-				
-				
 				final PriorityQueue<Result<String>> results1 = matcher.getMatchingImages(highQuality);
 				assertAll("Matches", () -> {
 					assertEquals(4, results1.size());
@@ -206,7 +205,7 @@ class DatabaseImageMatcherTest {
 					assertFalse(results1.stream().anyMatch(result -> result.value.equals("Ballon")));
 				});
 			} finally {
-				//matcher.deleteDatabase();
+				matcher.deleteDatabase();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -216,6 +215,5 @@ class DatabaseImageMatcherTest {
 	}
 
 //
-
 
 }
