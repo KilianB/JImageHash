@@ -196,7 +196,7 @@ class DifferenceHashTest {
 	}
 
 	/**
-	 * The hamming distance of the same image has to be 0
+<	 * The hamming distance of the same image has to be 0
 	 * @deprecated not really a algorithm test case. Same as consistent
 	 * @param d1
 	 */
