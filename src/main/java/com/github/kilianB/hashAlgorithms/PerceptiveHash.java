@@ -6,8 +6,8 @@ import java.util.Objects;
 
 import org.jtransforms.dct.DoubleDCT_2D;
 
+import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
 
 /**
  * Calculate a hash based on the frequency of an image using the DCT T2. This
@@ -15,7 +15,7 @@ import com.github.kilianB.graphics.ImageUtil.FastPixel;
  * transformations.
  * 
  * @author Kilian
- *
+ * @since 1.0.0
  */
 public class PerceptiveHash extends HashingAlgorithm {
 
@@ -41,7 +41,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 
 	@Override
 	protected BigInteger hash(BufferedImage image, BigInteger hash) {
-		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
 		int[][] lum = fp.getLuma();
 
@@ -91,6 +91,12 @@ public class PerceptiveHash extends HashingAlgorithm {
 		return hash;
 	}
 
+	/**
+	 * Compute the dimension for the resize operation. We want to get to close to a quadratic images 
+	 * as possible to counteract scaling bias. 
+	 * 
+	 * @param bitResolution the desired resolution
+	 */
 	private void computeDimensions(int bitResolution) {
 
 		// bitRes = (width/4)^2;

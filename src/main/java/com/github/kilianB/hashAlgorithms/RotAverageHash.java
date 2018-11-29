@@ -4,16 +4,28 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
+import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
 
 /**
  * 
+ * Calculate a hash value based on the average luminosity in an image after
+ * mapping each pixel to a rotational bucket.
+ * 
+ * <p>
+ * <img src=
+ * "https://user-images.githubusercontent.com/9025925/47964206-6f99b400-e036-11e8-8843-471242f9943a.png"
+ * />.
+ * 
+ * <p>
+ * Each bucket corresponds to a single pixel which means that the rescaled image
+ * gets rather large when higher bit resolutions are required which affects the
+ * performance for high bit keys lengths.
  * 
  * <p>
  * Note: Unlike the other hashing algorithms this algorithm is only thread safe
- * after it successfully hashed it's first image. If concurrent usage is required
- * perform a single hash pass on an arbitrary image.
+ * after it successfully hashed it's first image. If concurrent usage is
+ * required perform a single hash pass on an arbitrary image.
  * 
  * @author Kilian
  *
@@ -45,7 +57,7 @@ public class RotAverageHash extends HashingAlgorithm {
 	 */
 	public RotAverageHash(int bitResolution) {
 		super(bitResolution);
-		
+
 		int bucketPixelWidth = 2;
 
 		// To fill all buckets reliable we need 2 pixels due to rotation.
@@ -60,7 +72,7 @@ public class RotAverageHash extends HashingAlgorithm {
 	@Override
 	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 
-		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
 		// We need 2 more bucket since we compare to n-1 and no values are mapped to 0
 		// bucket
@@ -69,7 +81,7 @@ public class RotAverageHash extends HashingAlgorithm {
 		double hashArr[] = new double[bitResolution + 2];
 
 		boolean initCount = count == null;
-		
+
 		if (initCount) {
 			count = new int[hashArr.length];
 		}
@@ -92,7 +104,7 @@ public class RotAverageHash extends HashingAlgorithm {
 			}
 		}
 
-		//During first pass compute the average separately 
+		// During first pass compute the average separately
 		if (initCount) {
 			for (int i = 0; i < hashArr.length; i++) {
 				hashArr[i] /= count[i];
@@ -111,6 +123,13 @@ public class RotAverageHash extends HashingAlgorithm {
 		return hash;
 	}
 
+	/**
+	 * Compute the ring partition this specific pixel will fall into. 
+	 * 
+	 * @param originalX the x pixel index in the picture
+	 * @param originalY the y pixel index in the picture
+	 * @return the bucket index
+	 */
 	public int computePartition(double originalX, double originalY) {
 		// Compute eukledian distance to the center
 		originalX -= centerX;
@@ -121,7 +140,7 @@ public class RotAverageHash extends HashingAlgorithm {
 
 	@Override
 	protected int precomputeAlgoId() {
-		//These variables are enough to uniquely identify the hashing algorithm
-		return Objects.hash(getClass().getName(), width,height);
+		// These variables are enough to uniquely identify the hashing algorithm
+		return Objects.hash(getClass().getName(), width, height);
 	}
 }

@@ -4,14 +4,15 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
+import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
 
 /**
  * Calculate a hash value based on the average luminosity in an image.
  * 
  * @author Kilian
- *
+ * @since 1.0.0
+ * @since 2.0.0 use luminosity instead of average pixel color
  */
 public class AverageHash extends HashingAlgorithm {
 
@@ -22,6 +23,9 @@ public class AverageHash extends HashingAlgorithm {
 	 */
 	private int height, width;
 
+	/**
+	 * The number of pixels present in the input image
+	 */
 	private final int pixelCount;
 
 	/**
@@ -64,7 +68,7 @@ public class AverageHash extends HashingAlgorithm {
 
 	@Override
 	protected BigInteger hash(BufferedImage image, BigInteger hash) {
-		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
 		int[][] luminocity = fp.getLuma();
 
@@ -77,7 +81,7 @@ public class AverageHash extends HashingAlgorithm {
 				avgPixelValue += ((double) luminocity[x][y] / pixelCount);
 			}
 		}
-		
+
 		// Create hash
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
@@ -91,6 +95,12 @@ public class AverageHash extends HashingAlgorithm {
 		return hash;
 	}
 
+	/**
+	 * Compute the dimension for the resize operation. We want to get to close to a quadratic images 
+	 * as possible to counteract scaling bias. 
+	 * 
+	 * @param bitResolution the desired resolution
+	 */
 	private void computeDimension(int bitResolution) {
 
 		// Allow for slightly non symmetry to get closer to the true bit resolution
@@ -110,9 +120,10 @@ public class AverageHash extends HashingAlgorithm {
 	@Override
 	protected int precomputeAlgoId() {
 		/*
-		 *  String and int hashes stays consistent throughout different JVM invocations.
-		 *  Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
-		 *  flagged as incompatible. Dimension are what makes average hashes unique therefore, even
+		 * String and int hashes stays consistent throughout different JVM invocations.
+		 * Algorithm changed between version 1.x.x and 2.x.x ensure algorithms are
+		 * flagged as incompatible. Dimension are what makes average hashes unique
+		 * therefore, even
 		 */
 		return Objects.hash(getClass().getName(), height, width);
 	}

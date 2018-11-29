@@ -3,23 +3,24 @@ package com.github.kilianB.hashAlgorithms;
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import org.jtransforms.dct.DoubleDCT_1D;
 
-import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.StringUtil;
+import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
 
 /**
  * 
  * A rotational invariant hashing algorithm which is mostly immune to rotation
  * attacks. The hash wraps the pixels around a circle and computes a discrete
  * cosine transformation on each subsection.
+ * 
+ * <img src=
+ * "https://user-images.githubusercontent.com/9025925/47964206-6f99b400-e036-11e8-8843-471242f9943a.png"
+ * />.
  * 
  * @author Kilian
  * @since 2.0.0
@@ -101,7 +102,7 @@ public class RotPHash extends HashingAlgorithm {
 		// 0. Preprocessing. Extract Luminosity
 		BufferedImage transformed = ImageUtil.getScaledInstance(image, width, height);
 		// Fast pixel access. Order 10x faster than jdk internal
-		FastPixel fp = new FastPixel(transformed);
+		FastPixel fp = FastPixel.create(transformed);
 
 		@SuppressWarnings("unchecked")
 		List<Integer>[] values = new List[buckets];
@@ -117,7 +118,6 @@ public class RotPHash extends HashingAlgorithm {
 				// this pixel
 				int bucket = computePartition(x, y);
 				if (bucket >= buckets) {
-					// Everything beyond this column will be outside as well.
 					continue;
 				}
 				values[bucket].add(fp.getLuma(x, y));
@@ -171,6 +171,13 @@ public class RotPHash extends HashingAlgorithm {
 		return hash;
 	}
 
+	/**
+	 * Compute the ring partition this specific pixel will fall into. 
+	 * 
+	 * @param originalX the x pixel index in the picture
+	 * @param originalY the y pixel index in the picture
+	 * @return the bucket index
+	 */
 	protected int computePartition(double originalX, double originalY) {
 		// Compute euclidean distance to the center
 		originalX -= centerX;

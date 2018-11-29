@@ -3,12 +3,13 @@ package com.github.kilianB.hashAlgorithms.experimental;
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 
+import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
 
 /**
  * @author Kilian
- *
+ * @deprecated not ready to use yet
+ * @since 2.0.0
  */
 public class HogHashAngularEncoded extends HogHash {
 
@@ -35,7 +36,7 @@ public class HogHashAngularEncoded extends HogHash {
 	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 
 		BufferedImage bi = ImageUtil.getScaledInstance(image, width, height);
-		FastPixel fp = new FastPixel(bi);
+		FastPixel fp = FastPixel.create(bi);
 
 		int[][] lum = fp.getLuma();
 

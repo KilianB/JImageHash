@@ -4,8 +4,8 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
+import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
 
 /**
  * Calculates a hash based on gradient tracking. This hash is cheap to compute
@@ -13,17 +13,17 @@ import com.github.kilianB.graphics.ImageUtil.FastPixel;
  * transformation
  * 
  * @author Kilian
- *
+ * @since 1.0.0
  */
 public class DifferenceHash extends HashingAlgorithm {
 
 	private static final long serialVersionUID = 7236596241664072005L;
 
 	/**
-	 * Algorithm precision.
+	 * Algorithm precision used during calculation.
 	 * 
-	 * Be aware that changing the enum names will alter the algorithm id rendering
-	 * generated keys unable to
+	 * @implnote Be aware that changing the enum names will alter the algorithm id
+	 *           rendering generated keys unusable
 	 * 
 	 * @author Kilian
 	 *
@@ -48,6 +48,14 @@ public class DifferenceHash extends HashingAlgorithm {
 	private final Precision precision;
 
 	/**
+	 * 
+	 * Create a difference hasher with the given settings. The bit resolution always
+	 * corresponds to the simple precision value and will increase accordingly depending
+	 * on the precision chosen.
+	 * 
+	 * <p>
+	 * Tests have shown that a 64 bit simple precision hash usually performs better than a 
+	 * 32 bit double precision hash.
 	 * 
 	 * @param bitResolution The bit resolution specifies the final length of the
 	 *                      generated hash. A higher resolution will increase
@@ -78,7 +86,7 @@ public class DifferenceHash extends HashingAlgorithm {
 
 	@Override
 	protected BigInteger hash(BufferedImage image, BigInteger hash) {
-		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 		// Use data buffer for faster access
 
 		int[][] lum = fp.getLuma();
@@ -125,7 +133,10 @@ public class DifferenceHash extends HashingAlgorithm {
 	}
 
 	/**
-	 * @param bitResolution
+	 * Compute the dimension for the resize operation. We want to get to close to a
+	 * quadratic images as possible to counteract scaling bias.
+	 * 
+	 * @param bitResolution the desired resolution
 	 */
 	private void computeDimensions(int bitResolution) {
 		int dimension = (int) Math.round(Math.sqrt(bitResolution + 1));

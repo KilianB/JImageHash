@@ -2,12 +2,9 @@ package com.github.kilianB.hashAlgorithms.experimental;
 
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
-import java.util.Objects;
 
-import com.github.kilianB.MathUtil;
+import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 /**
  * Image Hash on HOG feature descriptor. Not ready yet. Most likely use a very
@@ -15,7 +12,7 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
  * 
  * @deprecated not ready to use yet
  * @author Kilian
- * 
+ * @since 2.0.0
  */
 @Deprecated
 public class HogHashDual extends HogHash {
@@ -41,7 +38,7 @@ public class HogHashDual extends HogHash {
 
 		
 		BufferedImage bi = ImageUtil.getScaledInstance(image, width, height);
-		FastPixel fp = new FastPixel(bi);
+		FastPixel fp = FastPixel.create(bi);
 
 		int[][] lum = fp.getLuma();
 

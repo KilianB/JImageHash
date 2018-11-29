@@ -1,17 +1,26 @@
-package com.github.kilianB.hashAlgorithms.experimental;
+package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
 import com.github.kilianB.ArrayUtil;
+import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 /**
+ * Calculate a hash value based on the median luminosity in an image.
+ * 
+ * <p>
+ * Really good performance almost comparable to average hash. So far does a
+ * little bit better if watermarks are added to the image but trades this off
+ * for a little bit worse if rescaled.
+ * 
+ * <p> 
+ * - Slower to compute
+ * 
  * @author Kilian
- *
+ * @since 2.0.0
  */
 public class MedianHash extends HashingAlgorithm {
 
@@ -21,7 +30,6 @@ public class MedianHash extends HashingAlgorithm {
 	 * The height and width of the scaled instance used to compute the hash
 	 */
 	private int height, width;
-
 
 	/**
 	 * @param bitResolution
@@ -38,23 +46,22 @@ public class MedianHash extends HashingAlgorithm {
 
 	@Override
 	protected BigInteger hash(BufferedImage image, BigInteger hash) {
-		FastPixel fp = new FastPixel(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
 		int[] lum = fp.getLuma1D();
-		
+
 		int[][] luminocity = fp.getLuma();
 
-		//Compute median.
+		// Compute median.
 		double medianValue;
-		int[] sortedIndices = ArrayUtil.getSortedIndices(lum,true);
-		int midPoint = sortedIndices.length/2;
-		if(sortedIndices.length % 2 == 0) {
-			medianValue = (lum[sortedIndices[midPoint]] + lum[sortedIndices[midPoint-1]])/2;
-		}else {
-			medianValue= lum[sortedIndices[midPoint]];
+		int[] sortedIndices = ArrayUtil.getSortedIndices(lum, true);
+		int midPoint = sortedIndices.length / 2;
+		if (sortedIndices.length % 2 == 0) {
+			medianValue = (lum[sortedIndices[midPoint]] + lum[sortedIndices[midPoint - 1]]) / 2;
+		} else {
+			medianValue = lum[sortedIndices[midPoint]];
 		}
-		
-		
+
 		// Create hash
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
@@ -67,7 +74,6 @@ public class MedianHash extends HashingAlgorithm {
 		}
 		return hash;
 	}
-
 
 	private void computeDimension(int bitResolution) {
 
@@ -87,7 +93,7 @@ public class MedianHash extends HashingAlgorithm {
 
 	@Override
 	protected int precomputeAlgoId() {
-		return  Objects.hash(getClass().getName(), height, width);
+		return Objects.hash(getClass().getName(), height, width);
 	}
 
 }

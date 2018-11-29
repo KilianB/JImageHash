@@ -15,17 +15,19 @@ import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.MathUtil;
 import com.github.kilianB.Require;
 import com.github.kilianB.graphics.ColorUtil;
+import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 /**
  * Image Hash on HOG feature descriptor. Not ready yet. Most likely use a very
  * high bit resolution similar to how hog feature descriptors are actually used
  * 
+ * Requires at least 64 bit to produce reasonable results
+ * 
  * @deprecated not ready to use yet
  * @author Kilian
- * 
+ * @since 2.0.0
  */
 public class HogHash extends HashingAlgorithm {
 
@@ -104,7 +106,7 @@ public class HogHash extends HashingAlgorithm {
 		super(bitResolution);
 
 		if (bitResolution <= 8) {
-			throw new IllegalArgumentException("HogHashDual is only defined for bit resolution < 8");
+			throw new IllegalArgumentException("HogHash is only defined for bit resolution > 8");
 		}
 
 		/*
@@ -158,7 +160,7 @@ public class HogHash extends HashingAlgorithm {
 	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 
 		BufferedImage bi = ImageUtil.getScaledInstance(image, width, height);
-		FastPixel fp = new FastPixel(bi);
+		FastPixel fp = FastPixel.create(bi);
 
 		int[][] lum = fp.getLuma();
 
@@ -168,7 +170,7 @@ public class HogHash extends HashingAlgorithm {
 		int[][][] hog = computeHogFeatures(lum);
 
 		// Block normalization 2 x 2 hist kernel "shifting window"
-		double[][][] normalizedHog = blockNormalization(hog);
+		//double[][][] normalizedHog = blockNormalization(hog);
 
 		// toImage(new File("HogNormalized" + image.hashCode() + ".png"), image,
 		// Color.RED, normalizedHog);
