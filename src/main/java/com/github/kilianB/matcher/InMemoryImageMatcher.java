@@ -26,6 +26,8 @@ import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
  */
 public class InMemoryImageMatcher extends ImageMatcher {
 
+	//TODO update javadocs
+	
 	/**
 	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
 	 * high quality results.

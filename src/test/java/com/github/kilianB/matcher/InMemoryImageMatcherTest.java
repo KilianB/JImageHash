@@ -14,12 +14,14 @@ import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
+import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 class InMemoryImageMatcherTest {
 
@@ -47,34 +49,100 @@ class InMemoryImageMatcherTest {
 		}
 	}
 
-	@Test
-	@DisplayName("Check Similarity")
-	void imageMatches() {
+	@Nested
+	class TestDefaultSettings{
+		@Test
+		@DisplayName("Default")
+		void defaultMatcher() {
 
-		InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
+			InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
 
-		matcher.addImage(ballon);
-		matcher.addImage(copyright);
-		matcher.addImage(highQuality);
-		matcher.addImage(lowQuality);
-		matcher.addImage(thumbnail);
+			matcher.addImage(ballon);
+			matcher.addImage(copyright);
+			matcher.addImage(highQuality);
+			matcher.addImage(lowQuality);
+			matcher.addImage(thumbnail);
 
-		// We only expect ballon to be returned
-		final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
+			// We only expect ballon to be returned
+			final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
 
-		assertAll("Ballon", () -> {
-			assertEquals(1, results.size());
-		}, () -> {
-			assertEquals(ballon, results.peek().value);
-		});
+			
+			assertAll("Ballon", () -> {
+				assertEquals(1, results.size());
+			}, () -> {
+				assertEquals(ballon, results.peek().value);
+			});
 
-		final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
+			final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
+			
+			assertAll("Matches", () -> {
+				assertEquals(4, results1.size());
+			}, () -> {
+				assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
+			});
+		}
+		
+		@Test
+		@DisplayName("Forgiving")
+		void forgiving() {
 
-		assertAll("Matches", () -> {
-			assertEquals(4, results1.size());
-		}, () -> {
-			assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
-		});
+			InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher(Setting.Forgiving);
+
+			matcher.addImage(ballon);
+			matcher.addImage(copyright);
+			matcher.addImage(highQuality);
+			matcher.addImage(lowQuality);
+			matcher.addImage(thumbnail);
+
+			// We only expect ballon to be returned
+			final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
+
+			
+			assertAll("Ballon", () -> {
+				assertEquals(1, results.size());
+			}, () -> {
+				assertEquals(ballon, results.peek().value);
+			});
+
+			final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
+			
+			assertAll("Matches", () -> {
+				assertEquals(4, results1.size());
+			}, () -> {
+				assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
+			});
+		}
+		
+		@Test
+		@DisplayName("Fair")
+		void imageMatches() {
+
+			InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher(Setting.Fair);
+
+			matcher.addImage(ballon);
+			matcher.addImage(copyright);
+			matcher.addImage(highQuality);
+			matcher.addImage(lowQuality);
+			matcher.addImage(thumbnail);
+
+			// We only expect ballon to be returned
+			final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
+
+			
+			assertAll("Ballon", () -> {
+				assertEquals(1, results.size());
+			}, () -> {
+				assertEquals(ballon, results.peek().value);
+			});
+
+			final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
+			
+			assertAll("Matches", () -> {
+				assertEquals(4, results1.size());
+			}, () -> {
+				assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
+			});
+		}
 	}
 
 	@Test

@@ -10,7 +10,13 @@ import java.util.PriorityQueue;
 import com.github.kilianB.MathUtil;
 import com.github.kilianB.dataStrorage.tree.BinaryTree;
 import com.github.kilianB.dataStrorage.tree.Result;
+import com.github.kilianB.hashAlgorithms.AverageHash;
+import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.hashAlgorithms.PerceptiveHash;
+import com.github.kilianB.hashAlgorithms.RotPHash;
+import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
+import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * Instead of early aborting if one algorithm fails like the
@@ -48,16 +54,86 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 	 */
 	private AlgoSettings overallSetting;
 
-	// TODO should probably all be normalized to get comparable!!
-
+	/**
+	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
+	 * high quality results.
+	 * <p>
+	 * The dHash is a quick algorithms allowing to filter images which are very
+	 * unlikely to be similar images. pHash is computationally more expensive and
+	 * used to inspect possible candidates further
+	 * 
+	 * @return The matcher used to check if images are similar
+	 */
 	public static CumulativeImageMatcher createDefaultMatcher() {
+		return createDefaultMatcher(Setting.Quality);
+	}
 
-		// FALSE WE CAN!
+	/**
+	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
+	 * high quality results.
+	 * <p>
+	 * The dHash is a quick algorithms allowing to filter images which are very
+	 * unlikely to be similar images. pHash is computationally more expensive and
+	 * used to inspect possible candidates further
+	 * 
+	 * @param algorithmSetting
+	 *                         <p>
+	 *                         How aggressive the algorithm advances while comparing
+	 *                         images
+	 *                         </p>
+	 *                         <ul>
+	 *                         <li><b>Forgiving:</b> Matches a bigger range of
+	 *                         images</li>
+	 *                         <li><b>Fair:</b> Matches all sample images</li>
+	 *                         <li><b>Quality:</b> Recommended: Does not initially
+	 *                         filter as aggressively as Fair but returns usable
+	 *                         results</li>
+	 *                         <li><b>Strict:</b> Only matches images which are
+	 *                         closely related to each other</li>
+	 *                         </ul>
+	 * 
+	 * @return The matcher used to check if images are similar
+	 */
+	public static CumulativeImageMatcher createDefaultMatcher(Setting algorithmSetting) {
+		CumulativeImageMatcher matcher = null;
 
-		// Here we can't use the default implementation since thresholds work
-		// differently..
+		switch (algorithmSetting) {
+		case Speed:
+			matcher = new CumulativeImageMatcher(0.6f);
+			// Chain in the order of execution speed
+			matcher.addHashingAlgorithm(new AverageHash(16), 1f);
+			matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 1f);
+			break;
+		case Rotational:
+			// PHash scales better for higher resolutions. Average hash is good as well but
+			// do we need to add it here?
+			matcher = new CumulativeImageMatcher(0.2f);
+			matcher.addHashingAlgorithm(new RotPHash(64), 1f);
+			// matcherToConfigure.addHashingAlgorithm(new RotAverageHash (32),0.21f);
+		case Forgiving:
 
-		return null;
+			matcher = new CumulativeImageMatcher(0.8f);
+			matcher.addHashingAlgorithm(new AverageHash(64), 1);
+			// Add some mroe weight to the perceptive hash since it usually is more accurate
+			matcher.addHashingAlgorithm(new PerceptiveHash(32), 2f);
+			break;
+		case Quality:
+		case Fair:
+			matcher = new CumulativeImageMatcher(0.5f);
+			matcher.addHashingAlgorithm(new AverageHash(64), 1);
+			// Add some more weight to the perceptive hash since it usually is more accurate
+			matcher.addHashingAlgorithm(new PerceptiveHash(32), 2f);
+			break;
+		case Strict:
+			matcher = new CumulativeImageMatcher(0.3f);
+			matcher.addHashingAlgorithm(new AverageHash(8), 1f);
+			matcher.addHashingAlgorithm(new PerceptiveHash(32), 1f);
+			matcher.addHashingAlgorithm(new PerceptiveHash(64), 1f);
+			break;
+		default:
+			throw new IllegalArgumentException("Setting not handled");
+		}
+		return matcher;
 	}
 
 	/**
@@ -80,13 +156,14 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 		this(new AlgoSettings(threshold, normalized));
 	}
 
-	//TODO really?
+	// TODO really?
 	public CumulativeImageMatcher(AlgoSettings setting) {
 		overallSetting = Objects.requireNonNull(setting, "Setting may not be null");
 	}
 
 	/**
-	 * Add a hashing algorithm to 
+	 * Add a hashing algorithm to
+	 * 
 	 * @param algo
 	 */
 	public void addHashingAlgorithm(HashingAlgorithm algo) {
@@ -99,18 +176,14 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 	 * 
 	 * The weight parameter scales the returned hash distance.
 	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
 	 * @param algo   The algorithms to be added
 	 * @param weight The weight of this algorithm.
 	 */
 	public void addHashingAlgorithm(HashingAlgorithm algo, float weight) {
 		// only used to redefine javadocs
-		super.addHashingAlgorithm(algo, weight);
+		// Add false to cirumvent the range check. We do not check for normalized in
+		// this case either way
+		super.addHashingAlgorithm(algo, weight, false);
 	}
 
 	/**
@@ -125,7 +198,7 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 	 */
 	public void addHashingAlgorithm(HashingAlgorithm algo, float weight, boolean dummy) {
 		// only used to redefine javadocs
-		super.addHashingAlgorithm(algo, weight, dummy);
+		super.addHashingAlgorithm(algo, weight, false);
 	}
 
 	public PriorityQueue<Result<BufferedImage>> getMatchingImages(BufferedImage image) {
@@ -134,16 +207,17 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 			throw new IllegalStateException(
 					"Please supply at least one hashing algorithm prior to invoking the match method");
 
-		// The maximum distance we have to search in our tree until we can't find any more images
+		// The maximum distance we have to search in our tree until we can't find any
+		// more images
 		double maxDistanceUntilTermination = overallSetting.threshold;
 
 		// [Result,Summed distance of the image]
 		HashMap<Result<BufferedImage>, Double> distanceMap = new HashMap<>();
 
-		//During first iteration we need to do some extra hoops
+		// During first iteration we need to do some extra hoops
 		boolean first = true;
 
-		//https://stackoverflow.com/a/31401836/3244464 TODO jmh benchmark
+		// https://stackoverflow.com/a/31401836/3244464 TODO jmh benchmark
 		float optimalLoadFactor = (float) Math.log(2);
 
 		// For each hashing algorithm
@@ -155,10 +229,10 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 			BinaryTree<BufferedImage> binTree = binTreeMap.get(algo);
 
 			// Init temporary hashmap
-			int optimalCapacity = (int) (Math.ceil( (first ? binTree.getHashCount() : distanceMap.size())/ optimalLoadFactor) + 1);
+			int optimalCapacity = (int) (Math
+					.ceil((first ? binTree.getHashCount() : distanceMap.size()) / optimalLoadFactor) + 1);
 			temporaryMap = new HashMap<>(optimalCapacity, optimalLoadFactor);
-			
-			
+
 			Hash needleHash = algo.hash(image);
 
 			int bitRes = algo.getKeyResolution();
@@ -166,7 +240,7 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 			int threshold = 0;
 
 			if (overallSetting.normalized) {
-				//Normalized threshold
+				// Normalized threshold
 				threshold = (int) (maxDistanceUntilTermination * bitRes);
 			} else {
 				threshold = (int) maxDistanceUntilTermination;
@@ -174,20 +248,19 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 
 			PriorityQueue<Result<BufferedImage>> temp = binTree.getElementsWithinHammingDistance(needleHash, threshold);
 
-			//Find the min total distance for the next generation to specify our cutoff parameter
+			// Find the min total distance for the next generation to specify our cutoff
+			// parameter
 			double minDistance = Double.MAX_VALUE;
 
 			// filter manually
 			for (Result<BufferedImage> res : temp) {
-				
+
 				double normalDistance = entry.getValue().getThreshold() * (res.distance / (double) bitRes);
-				
-				System.out.println(normalDistance + " " + res.normalizedHammingDistance);
-				
+
 				// Initially seed hashmap
 				if (first) {
 					// Add all
-					System.out.printf("Distance: %.3f |  %s %n", normalDistance, res.toString());
+					// System.out.printf("Distance: %.3f | %s %n", normalDistance, res.toString());
 					temporaryMap.put(res, normalDistance);
 					if (normalDistance < minDistance) {
 						minDistance = normalDistance;
@@ -200,8 +273,9 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 						double distanceSoFar = distanceMap.get(res) + normalDistance;
 						double distanceLeft = overallSetting.threshold - distanceSoFar;
 
-						System.out.printf("Distance: %.3f | dLeft: %.3f distSoFar: %.3f %s %n", normalDistance,
-								distanceLeft, distanceSoFar, res.toString());
+						// System.out.printf("Distance: %.3f | dLeft: %.3f distSoFar: %.3f %s %n",
+						// normalDistance,
+						// distanceLeft, distanceSoFar, res.toString());
 
 						if (distanceLeft > 0) {
 							// Update distance
@@ -213,7 +287,7 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 					}
 				}
 
-				// Cumulative distance already supplued
+				// Cumulative distance already supplied
 			}
 
 			distanceMap = temporaryMap;
@@ -243,7 +317,6 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 			matchedImage.normalizedHammingDistance = e.getValue();
 			returnValues.add(matchedImage);
 		}
-
 		return returnValues;
 	}
 

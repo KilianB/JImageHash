@@ -486,8 +486,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 */
 	public PriorityQueue<Result<String>> getMatchingImages(BufferedImage image) throws SQLException {
 
-		System.out.println("Get matching images: " + image);
-
 		if (steps.isEmpty())
 			throw new IllegalStateException(
 					"Please supply at least one hashing algorithm prior to invoking the match method");
@@ -632,8 +630,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
 			Hash sampleHash = hasher.hash(bi);
 			int bytes = (int) Math.ceil(sampleHash.getBitResolution() / 8d);
-
-			System.out.println("Bit Res: " + sampleHash.getBitResolution() + " " + tableName);
 
 			stmt.execute("CREATE TABLE " + tableName + " (url VARCHAR(260) PRIMARY KEY, hash BINARY(" + bytes + "))");
 		}

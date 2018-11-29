@@ -4,10 +4,12 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
+import com.github.kilianB.hashAlgorithms.RotPHash;
 
 public abstract class ImageMatcher {
 
@@ -17,41 +19,35 @@ public abstract class ImageMatcher {
 	 * @author Kilian
 	 *
 	 */
-	// TODO rename description. It'S not set 
+	// TODO rename description. It'S not set
 	public enum Setting {
 		/**
 		 * Most permissive setting. Many images will be matched. Be aware of false
 		 * positives
-		 * <ul>
-		 * <li>DifferenceHash(32,Precision.Double) threshold 20</li>
-		 * <li>PerceptiveHash(32) threshold 15</li>
-		 * </ul>
 		 */
 		Forgiving,
 		/**
-		 * 2nd most permissive setting. Be aware of false positives
-		 * <ul>
-		 * <li>DifferenceHash(32,Precision.Double) threshold 15</li>
-		 * <li>PerceptiveHash(32) threshold 10</li>
-		 * </ul>
+		 * Permissive setting. A bit more strict than forgiving
 		 */
 		Fair,
 		/**
-		 * Strict image matcher. Only very close images will be matched. e.g. Thumbnail
-		 * does not trigger the matcher.
-		 * <ul>
-		 * <li>DifferenceHash(32,Precision.Double) threshold 10</li>
-		 * <li>PerceptiveHash(32) threshold 6</li>
-		 * </ul>
+		 * Strict image matcher. Only matches close images. 
 		 */
 		Strict,
 		/**
-		 * Recommended for the supplied test images.
-		 * <p>
-		 * DiffernceHash(32, Double precision) threshold 15 followed by
-		 * PerceptiveHash(32) threshold 15
+		 * Default setting used as non argument. Currently the same as fair.
 		 */
-		Quality
+		Quality,
+		/**
+		 * An image matcher which is robust against rotational transforms
+		 */
+		Rotational,
+
+		/**
+		 * Preset focusing greatly on speed rather than accuracy.
+		 */
+		Speed
+
 	}
 
 	/**
@@ -64,21 +60,32 @@ public abstract class ImageMatcher {
 	 */
 	protected void addDefaultHashingAlgorithms(ImageMatcher matcherToConfigure, Setting settings) {
 		switch (settings) {
+
+		case Speed:
+			// Chain in the order of execution speed
+			matcherToConfigure.addHashingAlgorithm(new AverageHash(16), 0.31f);
+			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.31f);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(16), 0.33f);
+			break;
+		case Rotational:
+			// PHash scales better for higher resolutions. Average hash is good as well but
+			// do we need to add it here?
+			matcherToConfigure.addHashingAlgorithm(new RotPHash(64), 0.19f);
+			// matcherToConfigure.addHashingAlgorithm(new RotAverageHash (32),0.21f);
 		case Forgiving:
-			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 0.78f);
+			matcherToConfigure.addHashingAlgorithm(new AverageHash(64), 0.5f);
 			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.5f);
 			break;
+		case Quality:
 		case Fair:
-			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 0.78f);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.3125f);
+			matcherToConfigure.addHashingAlgorithm(new AverageHash(64), 0.4f);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.3f);
 			break;
 		case Strict:
-			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 0.3125f);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.1875f);
+			matcherToConfigure.addHashingAlgorithm(new AverageHash(8), 0f);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.15f);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(64), 0.15f);
 			break;
-		case Quality:
-			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 0.625f);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.46875f);
 		}
 	}
 
