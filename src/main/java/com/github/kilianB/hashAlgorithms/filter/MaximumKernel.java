@@ -1,16 +1,15 @@
 package com.github.kilianB.hashAlgorithms.filter;
 
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.graphics.FastPixel;
+import com.github.kilianB.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy;
 
 /**
- * A median kernel is a non linear filter scanning the image and replacing
- * every value with the median value found in the neighborhood.
+ * A maximum kernel is a non linear filter scanning the image and replacing
+ * every value with the maximum value found in the neighborhood.
  * 
- * This median kernel allows a weight matrix to be supplied.
+ * This maximum kernel allows a weight matrix to be supplied.
  * 
  * <p>
  * Example 1D kernel width 5 Kernel and no/uniform mask
@@ -19,10 +18,8 @@ import com.github.kilianB.graphics.FastPixel;
  * 	Values: 5 4 1 3 6
  * </pre>
  * 
- * 1 3 4 5 6
- * 
  * During convolution, the kernel looks at the value 1 and replaces it with the
- * value 4 due to it being the median.
+ * value 6 due to it being the maximum.
  * 
  * <p>
  * A weight mask {@code [1 2 3 2 1]} can give more emphasis on closer pixel
@@ -31,8 +28,6 @@ import com.github.kilianB.graphics.FastPixel;
  * <pre>
  * Values * Mask => [5 8 3 6 6]
  * </pre>
- * 
- * 3 5 6 6 8 
  * 
  * and it is found that the second value is the maximum. Now the unaltered vlaue
  * at position 2 is taken. Therefore the 1 is replaced with the value 4.
@@ -43,18 +38,18 @@ import com.github.kilianB.graphics.FastPixel;
  * @see MedianKernel
  * @see MinimumKernel
  */
-public class MedianKernel extends Kernel {
+public class MaximumKernel extends Kernel {
 
-	private static final long serialVersionUID = 5756361510407136992L;
+	private static final long serialVersionUID = 4302400514104308983L;
 
 	/**
-	 * Create a median kernel with a uniform weight mask (no weighting takes place)
-	 * @param width of the kernel. has to be odd
-	 * @param height of the kernel. has to be odd
+	 * Create a maximum kernel with no weight matrix
 	 * 
+	 * @param width  of the kernel
+	 * @param height height of the kernel
 	 */
 	@SuppressWarnings("deprecation")
-	public MedianKernel(int width, int height) {
+	public MaximumKernel(int width, int height) {
 		super(EdgeHandlingStrategy.EXPAND);
 
 		if (width <= 0 || width % 2 == 0 || height <= 0 || height % 2 == 0) {
@@ -62,11 +57,13 @@ public class MedianKernel extends Kernel {
 					"Currently only odd dimensional kernels are supported. Width & height have to be positive");
 		}
 		// Create mask
-		double[][] mask = new double[width][height];
-		ArrayUtil.fillArrayMulti(mask,()->{return 1d;});
+		double[][] mask = new double[height][width];
+		ArrayUtil.fillArrayMulti(mask, () -> {
+			return 1d;
+		});
 		this.mask = mask;
 	}
-	
+
 	/**
 	 * Create a kernel with the given masks dimension. The masks acts as weight
 	 * filter increasing or decreasing the weight of the value during convolution.
@@ -74,10 +71,10 @@ public class MedianKernel extends Kernel {
 	 * 
 	 * @param mask weight matrix used to judge which value is the maximum
 	 */
-	public MedianKernel(double[][] mask) {
+	public MaximumKernel(double[][] mask) {
 		super(mask);
 	}
-	
+
 	@Override
 	protected double calcValue(byte[][] input, int x, int y) {
 		int maskW = mask[0].length / 2;
@@ -111,20 +108,7 @@ public class MedianKernel extends Kernel {
 				wValues[index++] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
 			}
 		}
-		
-		//TODO how do we want to do this?
-
-		Arrays.sort(values);
-
-		// Find the median value
-
-		int halfIndex = values.length / 2;
-
-		if (values.length % 2 == 0) {
-			return (values[halfIndex] + values[halfIndex + 1]) / 2;
-		} else {
-			return values[halfIndex];
-		}
+		return values[ArrayUtil.maximumIndex(wValues)];
 	}
 
 	@Override
@@ -160,18 +144,7 @@ public class MedianKernel extends Kernel {
 				wValues[index++] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
 			}
 		}
-
-		Arrays.sort(values);
-
-		// Find the median value
-
-		int halfIndex = values.length / 2;
-
-		if (values.length % 2 == 0) {
-			return (values[halfIndex] + values[halfIndex + 1]) / 2;
-		} else {
-			return values[halfIndex];
-		}
+		return values[ArrayUtil.maximumIndex(wValues)];
 	}
 
 	@Override
@@ -207,36 +180,7 @@ public class MedianKernel extends Kernel {
 				wValues[index++] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
 			}
 		}
-
-		int[] sortedIndices = ArrayUtil.getSortedIndices(wValues,false);
-		
-		Arrays.sort(values);
-
-		// Find the median value
-		int halfIndex = values.length / 2;
-
-		if (values.length % 2 == 0) {
-			return (values[sortedIndices[halfIndex]] + values[sortedIndices[halfIndex + 1]]) / 2;
-		} else {
-			return values[sortedIndices[halfIndex]];
-		}
-	}
-	
-	@Override
-	public BufferedImage filter(BufferedImage input) {
-		BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), input.getType());
-		FastPixel fp = FastPixel.create(input);
-		FastPixel fpSet = FastPixel.create(bi);
-		int[][] gray = fp.getAverageGrayscale();
-		
-		gray = applyInt(gray);
-		
-		if(fpSet.hasAlpha()) {
-			fpSet.setAlpha(fp.getAlpha());
-		}
-		
-		fpSet.setAverageGrayscale(gray);
-		return bi;
+		return values[ArrayUtil.maximumIndex(wValues)];
 	}
 
 }

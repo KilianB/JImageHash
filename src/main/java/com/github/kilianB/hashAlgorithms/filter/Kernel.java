@@ -1,11 +1,14 @@
 package com.github.kilianB.hashAlgorithms.filter;
 
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
 import com.github.kilianB.ArrayUtil;
+import com.github.kilianB.MiscUtil;
 import com.github.kilianB.Require;
+import com.github.kilianB.graphics.FastPixel;
 
 /**
  * Kernel operations are shifting window masks applied to data point of an array
@@ -27,10 +30,13 @@ import com.github.kilianB.Require;
  * <img src=
  * "http://machinelearninguru.com/_images/topics/computer_vision/basics/convolution/3.JPG"/>
  * 
+ * TODO support separability for custom kernels
+ * TODO kernel indices are swapped and twisted.
+ * 
  * @author Kilian
  * @since 2.0.0
  */
-public class Kernel implements Serializable {
+public class Kernel implements Serializable, Filter {
 
 	private static final long serialVersionUID = -3490082941059458531L;
 
@@ -59,6 +65,15 @@ public class Kernel implements Serializable {
 	 * A box filter is a filter which applies the same factor to squared region of
 	 * pixels and can be counted to the blurring filters.
 	 * 
+	 * <pre>
+	 * 	Example factor: 0.3 width: 3 height: 3
+	 * 
+	 * 	  0.3  0.3  0.3
+	 * 	  0.3  0.3  0.3
+	 * 	  0.3  0.3  0.3
+	 * </pre>
+	 * 
+	 * 
 	 * A normalized box filter is available via
 	 * {@link #boxFilterNormalized(int, int)}.
 	 * 
@@ -68,14 +83,64 @@ public class Kernel implements Serializable {
 	 * @return the box filter kernel
 	 */
 	public static Kernel boxFilter(int width, int height, double factor) {
-		// Construct mask
-		double[][] mask = new double[width][height];
-		ArrayUtil.fillArrayMulti(mask, () -> {
-			return factor;
+
+		// Seperable implementation. Split into multi kernel for more performance
+		double xMask[][] = new double[1][width];
+		double yMask[][] = new double[height][1];
+
+		double[] xInternal = new double[width];
+		for (int i = 0; i < width; i++) {
+			xInternal[i] = factor;
+		}
+
+		xMask[0] = xInternal;
+
+		ArrayUtil.fillArray(yMask, () -> {
+			return new double[] { 1d };
 		});
-		return new Kernel(mask);
+
+		return new MultiKernel(yMask, xMask);
+
+		/*
+		 * 2d variant // Construct mask double[][] mask = new double[width][height];
+		 * ArrayUtil.fillArrayMulti(mask, () -> { return factor; }); return new
+		 * Kernel(mask);
+		 */
 	}
 
+
+	public static Kernel boxFilterNormalizedSep(int width, int height) {
+		// Construct mask
+		double factor = 1d / (width * height);
+		// Seperable implementation. Split into multi kernel for more performance
+		double xMask[][] = new double[1][width];
+		double yMask[][] = new double[height][1];
+
+		double[] xInternal = new double[width];
+		for (int i = 0; i < width; i++) {
+			xInternal[i] = factor;
+		}
+
+		xMask[0] = xInternal;
+
+		ArrayUtil.fillArray(yMask, () -> {
+			return new double[] { 1d };
+		});
+
+		return new MultiKernel(xMask, yMask);
+	}
+
+	/*
+	 * 1 2 * 1 0 -1 1
+	 * 
+	 * 1 0 -1 2 0 -2 1 0 -1
+	 * 
+	 * 
+	 * 0.5 0.5 1 1 1 0.5
+	 * 
+	 * 0.5 0.5 0.5 0.5.0.5 0.5 0.5 0.5 0.5
+	 * 
+	 */
 	/**
 	 * A box filter is a filter which applies the same factor to squared region of
 	 * pixels and can be counted to the blurring filters.
@@ -90,7 +155,7 @@ public class Kernel implements Serializable {
 	public static Kernel boxFilterNormalized(int width, int height) {
 		// Construct mask
 		double factor = 1d / (width * height);
-		double[][] mask = new double[width][height];
+		double[][] mask = new double[height][width];
 		ArrayUtil.fillArrayMulti(mask, () -> {
 			return factor;
 		});
@@ -136,6 +201,11 @@ public class Kernel implements Serializable {
 				mask[x + wHalf][y + hHalf] = (1 / (2 * Math.PI * stdSquared)) * Math.pow(Math.E, exponent);
 			}
 		}
+
+		// Seperability
+
+		// http://www-edlab.cs.umass.edu/~smaji/cmpsci370/slides/hh/lec02_hh_advanced_edges.pdf
+
 		return new Kernel(mask, true);
 	}
 
@@ -175,12 +245,12 @@ public class Kernel implements Serializable {
 
 		for (int y = 0; y < mask.length; y++) {
 			if (y < xMatch) {
-				mask[y][xMatch] = 1;
-			} else if (y > xMatch) {
 				mask[y][xMatch] = -1;
+			} else if (y > xMatch) {
+				mask[y][xMatch] = 1;
 			}
 		}
-		return new Kernel(mask, false);
+		return new GrayScaleFilter(mask);
 	}
 
 	/**
@@ -206,14 +276,14 @@ public class Kernel implements Serializable {
 			for (int x = 0; x < mask.length; x++) {
 				if (x == y) {
 					if (y < xMatch) {
-						mask[y][x] = 1;
-					} else if (y > xMatch) {
 						mask[y][x] = -1;
+					} else if (y > xMatch) {
+						mask[y][x] = 1;
 					}
 				}
 			}
 		}
-		return new Kernel(mask, false);
+		return new GrayScaleFilter(mask);
 	}
 
 	/**
@@ -238,14 +308,14 @@ public class Kernel implements Serializable {
 			for (int x = 0; x < mask.length; x++) {
 				if (x + y == mask.length - 1) {
 					if (y < xMatch) {
-						mask[y][x] = 1;
-					} else if (y > xMatch) {
 						mask[y][x] = -1;
+					} else if (y > xMatch) {
+						mask[y][x] = 1;
 					}
 				}
 			}
 		}
-		return new Kernel(mask, false);
+		return new GrayScaleFilter(mask);
 	}
 
 	/**
@@ -269,41 +339,14 @@ public class Kernel implements Serializable {
 			for (int x = 0; x < mask.length; x++) {
 				if (y == xMatch) {
 					if (x < xMatch) {
-						mask[y][x] = 1;
-					} else if (x > xMatch) {
 						mask[y][x] = -1;
+					} else if (x > xMatch) {
+						mask[y][x] = 1;
 					}
 				}
 			}
 		}
-		return new Kernel(mask, false);
-	}
-
-	/**
-	 * A 3 x 3 edge detection kernel putting emphasis on edges in the image.
-	 * 
-	 * <p>
-	 * This kernel is normalized.
-	 * 
-	 * @param strength feature strength of the detector
-	 * @return the edge detection kernel
-	 */
-	public static Kernel artFilter(int strength) {
-		// TODO
-		double[][] mask = new double[3][3];
-		double factor = 1 - strength / 8d;
-		ArrayUtil.fillArrayMulti(mask, () -> {
-			return factor;
-		});
-		mask[1][1] = strength;
-
-		double sum = 0;
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				sum += mask[i][j];
-			}
-		}
-		return new Kernel(mask);
+		return new GrayScaleFilter(mask);
 	}
 
 //	
@@ -323,7 +366,7 @@ public class Kernel implements Serializable {
 	protected double[][] mask;
 
 	/** Seperable convolution to speed up masking if applicable */
-	// https://en.wikipedia.org/wiki/Singular_value_decomposition
+	// https://en.wikipedia.org/wiki/Singular_value_decomposition for custom kernels
 	// https://blogs.mathworks.com/steve/2006/11/28/separable-convolution-part-2/
 	// private double[] seperableMaskX;
 	// private double[] seperableMaskY;
@@ -331,6 +374,25 @@ public class Kernel implements Serializable {
 	/** How are edged of the images handled */
 	protected EdgeHandlingStrategy edgeHandling;
 
+	// TODO we could compute a pixel mapping map before convolution reducing method
+	// calls and maybe increase performance instead of on the fly calculation of
+	// those values?
+	// int[][] pixelAccessMap
+
+	
+	/**
+	 * Create a clone of the supplied kernel
+	 * @param template the kernel to clone
+	 */
+	public Kernel(Kernel template) {
+		this.edgeHandling = template.edgeHandling;
+		try {
+			this.mask = ArrayUtil.deepArrayCopyClone(template.mask);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Empty constructor used by inheriting classes which are not able to provide a
 	 * mask during first constructor call. The inheriting class promises to provide
@@ -434,14 +496,11 @@ public class Kernel implements Serializable {
 	 * @return a new array created by the kernel
 	 */
 	public double[][] apply(int[][] input) {
-		int width = input.length;
-		int height = input[0].length;
+		double[][] result = new double[input.length][input[0].length];
 
-		double[][] result = new double[width][height];
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				result[x][y] = calcValue(input, x, y, width, height);
+		for (int y = 0; y < input.length; y++) {
+			for (int x = 0; x < input[0].length; x++) {
+				result[y][x] = calcValue(input, x, y);
 			}
 		}
 		return result;
@@ -455,14 +514,29 @@ public class Kernel implements Serializable {
 	 */
 	public int[][] applyInt(int[][] input) {
 
-		int width = input.length;
-		int height = input[0].length;
+		int[][] result = new int[input.length][input[0].length];
 
-		int[][] result = new int[width][height];
+		for (int y = 0; y < input.length; y++) {
+			for (int x = 0; x < input[0].length; x++) {
+				result[y][x] = (int) Math.round(calcValue(input, x, y));
+			}
+		}
+		return result;
+	}
 
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				result[x][y] = (int) calcValue(input, x, y, width, height);
+	/**
+	 * Apply the kernel to the 2d array with each value casted to a int value.
+	 * 
+	 * @param input the input array to apply the kernel on
+	 * @return a new array created by the kernel
+	 */
+	public int[][] applyInt(double[][] input) {
+
+		int[][] result = new int[input.length][input[0].length];
+
+		for (int y = 0; y < input.length; y++) {
+			for (int x = 0; x < input[0].length; x++) {
+				result[y][x] = (int) Math.round(calcValue(input, x, y));
 			}
 		}
 		return result;
@@ -476,14 +550,11 @@ public class Kernel implements Serializable {
 	 */
 	public double[][] apply(double[][] input) {
 
-		int width = input.length;
-		int height = input[0].length;
+		double[][] result = new double[input.length][input[0].length];
 
-		double[][] result = new double[width][height];
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				result[x][y] = calcValue(input, x, y, width, height);
+		for (int y = 0; y < input.length; y++) {
+			for (int x = 0; x < input[0].length; x++) {
+				result[y][x] = calcValue(input, x, y);
 			}
 		}
 		return result;
@@ -497,14 +568,11 @@ public class Kernel implements Serializable {
 	 * @return a new array created by the kernel
 	 */
 	public double[][] apply(byte[][] input) {
-		int width = input.length;
-		int height = input[0].length;
+		double[][] result = new double[input.length][input[0].length];
 
-		double[][] result = new double[width][height];
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				result[x][y] = calcValue(input, x, y, width, height);
+		for (int y = 0; y < input.length; y++) {
+			for (int x = 0; x < input[0].length; x++) {
+				result[y][x] = calcValue(input, x, y);
 			}
 		}
 		return result;
@@ -517,24 +585,34 @@ public class Kernel implements Serializable {
 	 * @return a new array created by the kernel
 	 */
 	public byte[][] applyByte(byte[][] input) {
+		byte[][] result = new byte[input.length][input[0].length];
 
-		int width = input.length;
-		int height = input[0].length;
-
-		byte[][] result = new byte[width][height];
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				result[x][y] = (byte) calcValue(input, x, y, width, height);
+		for (int y = 0; y < input.length; y++) {
+			for (int x = 0; x < input[0].length; x++) {
+				result[y][x] = (byte) Math.round(calcValue(input, x, y));
 			}
 		}
 		return result;
 	}
 
-	protected double calcValue(byte[][] input, int x, int y, int width, int height) {
+	public byte[][] applyByte(double[][] input) {
+		byte[][] result = new byte[input.length][input[0].length];
+
+		for (int y = 0; y < input.length; y++) {
+			for (int x = 0; x < input[0].length; x++) {
+				result[y][x] = (byte) Math.round(calcValue(input, x, y));
+			}
+		}
+		return result;
+	}
+
+	protected double calcValue(byte[][] input, int x, int y) {
 		double value = 0;
 		int maskW = mask[0].length / 2;
 		int maskH = mask.length / 2;
+		
+		int width = input[0].length;
+		int height = input.length;
 
 		for (int yMask = -maskH; yMask <= maskH; yMask++) {
 			for (int xMask = -maskW; xMask <= maskW; xMask++) {
@@ -546,23 +624,26 @@ public class Kernel implements Serializable {
 					xPixelIndex = x + xMask;
 					yPixelIndex = y + yMask;
 
-					if (xPixelIndex < 0 || xPixelIndex >= width) {
-						return input[x][y];
+					if (xPixelIndex < 0 || xPixelIndex >= width || yPixelIndex < 0 || yPixelIndex >= height) {
+						return input[y][x];
 					}
 				} else {
 					xPixelIndex = edgeHandling.correctPixel(x + xMask, width);
 					yPixelIndex = edgeHandling.correctPixel(y + yMask, height);
 				}
-				value += mask[yMask + maskH][xMask + maskW] * input[xPixelIndex][yPixelIndex];
+				value += mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
 			}
 		}
 		return value;
 	}
 
-	protected double calcValue(int[][] input, int x, int y, int width, int height) {
+	protected double calcValue(int[][] input, int x, int y) {
 		double value = 0;
 		int maskW = mask[0].length / 2;
 		int maskH = mask.length / 2;
+		
+		int width = input[0].length;
+		int height = input.length;
 
 		for (int yMask = -maskH; yMask <= maskH; yMask++) {
 			for (int xMask = -maskW; xMask <= maskW; xMask++) {
@@ -574,23 +655,35 @@ public class Kernel implements Serializable {
 					xPixelIndex = x + xMask;
 					yPixelIndex = y + yMask;
 
-					if (xPixelIndex < 0 || xPixelIndex >= width) {
-						return input[x][y];
+					if (xPixelIndex < 0 || xPixelIndex >= width || yPixelIndex < 0 || yPixelIndex >= height) {
+						return input[y][x];
 					}
 				} else {
 					xPixelIndex = edgeHandling.correctPixel(x + xMask, width);
 					yPixelIndex = edgeHandling.correctPixel(y + yMask, height);
 				}
-				value += mask[yMask + maskH][xMask + maskW] * input[xPixelIndex][yPixelIndex];
+				value += mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
 			}
 		}
 		return value;
 	}
 
-	protected double calcValue(double[][] input, int x, int y, int width, int height) {
+	/**
+	 * 
+	 * @param input array
+	 * @param x pixelToLookAt
+	 * @param y pixelToLookAt
+	 * @param width  of the input?
+	 * @param height of the input
+	 * @return convolutedPixel fo this x and y
+	 */
+	protected double calcValue(double[][] input, int x, int y) {
 		double value = 0;
 		int maskW = mask[0].length / 2;
 		int maskH = mask.length / 2;
+		
+		int width = input[0].length;
+		int height = input.length;
 
 		for (int yMask = -maskH; yMask <= maskH; yMask++) {
 			for (int xMask = -maskW; xMask <= maskW; xMask++) {
@@ -602,18 +695,48 @@ public class Kernel implements Serializable {
 					xPixelIndex = x + xMask;
 					yPixelIndex = y + yMask;
 
-					if (xPixelIndex < 0 || xPixelIndex >= width) {
-						return input[x][y];
+					if (xPixelIndex < 0 || xPixelIndex >= width || yPixelIndex < 0 || yPixelIndex >= height) {
+						return input[y][x];
 					}
 				} else {
 					xPixelIndex = edgeHandling.correctPixel(x + xMask, width);
 					yPixelIndex = edgeHandling.correctPixel(y + yMask, height);
 				}
-				value += mask[yMask + maskH][xMask + maskW] * input[xPixelIndex][yPixelIndex];
+				value += mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
 			}
 		}
 		return value;
 	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((edgeHandling == null) ? 0 : MiscUtil.consitentHashCode(edgeHandling));
+		result = prime * result + Arrays.deepHashCode(mask);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Kernel other = (Kernel) obj;
+		if (edgeHandling != other.edgeHandling)
+			return false;
+		if (!Arrays.deepEquals(mask, other.mask))
+			return false;
+		return true;
+	}
+
+	
+
 
 	/**
 	 * The edge handling strategy defines the behaviour when a kernel reaches the
@@ -647,7 +770,6 @@ public class Kernel implements Serializable {
 			if (pIndex < 0) {
 				return -pIndex;
 			} else if (pIndex >= wHeight) {
-				// TODO Check
 				return wHeight - (pIndex - wHeight) - 1;
 			}
 			return pIndex;
@@ -693,14 +815,66 @@ public class Kernel implements Serializable {
 		public int correctPixel(int pIndex, int widthOrHeight) {
 			return compute.apply(pIndex, widthOrHeight);
 		}
-
 	}
 
 	@Override
 	public String toString() {
-		return "Kernel [mask=" + Arrays.deepToString(mask) + ", edgeHandling=" + edgeHandling + "]";
+		return "Kernel [edgeHandling=" + edgeHandling + ", " + "mask=\n" + ArrayUtil.deepToStringFormatted(mask) + "]";
 	}
 
+	@Override
+	public BufferedImage filter(BufferedImage input) {
+		BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), input.getType());
+		FastPixel fp = FastPixel.create(input);
+		FastPixel fpSet = FastPixel.create(bi);
+		int[][] red = fp.getRed();
+		int[][] green = fp.getGreen();
+		int[][] blue = fp.getBlue();
+		
+		red = applyInt(red);
+		green = applyInt(green);
+		blue = applyInt(blue);
+
+		fpSet.setRed(red);
+		fpSet.setGreen(green);
+		fpSet.setBlue(blue);
+
+		if(fpSet.hasAlpha()) {
+			fpSet.setAlpha(fp.getAlpha());
+		}
+		
+		return bi;
+	}
+
+	
+	/**
+	 * Filter class working with grayscale values
+	 * @author Kilian
+	 *
+	 */
+	public static class GrayScaleFilter extends Kernel{
+
+		private static final long serialVersionUID = -1079407275717629013L;
+
+		/**
+		 * @param maskkernel mask
+		 */
+		public GrayScaleFilter(double[][] mask) {
+			super(mask);
+		}
+		
+		@Override
+		public BufferedImage filter(BufferedImage input) {
+			BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), input.getType());
+			FastPixel fp = FastPixel.create(input);
+			FastPixel fpSet = FastPixel.create(bi);
+			int[][] gray = fp.getAverageGrayscale();
+			gray = applyInt(gray);
+			fpSet.setAverageGrayscale(gray);
+			return bi;
+		}
+		
+	}
 //	private int computeRank(double[][] matrix, double tolerance) {
 //		
 //	}

@@ -6,15 +6,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
 import com.github.kilianB.Require;
-import com.github.kilianB.graphics.ImageUtil.FastPixel;
-import com.github.kilianB.hashAlgorithms.filter.Kernel;
+import com.github.kilianB.hashAlgorithms.filter.Filter;
 import com.github.kilianB.matcher.Hash;
 
 /**
@@ -36,66 +34,13 @@ import com.github.kilianB.matcher.Hash;
  * @author Kilian
  * @since 1.0.0
  */
+
+//TODO find optimal image matcher with darwin 
+
 public abstract class HashingAlgorithm implements Serializable {
 
-	// TODO Kernels serializable
-
-	public static void main(String[] args) throws IOException {
-
-		// Lets try some kernels
-
-		List<Kernel> preProcessing = new ArrayList<Kernel>();
-
-		preProcessing.add(Kernel.gaussianFilter(5, 5, 3));
-
-		BufferedImage image = ImageIO.read(new File("src/test/resources/TestShapes.png"));
-
-		BufferedImage bi = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-		FastPixel fp = new FastPixel(image);
-		FastPixel fpSet = new FastPixel(bi);
-		int[][] red = fp.getRed();
-		int[][] green = fp.getGreen();
-		int[][] blue = fp.getBlue();
-
-		// Edge detection calculate
-
-		// Grayscale average
-
-		for (int x = 0; x < red.length; x++) {
-			for (int y = 0; y < red[0].length; y++) {
-				int gray = (red[x][y] + green[x][y] + blue[x][y]) / 3;
-				red[x][y] = gray;
-				green[x][y] = gray;
-				blue[x][y] = gray;
-			}
-		}
-
-//		for(Kernel kernel: preProcessing) {
-//			red = kernel.applyInt(red);
-//			green = kernel.applyInt(green);
-//			blue = kernel.applyInt(blue);
-//		}
-
-		for (Kernel kernel : preProcessing) {
-			red = kernel.applyInt(red);
-			green = red;
-			blue = red;
-		}
-
-		fpSet.setRed(red);
-		fpSet.setGreen(green);
-		fpSet.setBlue(blue);
-
-		try {
-			ImageIO.write(bi, "png", new File("Gray1.png"));
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-
-	}
-
 	// maybe move to bitsets//Mutable inetegers? not efficient for small keys?
-	protected List<Kernel> preProcessing = new ArrayList<>();
+	protected List<Filter> preProcessing = new ArrayList<>();
 
 	private static final long serialVersionUID = 3L;
 
@@ -121,7 +66,10 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	private int algorithmId;
 
-	// TODO transient?
+	/**
+	 * After a hash was created or the id was calculated the object may not be
+	 * altered anymore.
+	 */
 	private boolean immutableState = false;
 
 	private static final String LOCKED_MODIFICATION_EXCEPTION = "Hashing algorithms may only be "
@@ -158,31 +106,22 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	public Hash hash(BufferedImage image) {
 
-		// TODO update hash
+		BufferedImage bi = image;
 
 		// If we have kernels defined alter red green and blue values accordingly
 		if (!preProcessing.isEmpty()) {
-			BufferedImage bi = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-			FastPixel fp = new FastPixel(image);
-			FastPixel fpSet = new FastPixel(bi);
-			int[][] red = fp.getRed();
-			int[][] green = fp.getGreen();
-			int[][] blue = fp.getBlue();
 
-			for (Kernel kernel : preProcessing) {
-				red = kernel.applyInt(red);
-				green = kernel.applyInt(green);
-				blue = kernel.applyInt(blue);
+			for (Filter kernel : preProcessing) {
+				if (bi == null) {
+					bi = kernel.filter(image);
+				} else {
+					bi = kernel.filter(bi);
+				}
+
 			}
-
-			fpSet.setRed(red);
-			fpSet.setGreen(green);
-			fpSet.setBlue(blue);
-
-			image = bi;
 		}
 		immutableState = true;
-		return new Hash(hash(image, BigInteger.ZERO), getKeyResolution(), algorithmId());
+		return new Hash(hash(bi, BigInteger.ZERO), getKeyResolution(), algorithmId());
 	}
 
 	/**
@@ -295,57 +234,57 @@ public abstract class HashingAlgorithm implements Serializable {
 	}
 
 	/**
-	 * Add a {@link com.github.kilianB.hashAlgorithms.filter.Kernel Kernel} to this
+	 * Add a {@link com.github.kilianB.hashAlgorithms.filter.Filter Filter} to this
 	 * hashing algorithm which will be used to alter the image before the hashing
 	 * operation is applied. Kernels are invoked in the order they are added and are
 	 * performed individually on all 3 RGB channels.
 	 * 
 	 * <p>
-	 * Be aware that kernels can only be added or removed until the first hash is
+	 * Be aware that filters can only be added or removed until the first hash is
 	 * computed. This limitation is enforced due to modified Kernels changing the
 	 * hashcode of the object which might be used in hash collections leading to the
 	 * object not being found after said operation.
 	 * 
-	 * @param kernel The kernel to add.
-	 * @throws NullPointerException  if kernel is null
+	 * @param filter The filter to add.
+	 * @throws NullPointerException  if filter is null
 	 * @throws IllegalStateException if a hash was already created and the object is
 	 *                               considered immutable.
 	 * @since 2.0.0
 	 */
-	public void addKernel(Kernel kernel) {
-		Objects.requireNonNull(kernel);
+	public void addFilter(Filter filter) {
+		Objects.requireNonNull(filter);
 
 		if (immutableState) {
 			throw new IllegalStateException(LOCKED_MODIFICATION_EXCEPTION);
 		}
 
-		this.preProcessing.add(kernel);
+		this.preProcessing.add(filter);
 	}
 
 	/**
 	 * Remove the first occurance of a
-	 * {@link com.github.kilianB.hashAlgorithms.filter.Kernel Kernel} from this
+	 * {@link com.github.kilianB.hashAlgorithms.filter.Filter Filter} from this
 	 * hashing algorithm.
 	 * 
 	 * <p>
-	 * Be aware that kernels can only be added or removed until the first hash is
+	 * Be aware that filters can only be added or removed until the first hash is
 	 * computed. This limitation is enforced due to modified Kernels changing the
 	 * hashcode of the object which might be used in hash collections leading to the
 	 * object not being found after said operation.
 	 * 
-	 * @param kernel The kernel to add.
+	 * @param filters The filters to remove.
 	 * @return true if the kernel was removed. False otherwise
 	 * @throws IllegalStateException if a hash was already created and the object is
 	 *                               considered immutable.
 	 * @since 2.0.0
 	 */
-	public boolean removeKernel(Kernel kernel) {
+	public boolean removeFilter(Filter filter) {
 
 		if (immutableState) {
 			throw new IllegalStateException(LOCKED_MODIFICATION_EXCEPTION);
 		}
 
-		return this.preProcessing.remove(kernel);
+		return this.preProcessing.remove(filter);
 	}
 
 	@Override
