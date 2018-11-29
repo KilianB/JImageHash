@@ -23,31 +23,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
+import com.github.kilianB.hashAlgorithms.experimental.HogHash;
 import com.github.kilianB.matcher.Hash;
 
 class PerceptiveHashTest {
-
-	private static BufferedImage ballon;
-	// Similar images
-	private static BufferedImage copyright;
-	private static BufferedImage highQuality;
-	private static BufferedImage lowQuality;
-	private static BufferedImage thumbnail;
-
-	@BeforeAll
-	static void loadImages() {
-		try {
-			ballon = ImageIO.read(PerceptiveHashTest.class.getClassLoader().getResourceAsStream("ballon.jpg"));
-			copyright = ImageIO.read(PerceptiveHashTest.class.getClassLoader().getResourceAsStream("copyright.jpg"));
-			highQuality = ImageIO
-					.read(PerceptiveHashTest.class.getClassLoader().getResourceAsStream("highQuality.jpg"));
-			lowQuality = ImageIO.read(PerceptiveHashTest.class.getClassLoader().getResourceAsStream("lowQuality.jpg"));
-			thumbnail = ImageIO.read(PerceptiveHashTest.class.getClassLoader().getResourceAsStream("thumbnail.jpg"));
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	@Nested
 	@DisplayName("Algorithm Id")
@@ -63,166 +42,21 @@ class PerceptiveHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(1730712063, new PerceptiveHash(14).algorithmId()); // Was 748566082
+				assertEquals(1062023020, new PerceptiveHash(14).algorithmId()); // Was 748566082
 			}, () -> {
-				assertEquals(1730712404, new PerceptiveHash(25).algorithmId()); // Was 748566093
-			});
-		}
-
-		@Test
-		@DisplayName("Unique AlgorithmsIds")
-		public void uniquely() {
-
-			int id0 = new PerceptiveHash(2).algorithmId();
-			int id1 = new PerceptiveHash(14).algorithmId();
-			int id2 = new PerceptiveHash(25).algorithmId();
-
-			assertAll(() -> {
-				assertNotEquals(id0, id1);
-			}, () -> {
-				assertNotEquals(id0, id2);
-			}, () -> {
-				assertNotEquals(id1, id2);
+				assertEquals(1062146028, new PerceptiveHash(25).algorithmId()); // Was 748566093
 			});
 		}
 	}
 
+	// Base Hashing algorithm tests
 	@Nested
-	@DisplayName("Serialization")
-	class Serizalization {
+	class AlgorithmBaseTests extends HashTestBase {
 
-		HashingAlgorithm originalAlgo;
-		HashingAlgorithm deserializedAlgo;
-
-		@BeforeEach
-		void serializeAlgo() {
-			originalAlgo = new PerceptiveHash(32);
-
-			File serFile = new File("AverageHash.ser");
-
-			// Write to file
-			try (ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(serFile))) {
-				os.writeObject(originalAlgo);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			// Read from file
-			try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(serFile))) {
-				deserializedAlgo = (HashingAlgorithm) is.readObject();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} finally {
-				if (serFile.exists()) {
-					serFile.delete();
-				}
-			}
-		}
-
-		@Test
-		void consistentId() {
-			assertEquals(originalAlgo.algorithmId(), deserializedAlgo.algorithmId());
-		}
-
-		@Test
-		void consistentHash() {
-			assertEquals(originalAlgo.hash(ballon), deserializedAlgo.hash(ballon));
+		@Override
+		protected HashingAlgorithm getInstance(int bitResolution) {
+			return new PerceptiveHash(bitResolution);
 		}
 	}
 
-	@Test
-	void keyLength() {
-		// To get comparable hashes the key length has to be consistent for all
-		// resolution of images
-
-		PerceptiveHash d1 = new PerceptiveHash(32);
-
-		Hash ballonHash = d1.hash(ballon);
-		Hash copyrightHash = d1.hash(copyright);
-		Hash lowQualityHash = d1.hash(lowQuality);
-		Hash highQualityHash = d1.hash(highQuality);
-		Hash thumbnailHash = d1.hash(thumbnail);
-
-		assertAll(() -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), copyrightHash.getHashValue().bitLength());
-		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), lowQualityHash.getHashValue().bitLength());
-		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), highQualityHash.getHashValue().bitLength());
-		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), thumbnailHash.getHashValue().bitLength());
-		});
-
-	}
-
-	/**
-	 * The hash length of the algorithm is at least the supplied bits long
-	 * 
-	 * @param hasher
-	 */
-	@ParameterizedTest
-	@MethodSource(value = "algoInstancesBroad")
-	void keyLengthMinimumBits(HashingAlgorithm hasher) {
-		assertTrue(hasher.hash(ballon).getBitResolution() >= hasher.bitResolution);
-	}
-
-	/**
-	 * The hashes produced by the same algorithms shall return the same hash on
-	 * sucessive calls
-	 * 
-	 * @param d1
-	 */
-	@ParameterizedTest
-	@MethodSource(value = "algoInstances")
-	void consitent(HashingAlgorithm d1) {
-		assertEquals(d1.hash(ballon).getHashValue(), d1.hash(ballon).getHashValue());
-	}
-
-	/**
-	 * The hamming distance of the same image has to be 0
-	 * 
-	 * @deprecated not really a algorithm test case. Same as consistent
-	 * @param d1
-	 */
-	@Deprecated
-	@ParameterizedTest
-	@MethodSource(value = "algoInstances")
-	void equalImage(HashingAlgorithm d1) {
-		assertEquals(0, d1.hash(ballon).hammingDistance(d1.hash(ballon)));
-	}
-
-	/**
-	 * The hamming distance of similar images shall be lower than the distance of
-	 * vastly different pictures
-	 * 
-	 * @param d1
-	 */
-	@ParameterizedTest
-	@MethodSource(value = "algoInstances")
-	void unequalImage(HashingAlgorithm d1) {
-		Hash lowQualityHash = d1.hash(lowQuality);
-		Hash highQualityHash = d1.hash(highQuality);
-		Hash ballonHash = d1.hash(ballon);
-		assertAll(() -> {
-			assertTrue(lowQualityHash.hammingDistance(highQualityHash) < lowQualityHash.hammingDistance(ballonHash));
-		}, () -> {
-			assertTrue(highQualityHash.hammingDistance(lowQualityHash) < highQualityHash.hammingDistance(ballonHash));
-		});
-	}
-
-	@SuppressWarnings("unused")
-	private static Stream<HashingAlgorithm> algoInstances() {
-		return Stream.of(new PerceptiveHash(15), new PerceptiveHash(20), new PerceptiveHash(200));
-	}
-	
-	@SuppressWarnings("unused")
-	private static Stream<HashingAlgorithm> algoInstancesBroad() {
-		HashingAlgorithm[] hasher = new HashingAlgorithm[98];
-		for(int i = 2; i < 100; i++) {
-			hasher[i-2] = new PerceptiveHash(i);
-		}
-		return Stream.of(hasher);
-	}
-	
 }

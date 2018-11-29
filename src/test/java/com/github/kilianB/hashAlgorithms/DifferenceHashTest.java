@@ -26,6 +26,7 @@ import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
+//TODO alsmo move difference hash to the default test scenarios
 class DifferenceHashTest {
 
 	private static BufferedImage ballon;
@@ -64,17 +65,17 @@ class DifferenceHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-696464798, new DifferenceHash(14, Precision.Simple).algorithmId());
+				assertEquals(-115572257, new DifferenceHash(14, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-696433085, new DifferenceHash(25, Precision.Simple).algorithmId());
+				assertEquals(-114589154, new DifferenceHash(25, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-945372125, new DifferenceHash(14, Precision.Double).algorithmId());
+				assertEquals(758235198, new DifferenceHash(14, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(-945340412, new DifferenceHash(25, Precision.Double).algorithmId());
+				assertEquals(759218301, new DifferenceHash(25, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(445007158, new DifferenceHash(14, Precision.Triple).algorithmId());
+				assertEquals(910320011, new DifferenceHash(14, Precision.Triple).algorithmId());
 			}, () -> {
-				assertEquals(445038871, new DifferenceHash(25, Precision.Triple).algorithmId());
+				assertEquals(911303114, new DifferenceHash(25, Precision.Triple).algorithmId());
 			});
 		}
 

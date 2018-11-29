@@ -8,20 +8,36 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.github.kilianB.StringUtil;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 
 class HashTest {
 
-	@Test
-	void incompatibleAlgorithms() {
-		int algoId = new AverageHash(14).algorithmId();
-		int algoId1 = new AverageHash(500).algorithmId();
-		Hash hash0 = new Hash(BigInteger.ONE, 1, algoId);
-		Hash hash1 = new Hash(BigInteger.ONE, 1, algoId1);
-		assertThrows(IllegalArgumentException.class, () -> {
-			hash0.hammingDistance(hash1);
-		});
+	@Nested 
+	class IncompatibleAlgorithms{
+		@Test
+		void normalizedHammingDistance() {
+			int algoId = new AverageHash(14).algorithmId();
+			int algoId1 = new AverageHash(500).algorithmId();
+			Hash hash0 = new Hash(BigInteger.ONE, 1, algoId);
+			Hash hash1 = new Hash(BigInteger.ONE, 1, algoId1);
+			assertThrows(IllegalArgumentException.class, () -> {
+				hash0.hammingDistance(hash1);
+			});
+		}
+		
+		@Test
+		void hammingDistance() {
+			int algoId = new AverageHash(14).algorithmId();
+			int algoId1 = new AverageHash(500).algorithmId();
+			Hash hash0 = new Hash(BigInteger.ONE, 1, algoId);
+			Hash hash1 = new Hash(BigInteger.ONE, 1, algoId1);
+			assertThrows(IllegalArgumentException.class, () -> {
+				hash0.normalizedHammingDistance(hash1);
+			});
+		}
 	}
+	
 
 	@Nested
 	class Equality {
@@ -171,6 +187,30 @@ class HashTest {
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertFalse(hash0.getBitUnsafe(100));
 		}
-		
 	}
+	
+	@Nested
+	class ToString{
+		
+		@Test
+		void displayAllBits() {
+			String bits = "10101010";
+			String toString = new Hash(new BigInteger(bits, 2), bits.length(), 0).toString();
+			
+			//Leading zeros
+			
+			String bitsLZero = "00001000";
+			String toStringLZero = new Hash(new BigInteger(bitsLZero, 2), bitsLZero.length(), 0).toString();
+			
+			String bitsOnlyZero = "00000000";
+			String toStringOZero = new Hash(new BigInteger(bitsOnlyZero, 2), bitsOnlyZero.length(), 0).toString();	
+			
+			assertAll(
+					()->{assertEquals(toString.length(),toStringLZero.length());},
+					()->{assertEquals(toString.length(),toStringOZero.length());}
+					);
+		}		
+	}
+
+	
 }

@@ -1,32 +1,20 @@
-package com.github.kilianB.hashAlgorithms;
+package com.github.kilianB.hashAlgorithms.experimental;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.stream.Stream;
-
-import javax.imageio.ImageIO;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
-import com.github.kilianB.hashAlgorithms.experimental.HogHash;
-import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.hashAlgorithms.AverageHash;
+import com.github.kilianB.hashAlgorithms.HashTestBase;
+import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 /**
  * @author Kilian
  *
  */
-class HogHashTest {
+class HogHashAngularEncodedTest {
 
 	@Nested
 	@DisplayName("Algorithm Id")
@@ -52,7 +40,7 @@ class HogHashTest {
 	@Test
 	void illegalConstructor() {
 		assertThrows(IllegalArgumentException.class, () -> {
-			new HogHash(2);
+			new HogHashAngularEncoded(2);
 		});
 	}
 
@@ -62,13 +50,7 @@ class HogHashTest {
 
 		@Override
 		protected HashingAlgorithm getInstance(int bitResolution) {
-			return new HogHash(bitResolution);
-		}
-		
-		//Hog hash requires higher bit resolution. override default offset
-		@Override
-		protected int offsetBitResolution() {
-			return 10;
+			return new HogHashAngularEncoded(bitResolution);
 		}
 	}
 

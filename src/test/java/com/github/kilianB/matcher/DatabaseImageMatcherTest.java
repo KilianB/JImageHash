@@ -20,11 +20,13 @@ import javax.imageio.ImageIO;
 import org.h2.tools.DeleteDbFiles;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * @author Kilian
@@ -155,7 +157,7 @@ class DatabaseImageMatcherTest {
 			// Getsd closed by deleteDatabse
 			matcher = new DatabaseImageMatcher(dbName, user, password);
 			HashingAlgorithm h = new AverageHash(32);
-			matcher.addHashingAlgorithm(h, 10);
+			matcher.addHashingAlgorithm(h, 0.3f);
 			matcher.serializeToDatabase(0);
 
 			DatabaseImageMatcher deserialized = DatabaseImageMatcher.getFromDatabase(dbName, user, password, 0);
@@ -172,47 +174,131 @@ class DatabaseImageMatcherTest {
 			}
 		}
 	}
-
-	@Test
-	@DisplayName("Check Similarity String Label")
-	void imageMatches() {
-		try {
-			Class.forName("org.h2.Driver");
-			Connection conn = DriverManager.getConnection("jdbc:h2:~/imageHashTest", "sa", "");
-
-			DatabaseImageMatcher matcher = null;
+	@Nested
+	class TestDefaultSettings{
+		@Test
+		@DisplayName("Check Similarity String Label")
+		void imageMatches() {
 			try {
-				matcher = DatabaseImageMatcher.createDefaultMatcher(conn);
-				System.out.println(matcher);
-				matcher.addImage("Ballon", ballon);
-				matcher.addImage("CopyRight", copyright);
-				matcher.addImage("HighQuality", highQuality);
-				matcher.addImage("LowQuality", lowQuality);
-				matcher.addImage("Thumbnail", thumbnail);
+				Class.forName("org.h2.Driver");
+				Connection conn = DriverManager.getConnection("jdbc:h2:~/imageHashTest", "sa", "");
 
-				// We only expect ballon to be returned
-				PriorityQueue<Result<String>> results = matcher.getMatchingImages(ballon);
-				assertAll("Ballon", () -> {
-					assertEquals(1, results.size());
-				}, () -> {
-					assertEquals("Ballon", results.peek().value);
-				});
+				DatabaseImageMatcher matcher = null;
+				try {
+					matcher = DatabaseImageMatcher.createDefaultMatcher(conn);
+					matcher.addImage("Ballon", ballon);
+					matcher.addImage("CopyRight", copyright);
+					matcher.addImage("HighQuality", highQuality);
+					matcher.addImage("LowQuality", lowQuality);
+					matcher.addImage("Thumbnail", thumbnail);
 
-				final PriorityQueue<Result<String>> results1 = matcher.getMatchingImages(highQuality);
-				assertAll("Matches", () -> {
-					assertEquals(4, results1.size());
-				}, () -> {
-					assertFalse(results1.stream().anyMatch(result -> result.value.equals("Ballon")));
-				});
-			} finally {
-				matcher.deleteDatabase();
+					// We only expect ballon to be returned
+					PriorityQueue<Result<String>> results = matcher.getMatchingImages(ballon);
+					assertAll("Ballon", () -> {
+						assertEquals(1, results.size());
+					}, () -> {
+						assertEquals("Ballon", results.peek().value);
+					});
+
+					final PriorityQueue<Result<String>> results1 = matcher.getMatchingImages(highQuality);
+					assertAll("Matches", () -> {
+						assertEquals(4, results1.size());
+					}, () -> {
+						assertFalse(results1.stream().anyMatch(result -> result.value.equals("Ballon")));
+					});
+				} finally {
+					matcher.deleteDatabase();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		}
+		
+		@Test
+		@DisplayName("Check Similarity Fair Setting")
+		void imageMatchesFait() {
+			try {
+				Class.forName("org.h2.Driver");
+				Connection conn = DriverManager.getConnection("jdbc:h2:~/imageHashTest", "sa", "");
+
+				DatabaseImageMatcher matcher = null;
+				try {
+					matcher = DatabaseImageMatcher.createDefaultMatcher(Setting.Fair,conn);
+					matcher.addImage("Ballon", ballon);
+					matcher.addImage("CopyRight", copyright);
+					matcher.addImage("HighQuality", highQuality);
+					matcher.addImage("LowQuality", lowQuality);
+					matcher.addImage("Thumbnail", thumbnail);
+
+					// We only expect ballon to be returned
+					PriorityQueue<Result<String>> results = matcher.getMatchingImages(ballon);
+					assertAll("Ballon", () -> {
+						assertEquals(1, results.size());
+					}, () -> {
+						assertEquals("Ballon", results.peek().value);
+					});
+
+					final PriorityQueue<Result<String>> results1 = matcher.getMatchingImages(highQuality);
+					assertAll("Matches", () -> {
+						assertEquals(4, results1.size());
+					}, () -> {
+						assertFalse(results1.stream().anyMatch(result -> result.value.equals("Ballon")));
+					});
+				} finally {
+					matcher.deleteDatabase();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		@Test
+		@DisplayName("Check Similarity Forgiving Setting")
+		void imageMatchesForgiving() {
+			try {
+				Class.forName("org.h2.Driver");
+				Connection conn = DriverManager.getConnection("jdbc:h2:~/imageHashTest", "sa", "");
+
+				DatabaseImageMatcher matcher = null;
+				try {
+					matcher = DatabaseImageMatcher.createDefaultMatcher(Setting.Forgiving,conn);
+					matcher.addImage("Ballon", ballon);
+					matcher.addImage("CopyRight", copyright);
+					matcher.addImage("HighQuality", highQuality);
+					matcher.addImage("LowQuality", lowQuality);
+					matcher.addImage("Thumbnail", thumbnail);
+
+					// We only expect ballon to be returned
+					PriorityQueue<Result<String>> results = matcher.getMatchingImages(ballon);
+					assertAll("Ballon", () -> {
+						assertEquals(1, results.size());
+					}, () -> {
+						assertEquals("Ballon", results.peek().value);
+					});
+
+					final PriorityQueue<Result<String>> results1 = matcher.getMatchingImages(highQuality);
+					assertAll("Matches", () -> {
+						assertEquals(4, results1.size());
+					}, () -> {
+						assertFalse(results1.stream().anyMatch(result -> result.value.equals("Ballon")));
+					});
+				} finally {
+					matcher.deleteDatabase();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
 	}
+	
 
 //
 
