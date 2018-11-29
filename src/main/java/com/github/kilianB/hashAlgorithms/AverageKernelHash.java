@@ -42,8 +42,29 @@ public class AverageKernelHash extends HashingAlgorithm implements Serializable 
 	private final List<Kernel> filters;
 
 	/**
+	 * @param bitResolution The bit resolution specifies the final length of the
+	 *                      generated hash. A higher resolution will increase
+	 *                      computation time and space requirement while being able
+	 *                      to track finer detail in the image. Be aware that a high
+	 *                      key is not always desired.
+	 *                      <p>
 	 * 
+	 *                      The average kernel hash will produce a hash with at
+	 *                      least the number of bits defined by this argument. In
+	 *                      turn this also means that different bit resolutions may
+	 *                      be mapped to the same final key length.
 	 * 
+	 *                      <pre>
+	 *  64 = 8x8 = 65 bit key
+	 *  128 = 11.3 -&gt; 12 -&gt; 144 bit key
+	 *  256 = 16 x 16 = 256 bit key
+	 *                      </pre>
+	 */
+	public AverageKernelHash(int bitResolution) {
+		this(bitResolution, Kernel.boxFilterNormalized(3, 3));
+	}
+
+	/**
 	 * @param bitResolution The bit resolution specifies the final length of the
 	 *                      generated hash. A higher resolution will increase
 	 *                      computation time and space requirement while being able
@@ -67,14 +88,7 @@ public class AverageKernelHash extends HashingAlgorithm implements Serializable 
 	 *  128 = 11.3 -&gt; 12 -&gt; 144 bit key
 	 *  256 = 16 x 16 = 256 bit key
 	 *                      </pre>
-	 */
-	public AverageKernelHash(int bitResolution) {
-		this(bitResolution, Kernel.boxFilterNormalized(3, 3));
-	}
-
-	/**
 	 * 
-	 * @param bitResolution
 	 * @param kernels       applied before the rescaled image is compared to the
 	 *                      filter Since raw luminosity values are compared to the
 	 *                      computed kernel value the kernel should be in the same
@@ -103,17 +117,17 @@ public class AverageKernelHash extends HashingAlgorithm implements Serializable 
 		// Calculate the average color of the entire image
 
 		// Kernel filter
-		
+
 		double[][] filtered = null;
-		
-		for(Kernel kernel : filters) {
-			if(filtered==null) {
+
+		for (Kernel kernel : filters) {
+			if (filtered == null) {
 				filtered = kernel.apply(luminocity);
-			}else {
+			} else {
 				filtered = kernel.apply(filtered);
 			}
 		}
-		
+
 		// Create hash
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
@@ -158,7 +172,5 @@ public class AverageKernelHash extends HashingAlgorithm implements Serializable 
 	public String toString() {
 		return "AverageKernelHash [height=" + height + ", width=" + width + ", filters=" + filters + "]";
 	}
-	
-	
 
 }

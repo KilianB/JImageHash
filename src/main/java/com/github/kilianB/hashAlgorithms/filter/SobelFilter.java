@@ -25,7 +25,7 @@ import com.github.kilianB.graphics.FastPixel;
  * 
  * @author Kilian
  * @since 2.0.0
- * @see https://en.wikipedia.org/wiki/Sobel_operator
+ * @see <a href="https://en.wikipedia.org/wiki/Sobel_operator">Sobel Operator</a>
  */
 public class SobelFilter implements Filter {
 

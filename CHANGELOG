@@ -1,9 +1,27 @@
 - Semantic versioning
 
 
-## [Unreleased -> 2.0.0]
+##[Unreleased -> 2.0.1]
+
+## Changed 
+ - Wait for JUnit 5.4.0 to implement test method ordering to write proper database tests.
+
+
+## [2.0.0]
+
+#### Note
+	- Development of version 2.0.0 was a bit all over the place. Commits are out of order and the changelog wasn't accuratly tracked.
+	Starting now a more tracable documentation and commit behaviour will be enforced.
 
 ### Fixed
+
+- Breaking change
+	- rename hemming to hamming distance
+	- rename getElementsWithinHemmingDistance to getElementsWithinHammingDistance in binaryTree
+
+- Bumped dependency of github.kilianB.UtilityCode to 1.5.0 utilizing the fix in getScaledImage instance which 
+would fall back to the old jdk 1 awt implementation decreasing speed by a factor of 600. As well as supporting multiple image types
+
  - removed unnecessary computation of grayscale image in difference hash
  - difference hash now computes the padding byte correctly
  - Typo in hashing algorithm "bitResoluation" -> "bitResolution". Since this is a protected field
@@ -13,6 +31,8 @@
  accordingly.
 
 ### Changed
+
+- Update JUnit to 5.3.1
 - The hashing algorithm was refactored and now has to implement a different method signature returning a big integer instead of a hash object. 
 	In preparation to drop the no information 1 padding bit
 - Starting with version 2 hashes now use Luminosity as given by YCrCb instead of interpolated grayscale values.
@@ -27,9 +47,19 @@
  - Minor javadocs addition
  - dependency on UtilityCode com.github.kilianB
  - Hashing algorithms are serializable 
+ - Rotational Invariant hasher (RotPHash, Rotational)
+ - WIP - Hog-Hash
  - Database image matcher
- 
-### 
+ - Algorithm Benchmarker
+ - add equals and hashcode to image matcher
+ - ImageMatcher results now also reference  the normalized distance
+ - CummulativeInMemoryMatcher
+ - getBit and getBitUnsafe to Hash.java to retrieve individual bits without needing to access the underlaying big integer object. 
+ - added tests
+ - Add AverageColorHash
+ - multiple differen hog variants
+ - kernels and filters
+
 
 ## [1.0.2] - 24.9.2018
 

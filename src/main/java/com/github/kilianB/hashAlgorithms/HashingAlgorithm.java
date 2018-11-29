@@ -35,8 +35,6 @@ import com.github.kilianB.matcher.Hash;
  * @since 1.0.0
  */
 
-//TODO find optimal image matcher with darwin 
-
 public abstract class HashingAlgorithm implements Serializable {
 
 	// maybe move to bitsets//Mutable inetegers? not efficient for small keys?
@@ -272,7 +270,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * hashcode of the object which might be used in hash collections leading to the
 	 * object not being found after said operation.
 	 * 
-	 * @param filters The filters to remove.
+	 * @param filter The filters to remove.
 	 * @return true if the kernel was removed. False otherwise
 	 * @throws IllegalStateException if a hash was already created and the object is
 	 *                               considered immutable.

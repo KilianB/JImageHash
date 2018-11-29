@@ -51,6 +51,9 @@ public class Hash {
 	 * algorithm.
 	 * 
 	 * @param hashValue   The hash value describing the image
+	 * @param hashLength  the actual bit resolution of the hash. The bigInteger
+	 *                    truncates leading zero bits resulting in a loss of length
+	 *                    information.
 	 * @param algorithmId Unique identifier of the algorithm used to create this
 	 *                    hash
 	 */
@@ -199,7 +202,8 @@ public class Hash {
 	/**
 	 * Check if the bit at the given position is set
 	 * 
-	 * @param position of the bit. An index of 0 points to the lowest (rightmost bit)
+	 * @param position of the bit. An index of 0 points to the lowest (rightmost
+	 *                 bit)
 	 * @return true if the bit is set (1) or false if it's not set (0)
 	 * @throws IllegalArgumentException if the supplied index is outside the hash
 	 *                                  bound
@@ -214,10 +218,11 @@ public class Hash {
 	 * Check if the bit at the given position of the hash is set. This method does
 	 * not check the bounds of the supplied argument.
 	 * 
-	 * @param position of the bit.  An index of 0 points to the lowest (rightmost bit)
+	 * @param position of the bit. An index of 0 points to the lowest (rightmost
+	 *                 bit)
 	 * @return true if the bit is set (1). False if it's not set (0) ot the index is
 	 *         bigger than the hash length.
-	 * @throws ArithmeticExceptino if position is negative
+	 * @throws ArithmeticException if position is negative
 	 * @since 2.0.0
 	 */
 	public boolean getBitUnsafe(int position) {
@@ -294,7 +299,7 @@ public class Hash {
 	 * <p>
 	 * To reconstruct the big integer value we can simply prepend a [0x00] byte even
 	 * if it wasn't present in the first place. The constructor
-	 * {@link java.math.BigInteger(byte[])} will take care of it.
+	 * {@link java.math.BigInteger#BigInteger(byte[])} will take care of it.
 	 * 
 	 * @return the byte representation of the big integer without an artificial sign
 	 *         byte.

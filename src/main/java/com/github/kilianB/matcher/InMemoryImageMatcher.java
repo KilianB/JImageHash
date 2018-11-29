@@ -162,7 +162,7 @@ public class InMemoryImageMatcher extends ImageMatcher {
 	 * Add the images to the matcher allowing the image to be found in future
 	 * searches.
 	 * 
-	 * @param image The image whose hash will be added to the matcher
+	 * @param imagesToAdd The images whose hash will be added to the matcher
 	 */
 	public void addImages(BufferedImage... imagesToAdd) {
 		for (BufferedImage img : imagesToAdd) {

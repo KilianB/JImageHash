@@ -34,16 +34,21 @@
 		</developer>
 	</developers>
 
+	<repositories>
+		<repository>
+			<id>jcenter</id>
+			<url>https://jcenter.bintray.com/</url>
+		</repository>
+	</repositories>
 
 
 	<!-- Dependencies -->
 
 	<dependencies>
-
 		<dependency>
 			<groupId>com.github.kilianB</groupId>
 			<artifactId>UtilityCode</artifactId>
-			<version>1.4.0</version>
+			<version>1.5.0</version>
 		</dependency>
 
 		<dependency>
@@ -85,21 +90,21 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.2.0</version>
+			<version>5.3.1</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.2.0</version>
+			<version>5.3.1</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>5.2.0</version>
+			<version>5.3.1</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -114,9 +119,7 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
-					<excludes>
-						<exclude>**/kilianB/examples/**</exclude>
-					</excludes>
+					<!-- <excludes> <exclude>**/kilianB/examples/**</exclude> </excludes> -->
 				</configuration>
 			</plugin>
 			<plugin>
@@ -139,9 +142,7 @@
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 				<configuration>
-					<excludes>
-						<exclude>**/kilianB/examples/**</exclude>
-					</excludes>
+					<!-- <excludes> <exclude>**/kilianB/examples/**</exclude> </excludes> -->
 				</configuration>
 				<executions>
 					<execution>

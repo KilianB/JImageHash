@@ -15,7 +15,8 @@ import com.github.kilianB.graphics.ImageUtil;
  * <p>
  * <img src=
  * "https://user-images.githubusercontent.com/9025925/47964206-6f99b400-e036-11e8-8843-471242f9943a.png"
- * />.
+ * alt="Ring partition. Pixels are nmapped to buckets according to their
+ * distance to the center">
  * 
  * <p>
  * Each bucket corresponds to a single pixel which means that the rescaled image
@@ -53,7 +54,19 @@ public class RotAverageHash extends HashingAlgorithm {
 	private int[] count = null;
 
 	/**
-	 * @param bitResolution
+	 * @param bitResolution The bit resolution specifies the final length of the
+	 *                      generated hash. A higher resolution will increase
+	 *                      computation time and space requirement while being able
+	 *                      to track finer detail in the image. Be aware that a high
+	 *                      key is not always desired and this implementation
+	 *                      specifically suffers performance penalties when dealing
+	 *                      with huge hash sizes
+	 *                      <p>
+	 * 
+	 *                      The average kernel hash will produce a hash with at
+	 *                      least the number of bits defined by this argument. In
+	 *                      turn this also means that different bit resolutions may
+	 *                      be mapped to the same final key length.
 	 */
 	public RotAverageHash(int bitResolution) {
 		super(bitResolution);
@@ -124,7 +137,7 @@ public class RotAverageHash extends HashingAlgorithm {
 	}
 
 	/**
-	 * Compute the ring partition this specific pixel will fall into. 
+	 * Compute the ring partition this specific pixel will fall into.
 	 * 
 	 * @param originalX the x pixel index in the picture
 	 * @param originalY the y pixel index in the picture

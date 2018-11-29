@@ -26,7 +26,7 @@ import com.github.kilianB.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy;
  * values. An intermediary value matrix is calculated:
  * 
  * <pre>
- * Values * Mask => [5 8 3 6 6]
+ * Values * Mask = [5 8 3 6 6]
  * </pre>
  * 
  * and it is found that the second value is the maximum. Now the unaltered vlaue

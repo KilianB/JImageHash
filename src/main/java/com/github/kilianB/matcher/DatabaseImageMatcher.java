@@ -119,7 +119,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * @param user     the database user on whose behalf the connection is being
 	 *                 made
 	 * @param password the user's password. May be empty
-	 * @return an image matcher backed by the database
 	 * @exception SQLException if a database access error occurs or the url is
 	 *                         {@code null}
 	 * @throws SQLTimeoutException    when the driver has determined that the
@@ -142,15 +141,14 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * initialized.
 	 * 
 	 * @param connection the database connection
-	 * @return an image matcher backed by the database
 	 * @exception SQLException if a database access error occurs {@code null}
 	 * @throws SQLTimeoutException when the driver has determined that the timeout
 	 *                             value specified by the {@code setLoginTimeout}
 	 *                             method has been exceeded and has at least tried
 	 *                             to cancel the current database connection attempt
 	 */
-	public DatabaseImageMatcher(Connection conn) throws SQLException {
-		initialize(conn);
+	public DatabaseImageMatcher(Connection connection) throws SQLException {
+		initialize(connection);
 	}
 
 	/**
@@ -194,13 +192,13 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * Get a database image matcher which previously got serialized by calling
 	 * {@link #serializeToDatabase(int)} on the object.
 	 * 
-	 * * @param subname the database file name. By default the file looks at the
-	 * base directory of the user.
-	 * <p>
-	 * <code>"jdbc:h2:~/" + subname</code>
+	 * @param subname  the database file name. By default the file looks at the base
+	 *                 directory of the user.
+	 *                 <p>
+	 *                 <code>"jdbc:h2:~/" + subname</code>
 	 * 
 	 * @param user     the database user on whose behalf the connection is being
-	 *                 made
+	 *                 made.
 	 * @param password the user's password. May be empty
 	 * @param id       the id supplied to the serializeDatabase call
 	 * @return the image matcher found in the database or null if not present
@@ -214,13 +212,10 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	}
 
 	/**
-	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
-	 * high quality results.
-	 * <p>
-	 * The dHash is a quick algorithms allowing to filter images which are very
-	 * unlikely to be similar images. pHash is computationally more expensive and
-	 * used to inspect possible candidates further
+	 * A preconfigured image matcher backed by the supplied SQL Database
 	 * 
+	 * @param dbConnection Connection object pointing to a database. If the database
+	 *                     does not exist the necessary tables will be created
 	 * @return The matcher used to check if images are similar
 	 * @throws SQLException if an error occurs while connecting to the database
 	 */
@@ -251,14 +246,16 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 *                         <li><b>Strict:</b> Only matches images which are
 	 *                         closely related to each other</li>
 	 *                         </ul>
-	 * 
+	 * @param dbConnection     Connection object pointing to a database. If the
+	 *                         database does not exist the necessary tables will be
+	 *                         created
 	 * @return The matcher used to check if images are similar
 	 * @throws SQLException if an error occurs while connecting to the database
 	 */
 	public static DatabaseImageMatcher createDefaultMatcher(Setting algorithmSetting, Connection dbConnection)
 			throws SQLException {
 		DatabaseImageMatcher matcher = new DatabaseImageMatcher(dbConnection);
-		matcher.addDefaultHashingAlgorithms(matcher,algorithmSetting);
+		matcher.addDefaultHashingAlgorithms(matcher, algorithmSetting);
 		return matcher;
 	}
 
@@ -585,10 +582,10 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 				BigInteger bInt = new BigInteger(bArrayWithSign);
 
 				int distance = targetHash.hammingDistanceFast(bInt);
-				double normalizedDistance = distance / (double)targetHash.getBitResolution();
+				double normalizedDistance = distance / (double) targetHash.getBitResolution();
 				if (distance <= maxDistance) {
 					String url = rs.getString(1);
-					urls.add(new Result<String>(url, distance,normalizedDistance));
+					urls.add(new Result<String>(url, distance, normalizedDistance));
 				}
 			}
 		}

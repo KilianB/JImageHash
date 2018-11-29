@@ -26,7 +26,7 @@ import com.github.kilianB.ArrayUtil;
  * values. An intermediary value matrix is calculated:
  * 
  * <pre>
- * Values * Mask => [2 6 6 2 6]
+ * Values * Mask = [2 6 6 2 6]
  * </pre>
  * 
  * and it is found that the first value is the minimum. (If two values are equal

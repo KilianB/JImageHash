@@ -22,7 +22,7 @@ public class DifferenceHash extends HashingAlgorithm {
 	/**
 	 * Algorithm precision used during calculation.
 	 * 
-	 * @implnote Be aware that changing the enum names will alter the algorithm id
+	 * <p><b>implnote:</b> Be aware that changing the enum names will alter the algorithm id
 	 *           rendering generated keys unusable
 	 * 
 	 * @author Kilian

@@ -20,8 +20,8 @@ import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * Instead of early aborting if one algorithm fails like the
- * {@link InMemoryMatcher}, this class looks at the summed distance and decides
- * if images match.
+ * {@link com.github.kilianB.matcher.InMemoryImageMatcher}, this class looks at
+ * the summed distance and decides if images match.
  * 
  * <pre>
  * Example:
@@ -31,11 +31,11 @@ import com.github.kilianB.matcher.ImageMatcher.Setting;
  * Hasher  computes a distance of 0.1
  * Hasher1 computes a distance of 0.4
  * -------
- * Since the summed distance of 0.5 <= 0.6 the two images are considered a match
+ * Since the summed distance of 0.5 is smaller than 0.6, the two images are considered a match
  * 
  * Fail:
  * Hasher computes a distance of 0.7
- * Hasher1 not executed since distance already > threshold
+ * Hasher1 not executed since distance already greater than threshold
  * -----------------------------
  * Not considered a match
  * </pre>
@@ -156,45 +156,58 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 		this(new AlgoSettings(threshold, normalized));
 	}
 
-	// TODO really?
 	public CumulativeImageMatcher(AlgoSettings setting) {
 		overallSetting = Objects.requireNonNull(setting, "Setting may not be null");
 	}
 
 	/**
-	 * Add a hashing algorithm to
+	 * Add a hashing algorithm to the matcher with a weight multiplier of 1. In
+	 * order for images to match they have to be beneath the threshold of the summed
+	 * distances of all added hashing algorithms.
 	 * 
-	 * @param algo
+	 * @param algo The algorithm to add to the matcher.
 	 */
 	public void addHashingAlgorithm(HashingAlgorithm algo) {
 		super.addHashingAlgorithm(algo, 1);
 	}
 
 	/**
-	 * Append a new hashing algorithm which will be executed after the algorithms
-	 * already added.
+	 * Add a hashing algorithm to the matcher with the given weight multiplier. In
+	 * order for images to match they have to be beneath the threshold of the summed
+	 * distances of all added hashing algorithms.
 	 * 
-	 * The weight parameter scales the returned hash distance.
+	 * <p>
+	 * The weight parameter scales the returned hash distance. For example a weight multiplier
+	 * of 2 means that the returned distance is multiplied by 2. If the total allowed
+	 * distance of this matcher is 0.7 and the returned hash is 0.3 * 2 the next algorithm
+	 * only may return a distance of 0.1 or smaller in order for the image to pass. 
 	 * 
 	 * @param algo   The algorithms to be added
-	 * @param weight The weight of this algorithm.
+	 * @param weight The weight multiplier of this algorithm.
 	 */
 	public void addHashingAlgorithm(HashingAlgorithm algo, float weight) {
-		// only used to redefine javadocs
-		// Add false to cirumvent the range check. We do not check for normalized in
-		// this case either way
+		/*
+		 * only used to redefine javadocs Add false to cirumvent the range check. We do
+		 * not check for normalized in this case either way
+		 */
 		super.addHashingAlgorithm(algo, weight, false);
 	}
 
 	/**
-	 * Append a new hashing algorithm which will be executed after all hash
-	 * algorithms passed the test.
+	 * Add a hashing algorithm to the matcher with the given weight multiplier. In
+	 * order for images to match they have to be beneath the threshold of the summed
+	 * distances of all added hashing algorithms.
 	 * 
-	 * @param algo      The algorithms to be added
-	 * @param threshold the threshold the hamming distance may be in order to pass
-	 *                  as identical image.
-	 * @param dummy     not used by this type of image matcher. This method
-	 *                  signature is only available due to inheritance.
+	 * * <p>
+	 * The weight parameter scales the returned hash distance. For example a weight multiplier
+	 * of 2 means that the returned distance is multiplied by 2. If the total allowed
+	 * distance of this matcher is 0.7 and the returned hash is 0.3 * 2 the next algorithm
+	 * only may return a distance of 0.1 or smaller in order for the image to pass. 
+	 * 
+	 * @param algo   The algorithms to be added
+	 * @param weight The weight multiplier of this algorithm.
+	 * @param dummy  not used by this type of image matcher. This method signature
+	 *               is only available due to inheritance.
 	 */
 	public void addHashingAlgorithm(HashingAlgorithm algo, float weight, boolean dummy) {
 		// only used to redefine javadocs

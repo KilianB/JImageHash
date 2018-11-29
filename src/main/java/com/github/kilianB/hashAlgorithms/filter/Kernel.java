@@ -28,10 +28,11 @@ import com.github.kilianB.graphics.FastPixel;
  * pixel data.
  * 
  * <img src=
- * "http://machinelearninguru.com/_images/topics/computer_vision/basics/convolution/3.JPG"/>
+ * "http://machinelearninguru.com/_images/topics/computer_vision/basics/convolution/3.JPG"
+ * alt="Convolution example">
  * 
- * TODO support separability for custom kernels
- * TODO kernel indices are swapped and twisted.
+ * TODO support separability for custom kernels TODO kernel indices are swapped
+ * and twisted.
  * 
  * @author Kilian
  * @since 2.0.0
@@ -77,8 +78,8 @@ public class Kernel implements Serializable, Filter {
 	 * A normalized box filter is available via
 	 * {@link #boxFilterNormalized(int, int)}.
 	 * 
-	 * @param width  of the kernel has to be odd and > 1
-	 * @param height if the kernel has to be odd and > 1
+	 * @param width  of the kernel has to be odd and positive
+	 * @param height if the kernel has to be odd and positive
 	 * @param factor the factor applied to each pixel
 	 * @return the box filter kernel
 	 */
@@ -108,7 +109,6 @@ public class Kernel implements Serializable, Filter {
 		 */
 	}
 
-
 	public static Kernel boxFilterNormalizedSep(int width, int height) {
 		// Construct mask
 		double factor = 1d / (width * height);
@@ -130,17 +130,6 @@ public class Kernel implements Serializable, Filter {
 		return new MultiKernel(xMask, yMask);
 	}
 
-	/*
-	 * 1 2 * 1 0 -1 1
-	 * 
-	 * 1 0 -1 2 0 -2 1 0 -1
-	 * 
-	 * 
-	 * 0.5 0.5 1 1 1 0.5
-	 * 
-	 * 0.5 0.5 0.5 0.5.0.5 0.5 0.5 0.5 0.5
-	 * 
-	 */
 	/**
 	 * A box filter is a filter which applies the same factor to squared region of
 	 * pixels and can be counted to the blurring filters.
@@ -148,8 +137,8 @@ public class Kernel implements Serializable, Filter {
 	 * <p>
 	 * This filter is normalized ensuring the same magnitude of the values.
 	 * 
-	 * @param width  of the kernel has to be odd and > 1
-	 * @param height of the kernel has to be odd and > 1
+	 * @param width  of the kernel has to be odd and positive
+	 * @param height of the kernel has to be odd and positive
 	 * @return the box filter kernel
 	 */
 	public static Kernel boxFilterNormalized(int width, int height) {
@@ -173,8 +162,8 @@ public class Kernel implements Serializable, Filter {
 	 * <p>
 	 * The gaussian filter is normalized.
 	 * 
-	 * @param width  of the kernel has to be odd and > 1
-	 * @param height of the kernel has to be odd and > 1
+	 * @param width  of the kernel has to be odd and positive
+	 * @param height of the kernel has to be odd and positive
 	 * @param std    the standard deviation of the kernel. The higher the stronger
 	 *               the blur effect
 	 * @return the gaussian kernel
@@ -202,26 +191,10 @@ public class Kernel implements Serializable, Filter {
 			}
 		}
 
-		// Seperability
+		// TODO Seperability
 
 		// http://www-edlab.cs.umass.edu/~smaji/cmpsci370/slides/hh/lec02_hh_advanced_edges.pdf
 
-		return new Kernel(mask, true);
-	}
-
-	/**
-	 * A 3 x 3 edge detection kernel putting emphasis on edges in the image.
-	 * 
-	 * <p>
-	 * This kernel is normalized.
-	 * 
-	 * @param strength feature strength of the detector
-	 * @return the edge detection kernel
-	 */
-	@Deprecated
-	public static Kernel edgeDetectionFilter() {
-		// Sobel?
-		double[][] mask = { { 2, 2, 0 }, { 2, 0, -2 }, { 0, -2, -2 } };
 		return new Kernel(mask, true);
 	}
 
@@ -234,6 +207,11 @@ public class Kernel implements Serializable, Filter {
 
 	/*
 	 * Emboss
+	 */
+
+	/**
+	 * @param depth width and height. higher values will create a stronger effect
+	 * @return a kernel creating a horizontal emboss effect
 	 */
 	public static Kernel embossHorizontontalFilter(int depth) {
 
@@ -261,8 +239,8 @@ public class Kernel implements Serializable, Filter {
 	 *		 0  0 -1
 	 * </pre>
 	 * 
-	 * @param depth
-	 * @return
+	 * @param depth width and height. higher values will create a stronger effect
+	 * @return a kernel creating a left diagonal emboss effect
 	 */
 	public static Kernel embossLeftDiagonalFilter(int depth) {
 
@@ -293,8 +271,8 @@ public class Kernel implements Serializable, Filter {
 	 *		-1 0 0
 	 * </pre>
 	 * 
-	 * @param depth
-	 * @return
+	 * @param depth width and height. higher values will create a stronger effect
+	 * @return a kernel creating a right diagonal emboss effect
 	 */
 	public static Kernel embossRightDiagonalFilter(int depth) {
 
@@ -325,8 +303,8 @@ public class Kernel implements Serializable, Filter {
 	 *		0  0  0
 	 * </pre>
 	 * 
-	 * @param depth
-	 * @return
+	 * @param depth width and height. higher values will create a stronger effect
+	 * @return a kernel creating a right left emboss effect
 	 */
 	public static Kernel embossleftRightFilter(int depth) {
 		depth = Require.positiveValue(depth, "Depth has to be positive");
@@ -350,14 +328,6 @@ public class Kernel implements Serializable, Filter {
 	}
 
 //	
-//	/**
-//	 * Laplace sharpeen
-//	 * @return
-//	 */
-//	public static Kernel laplaceFilter(int width, int height, double std) {
-	// Log kernel as given by
-//	https://cecas.clemson.edu/~stb/ece847/internal/cvbook/ch03_filtering.pdf
-//	}
 
 	// Many many more sobel laplacian etc ...
 	// https://web.eecs.umich.edu/~jjcorso/t/598F14/files/lecture_0924_filtering.pdf
@@ -365,7 +335,9 @@ public class Kernel implements Serializable, Filter {
 	/** Kernel mask applied to the pixels */
 	protected double[][] mask;
 
-	/** Seperable convolution to speed up masking if applicable */
+	/**
+	 * Seperable convolution to speed up masking if applicable for custom kernels
+	 */
 	// https://en.wikipedia.org/wiki/Singular_value_decomposition for custom kernels
 	// https://blogs.mathworks.com/steve/2006/11/28/separable-convolution-part-2/
 	// private double[] seperableMaskX;
@@ -379,9 +351,9 @@ public class Kernel implements Serializable, Filter {
 	// those values?
 	// int[][] pixelAccessMap
 
-	
 	/**
 	 * Create a clone of the supplied kernel
+	 * 
 	 * @param template the kernel to clone
 	 */
 	public Kernel(Kernel template) {
@@ -392,11 +364,13 @@ public class Kernel implements Serializable, Filter {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Empty constructor used by inheriting classes which are not able to provide a
 	 * mask during first constructor call. The inheriting class promises to provide
 	 * a mask and all checks by itself
+	 * 
+	 * @param strat EdgeHandlingStrategy to use
 	 */
 	@Deprecated
 	protected Kernel(EdgeHandlingStrategy strat) {
@@ -419,12 +393,12 @@ public class Kernel implements Serializable, Filter {
 	 * Construct a kernel with the given pixel mask and the default edge handling
 	 * strategy of {@link EdgeHandlingStrategy#EXPAND}.
 	 * 
-	 * @param mask       used to filter pixel. So far only oddly shaped masks are
-	 *                   allowed
-	 * @param normalized If true the mask is normalized resulting in the sum of the
-	 *                   mask being 1. This will preserve the magnitude of the
-	 *                   original range. If the mask will be blindly copied without
-	 *                   adjustment
+	 * @param mask      used to filter pixel. So far only oddly shaped masks are
+	 *                  allowed
+	 * @param normalize If true the mask is normalized resulting in the sum of the
+	 *                  mask being 1. This will preserve the magnitude of the
+	 *                  original range. If the mask will be blindly copied without
+	 *                  adjustment
 	 * @since 2.0.0
 	 * @throws IllegalArgumentException if mask's width or height is even
 	 */
@@ -453,14 +427,13 @@ public class Kernel implements Serializable, Filter {
 	 *                     allowed
 	 * @param edgeHandling the edge handling strategy used at the corners of the
 	 *                     image
-	 * @param normalized   If true the mask is normalized resulting in the sum of
+	 * @param normalize    If true the mask is normalized resulting in the sum of
 	 *                     the mask being 1. This will preserve the magnitude of the
 	 *                     original range. If the mask will be blindly copied
 	 *                     without adjustment
 	 * @since 2.0.0
 	 * @throws IllegalArgumentException if mask's width or height is even
 	 */
-
 	public Kernel(double[][] mask, EdgeHandlingStrategy edgeHandling, boolean normalize) {
 
 		if (mask.length % 2 == 0 || mask[0].length % 2 == 0) {
@@ -610,7 +583,7 @@ public class Kernel implements Serializable, Filter {
 		double value = 0;
 		int maskW = mask[0].length / 2;
 		int maskH = mask.length / 2;
-		
+
 		int width = input[0].length;
 		int height = input.length;
 
@@ -641,7 +614,7 @@ public class Kernel implements Serializable, Filter {
 		double value = 0;
 		int maskW = mask[0].length / 2;
 		int maskH = mask.length / 2;
-		
+
 		int width = input[0].length;
 		int height = input.length;
 
@@ -671,17 +644,15 @@ public class Kernel implements Serializable, Filter {
 	/**
 	 * 
 	 * @param input array
-	 * @param x pixelToLookAt
-	 * @param y pixelToLookAt
-	 * @param width  of the input?
-	 * @param height of the input
+	 * @param x     pixelToLookAt
+	 * @param y     pixelToLookAt
 	 * @return convolutedPixel fo this x and y
 	 */
 	protected double calcValue(double[][] input, int x, int y) {
 		double value = 0;
 		int maskW = mask[0].length / 2;
 		int maskH = mask.length / 2;
-		
+
 		int width = input[0].length;
 		int height = input.length;
 
@@ -707,8 +678,6 @@ public class Kernel implements Serializable, Filter {
 		}
 		return value;
 	}
-	
-	
 
 	@Override
 	public int hashCode() {
@@ -734,9 +703,6 @@ public class Kernel implements Serializable, Filter {
 			return false;
 		return true;
 	}
-
-	
-
 
 	/**
 	 * The edge handling strategy defines the behaviour when a kernel reaches the
@@ -830,7 +796,7 @@ public class Kernel implements Serializable, Filter {
 		int[][] red = fp.getRed();
 		int[][] green = fp.getGreen();
 		int[][] blue = fp.getBlue();
-		
+
 		red = applyInt(red);
 		green = applyInt(green);
 		blue = applyInt(blue);
@@ -839,30 +805,31 @@ public class Kernel implements Serializable, Filter {
 		fpSet.setGreen(green);
 		fpSet.setBlue(blue);
 
-		if(fpSet.hasAlpha()) {
+		if (fpSet.hasAlpha()) {
 			fpSet.setAlpha(fp.getAlpha());
 		}
-		
+
 		return bi;
 	}
 
-	
 	/**
-	 * Filter class working with grayscale values
+	 * Kernels whose filter class work with grayscale instead of seperate color
+	 * channels
+	 * 
 	 * @author Kilian
 	 *
 	 */
-	public static class GrayScaleFilter extends Kernel{
+	public static class GrayScaleFilter extends Kernel {
 
 		private static final long serialVersionUID = -1079407275717629013L;
 
 		/**
-		 * @param maskkernel mask
+		 * @param mask kernel mask
 		 */
 		public GrayScaleFilter(double[][] mask) {
 			super(mask);
 		}
-		
+
 		@Override
 		public BufferedImage filter(BufferedImage input) {
 			BufferedImage bi = new BufferedImage(input.getWidth(), input.getHeight(), input.getType());
@@ -873,10 +840,7 @@ public class Kernel implements Serializable, Filter {
 			fpSet.setAverageGrayscale(gray);
 			return bi;
 		}
-		
+
 	}
-//	private int computeRank(double[][] matrix, double tolerance) {
-//		
-//	}
 
 }

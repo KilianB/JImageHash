@@ -29,7 +29,7 @@ import com.github.kilianB.graphics.FastPixel;
  * values. An intermediary value matrix is calculated:
  * 
  * <pre>
- * Values * Mask => [5 8 3 6 6]
+ * Values * Mask = [5 8 3 6 6]
  * </pre>
  * 
  * 3 5 6 6 8 

@@ -13,14 +13,13 @@ import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
 
 /**
- * 
  * A rotational invariant hashing algorithm which is mostly immune to rotation
  * attacks. The hash wraps the pixels around a circle and computes a discrete
  * cosine transformation on each subsection.
  * 
  * <img src=
  * "https://user-images.githubusercontent.com/9025925/47964206-6f99b400-e036-11e8-8843-471242f9943a.png"
- * />.
+ *  alt="Ring partition. Pixels are mapped to buckets according to their distance to the center">
  * 
  * @author Kilian
  * @since 2.0.0
@@ -172,7 +171,7 @@ public class RotPHash extends HashingAlgorithm {
 	}
 
 	/**
-	 * Compute the ring partition this specific pixel will fall into. 
+	 * Compute the ring partition this specific pixel will fall into.
 	 * 
 	 * @param originalX the x pixel index in the picture
 	 * @param originalY the y pixel index in the picture

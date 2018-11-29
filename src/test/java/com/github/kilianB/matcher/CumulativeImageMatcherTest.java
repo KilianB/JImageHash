@@ -1,27 +1,25 @@
 package com.github.kilianB.matcher;
 
+import static com.github.kilianB.TestResources.ballon;
+import static com.github.kilianB.TestResources.copyright;
+import static com.github.kilianB.TestResources.highQuality;
+import static com.github.kilianB.TestResources.lowQuality;
+import static com.github.kilianB.TestResources.thumbnail;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-import javax.imageio.ImageIO;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
 import com.github.kilianB.matcher.ImageMatcher.Setting;
@@ -31,31 +29,6 @@ import com.github.kilianB.matcher.ImageMatcher.Setting;
  *
  */
 class CumulativeImageMatcherTest {
-
-
-	private static BufferedImage ballon;
-	// Similar images
-	private static BufferedImage copyright;
-	private static BufferedImage highQuality;
-	private static BufferedImage lowQuality;
-	private static BufferedImage thumbnail;
-
-	@BeforeAll
-	static void loadImages() {
-		try {
-			ballon = ImageIO.read(SingleImageMatcherTest.class.getClassLoader().getResourceAsStream("ballon.jpg"));
-			copyright = ImageIO
-					.read(SingleImageMatcherTest.class.getClassLoader().getResourceAsStream("copyright.jpg"));
-			highQuality = ImageIO
-					.read(SingleImageMatcherTest.class.getClassLoader().getResourceAsStream("highQuality.jpg"));
-			lowQuality = ImageIO
-					.read(SingleImageMatcherTest.class.getClassLoader().getResourceAsStream("lowQuality.jpg"));
-			thumbnail = ImageIO
-					.read(SingleImageMatcherTest.class.getClassLoader().getResourceAsStream("thumbnail.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	@Test
 	@DisplayName("Check Similarity")
@@ -87,6 +60,40 @@ class CumulativeImageMatcherTest {
 			assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
 		});
 	}
+	
+	@Test
+	@DisplayName("Check Similarity Non Normalized")
+	void imageMatcheNonNormalizedVersion() {
+
+		CumulativeImageMatcher matcher = new CumulativeImageMatcher(20,false);
+
+		matcher.addHashingAlgorithm(new AverageHash(64));
+		
+		matcher.addImage(ballon);
+		matcher.addImage(copyright);
+		matcher.addImage(highQuality);
+		matcher.addImage(lowQuality);
+		matcher.addImage(thumbnail);
+
+		// We only expect ballon to be returned
+		final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
+
+		
+		assertAll("Ballon", () -> {
+			assertEquals(1, results.size());
+		}, () -> {
+			assertEquals(ballon, results.peek().value);
+		});
+
+		final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
+		
+		assertAll("Matches", () -> {
+			assertEquals(4, results1.size());
+		}, () -> {
+			assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
+		});
+	}
+	
 	
 	@Nested
 	class TestDefaultSettings{
@@ -244,7 +251,7 @@ class CumulativeImageMatcherTest {
 		InMemoryImageMatcher matcher = new InMemoryImageMatcher();
 
 		assertEquals(0, matcher.getAlgorithms().size());
-		matcher.addHashingAlgorithm(new AverageHash(14), 0.5f, true);
+		matcher.addHashingAlgorithm(new AverageHash(14), 0.5f);
 		assertEquals(1, matcher.getAlgorithms().size());
 		matcher.clearHashingAlgorithms();
 		assertEquals(0, matcher.getAlgorithms().size());

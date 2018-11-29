@@ -26,7 +26,7 @@ import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
-//TODO alsmo move difference hash to the default test scenarios
+//TODO  move difference hash to the default test scenarios
 class DifferenceHashTest {
 
 	private static BufferedImage ballon;

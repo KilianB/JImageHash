@@ -317,7 +317,7 @@ public class AlgorithmBenchmarker {
 
 		// Additional information?
 		if (initChart) {
-			appendChartSection(htmlBuilder, scatterMap,statMap);
+			appendChartSection(htmlBuilder, scatterMap, statMap);
 		}
 
 		// Construct final html
@@ -369,8 +369,9 @@ public class AlgorithmBenchmarker {
 	 * @param htmlBuilder the builder used to construct the output
 	 * @param statMap     map to store the distances in
 	 * @param hashes      the precomputed hashes
-	 * @param initChart
-	 * @param scatterMap
+	 * @param initChart   should the chart be appeneded. (e.g. javafx does is not
+	 *                    able to display the chart)
+	 * @param scatterMap  map with all distance data points sorted by algorithm
 	 */
 	protected void appendHashingDistances(StringBuilderI htmlBuilder, Map<HashingAlgorithm, Map<TestData, Hash>> hashes,
 			Map<HashingAlgorithm, DoubleSummaryStatistics[]> statMap, Map<HashingAlgorithm, List<Double>[]> scatterMap,
@@ -462,7 +463,6 @@ public class AlgorithmBenchmarker {
 	 * Append statistics regarding the hashing algorithms to the table
 	 * 
 	 * @param htmlBuilder      The stringbuilder to append the output to
-	 * @param algorithmsToTest Map holding the hashing algorithms
 	 * @param statMap          map holding statistics
 	 */
 	protected void appendStatistics(StringBuilderI htmlBuilder,
@@ -528,8 +528,7 @@ public class AlgorithmBenchmarker {
 
 	/**
 	 * Append an empty table row to the table. Used as spacer.
-	 * 
-	 * @return
+	 * @param builder The stringbuilder to append the output tos
 	 */
 	private void emptyTableRow(StringBuilderI builder) {
 		builder.append("<tr class='spacerRow'><td colspan='2'></td><td colspan='").append(algorithmsToTest.size())
@@ -540,8 +539,8 @@ public class AlgorithmBenchmarker {
 	/**
 	 * Pseudo micro benchmark
 	 * 
-	 * 
-	 * @param htmlBuilder
+	 * @param htmlBuilder The stringbuilder to append the output to
+	 * @return dummy value. Sum of bits of all calculated hashes
 	 */
 	protected long appendTimmingBenchmark(StringBuilderI htmlBuilder) {
 		// Avoid dead code elimination
@@ -671,7 +670,8 @@ public class AlgorithmBenchmarker {
 		return sum;
 	}
 
-	protected void appendChartSection(StringBuilderI htmlBuilder, Map<HashingAlgorithm, List<Double>[]> scatterMap, Map<HashingAlgorithm, DoubleSummaryStatistics[]> statMap) {
+	protected void appendChartSection(StringBuilderI htmlBuilder, Map<HashingAlgorithm, List<Double>[]> scatterMap,
+			Map<HashingAlgorithm, DoubleSummaryStatistics[]> statMap) {
 
 		// Inject javascript charting library
 
@@ -733,21 +733,19 @@ public class AlgorithmBenchmarker {
 				int[] matchBucket = new int[buckets];
 				int[] distinctBucket = new int[buckets];
 
-				
-				//Two lines
-				//TODO calculate the number of images we can not correctly predict no matter where the threshold is.
-				
-				//Average between centers.
-				double avg = (statMap.get(hasher)[0].getAverage() + statMap.get(hasher)[1].getAverage())/2;
-				
-				//Average between max match and min distinct
-				
-				scatterDatBuilder.append("dataDictScatter['").append(hasher.algorithmId()).append("']=[");
-				centeroidBuilder.append("dataDictCenter['").append(hasher.algorithmId()).append("']=[")
-				.append(avg).row("];");
+				// Two lines
+				// TODO calculate the number of images we can not correctly predict no matter
+				// where the threshold is.
 
-				
-				
+				// Average between centers.
+				double avg = (statMap.get(hasher)[0].getAverage() + statMap.get(hasher)[1].getAverage()) / 2;
+
+				// Average between max match and min distinct
+
+				scatterDatBuilder.append("dataDictScatter['").append(hasher.algorithmId()).append("']=[");
+				centeroidBuilder.append("dataDictCenter['").append(hasher.algorithmId()).append("']=[").append(avg)
+						.row("];");
+
 				int dataPoints = occurances[0].size();
 				for (int i = 0; i < dataPoints; i++) {
 
