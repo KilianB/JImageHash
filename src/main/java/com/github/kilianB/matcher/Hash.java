@@ -6,6 +6,7 @@ import java.math.BigInteger;
 
 import com.github.kilianB.Require;
 import com.github.kilianB.StringUtil;
+import com.github.kilianB.graphics.FastPixel;
 
 /**
  * A wrapper class combining image hashes and their producing algorithm allowing
@@ -250,36 +251,35 @@ public class Hash {
 	 * Creates a visual representation of the hash mapping the hash values to the
 	 * section of the rescaled image used to generate the hash.
 	 * 
-	 * starting with version 2.0.0 this method returns a rotated and mirrored.
-	 * image. Could be added as a fix but it's not a high priority right now.
-	 * 
 	 * @param blockSize Stretch factor.Due to rescaling the image was shrunk down
 	 *                  during hash creation.
 	 * @return A black and white image representing the individual bits of the hash
 	 */
 	public BufferedImage toImage(int blockSize) {
-		int width = (int) Math.sqrt((hashValue.bitLength() - 1));
+		int width = (int) Math.sqrt(hashLength);
 		int height = width;
 
-		int white = Color.WHITE.getRGB();
-		int black = Color.BLACK.getRGB();
+		BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height, BufferedImage.TYPE_3BYTE_BGR);
 
-		BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height, BufferedImage.TYPE_BYTE_GRAY);
-
-		int i = hashValue.bitLength() - 1;
+		FastPixel fp = FastPixel.create(bi);	
+		int i = hashLength - 1;
 		for (int w = 0; w < width * blockSize; w = w + blockSize) {
 			for (int h = 0; h < height * blockSize; h = h + blockSize) {
-				boolean bit = hashValue.testBit(i);
+				//boolean bit = hashValue.testBit(i++);
+				int gray = hashValue.testBit(i--) ? 0 : 255;
 				for (int m = 0; m < blockSize; m++) {
 					for (int n = 0; n < blockSize; n++) {
 						int x = w + m;
 						int y = h + n;
-						bi.setRGB(y, x, bit ? black : white);
+						//bi.setRGB(y, x, bit ? black : white);
+						fp.setAverageGrayscale(x,y,gray);
 					}
 				}
-				i--;
 			}
 		}
+		System.out.println(hashLength + " " + i); 
+		
+		
 		return bi;
 	}
 
