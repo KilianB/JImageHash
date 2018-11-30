@@ -405,6 +405,8 @@ Original Image:
     <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540124-7b8a8f12-17d9-11e8-9d72-db969711082f.png"></td> 
   </tr>
   
+
+  
   <tr>
   <td colspan = 5> 2^12 = 4096 bit</td>
 </tr>
@@ -427,6 +429,8 @@ Original Image:
     <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36539813-54bdd688-17d8-11e8-9b06-6b2a5163498d.png"></td> 
   </tr>
 <table>
+
+
 	
 <table>
 <tr> <th>Bit</th>  <th>Binary</th> <th>Hex</th></tr>
@@ -467,10 +471,6 @@ Here are some of the filters available:
 	<tr><td>Sobel</td>	<td><img width=300 height=300 src="https://user-images.githubusercontent.com/9025925/49189543-11c76600-f36f-11e8-838c-b0e284a2a8a1.png"/></td>	<td><img width=300 height=300 src="https://user-images.githubusercontent.com/9025925/49189448-b2695600-f36e-11e8-93a3-e842c1a2e632.png" /></td></tr>
 </table>
 
-### Example Application 
-A gui application can be found the in example folder: Be aware that the results will be poor due to only one algorithms be applied at a time.
-Only the first 100 google thumbnails are downloaded and usually there are not many true duplicates present. 
-<p align="center"><img src="https://user-images.githubusercontent.com/9025925/43670281-2ca48ab6-978a-11e8-822b-fc2414586708.png"/></p>
 
 
 
@@ -478,44 +478,90 @@ Only the first 100 google thumbnails are downloaded and usually there are not ma
 
 The following examples were found by creating a duplicate detection system to filter reposts on 9gag.com
 
-Distance 5: Slight color change. 
-<p></p>
-<img align="left" width = 48% src="https://user-images.githubusercontent.com/9025925/36516748-be5f9b8e-177f-11e8-813e-9ff92c6e65a8.jpg"><img width = 48% src="https://user-images.githubusercontent.com/9025925/36516750-c00b942e-177f-11e8-8e42-deadc2c49d79.jpg">
+#### Distance 5: Slight color change. 
 
-
-Distance 9: (False positive). Due to difference hash relying on gradient search on a compressed image and the text being swapped out for a similar object this algorithm failed. Rehash with perceptual algorithm.
 <p>
-<img align="left" width = 48% src="https://user-images.githubusercontent.com/9025925/36517079-2efe056e-1781-11e8-9db7-a182e2727985.jpg"><img width = 48% src="https://user-images.githubusercontent.com/9025925/36517081-30157f72-1781-11e8-9ed1-8ebb8d64aba9.jpg">
+<img align="left" width = 25% src="https://user-images.githubusercontent.com/9025925/36516748-be5f9b8e-177f-11e8-813e-9ff92c6e65a8.jpg"><img width = 25% src="https://user-images.githubusercontent.com/9025925/36516750-c00b942e-177f-11e8-8e42-deadc2c49d79.jpg">
 </p>
 
-<p>Distance 10: Resized image</p>
-<img align="left" width = 48% src="https://user-images.githubusercontent.com/9025925/36517179-a59b47a4-1781-11e8-8f00-a8d47856e6f0.jpg"><img width = 48% src="https://user-images.githubusercontent.com/9025925/36517181-a71751fe-1781-11e8-81d6-56cdfdae614f.jpg">
+#### Distance 9: (False positive). 
+Due to difference hash relying on gradient search on a compressed image and the text being swapped out for a similar object this algorithm failed. Rehash with perceptual algorithm.
+<p>
+<img align="left" width = 25% src="https://user-images.githubusercontent.com/9025925/36517079-2efe056e-1781-11e8-9db7-a182e2727985.jpg"><img width = 25% src="https://user-images.githubusercontent.com/9025925/36517081-30157f72-1781-11e8-9ed1-8ebb8d64aba9.jpg">
+</p>
+
+#### Distance 10: Resized image
+<p>
+<img align="left" width = 25% src="https://user-images.githubusercontent.com/9025925/36517179-a59b47a4-1781-11e8-8f00-a8d47856e6f0.jpg"><img width = 25% src="https://user-images.githubusercontent.com/9025925/36517181-a71751fe-1781-11e8-81d6-56cdfdae614f.jpg">
+</p>
 
 
 
-
-### Known Bugs
-- Perceptive hash relies on JTransform which fails to close a threadpool upon calculating large DCT matrices resulting in the JVM not to terminate. If you want to calculate a perceptive hash with a large bit resolution call `ConcurrencyUtils.shutdownThreadPoolAndAwaitTermination();` if you want to terminate the program.
 
 
 ## Some more information to each hashing algorithm
 
-### AverageHash and AverageKernelHash
+### AverageHash,  AverageKernelHash, MedianHash, AverageColorHash
 
-The average hash works on the Y(Luma) component of the YCbCr color model. First the image is 
-Y = R * 0.299 + G + 0.587 + B * 0.114 and simply compares if the luma of the current pixel is higher or smaller than the average luminosity. 
-
+The <b>average hash</b> works on the Y(Luma) component of the YCbCr color model. First the image is rescaled and the luma value calculated.
+`Y = R * 0.299 + G + 0.587 + B * 0.114`. if the luma of the current pixel is higher or smaller than the average luminosity the bit of the hash is set.
 This is a quick and easy operation but might get you in trouble once the luminosity of the image shifts.
-
-//Add images here
+The <b>Average kernel hash</b> simply performs an additional filter pass with an arbitrary kernel. By default a box filter is applied.
+The <b>Average Color Hash</b> computes the grayscale value for each pixel `V = (R + G + B) /3`. The same approach as the AverageHash in version 1.x.x. Relying on the actual color values makes this hash vulnerable against color changes abd it usually performs worse than the luminosity based average hash.
+The MedianHash compares the luminosity value against the median value. This guarantees each has to be 50% consistent out of 0 and 1 bits but eliminates outliers which may or may not be useable to differentiate images.
 
 
 
 ### DifferenceHash
-The dHash algorithm is the fastest algorithm while mostly being on par on detection quality with the perceptive hash. Usually this algorithm is the choice to go with. Difference hash calculates the gradient in the image. As gradients are depended on the direction of the scanning it's a good idea to take additional dimensions into account.
+The difference hash calculates the gradient in the image. As gradients are depended on the direction of the scanning it's a good idea to take additional dimensions into account.
 
 - DoublePrecision will double the resulting hashSize but additionally accounts for top to bottom gradients
 - TripplePrecision will triple the resulting hashSize but additionally accounts for diagonal gradients 
+While additional precision will increase the amount of information a 64 bit simple precision usually performs better than a 32 bit double precision hash.
+
+<table>
+	<tr> <td>Algo / Resolution</td> <td>2^6 = 64 bit</td><td>2^8 = 256 bit</td><td>2^12 = 4096 bit</td><td>2^18 = 262144 bit</td> </tr>
+	<tr> <td>Top/Bottom</td> 
+	 <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540059-3a7dbb2a-17d9-11e8-97e0-36600e0a5446.png"></td>
+	 <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540120-7aeeba92-17d9-11e8-9044-9fea43be1dd4.png"></td>  
+	 <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540234-ebdfbf9e-17d9-11e8-9cdf-9fc0815356c4.png"></td> 
+	 <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36539810-54287340-17d8-11e8-9753-98e98c404863.png"></td> 
+	</tr>
+	<tr> <td>Left/Right</td> 
+		<td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540060-3ac4c39e-17d9-11e8-803b-9230f36c5a4a.png"></td>
+		<td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540121-7b1837dc-17d9-11e8-9e8e-56e828aa3376.png"></td> 
+		<td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540235-ec082efc-17d9-11e8-8a74-fa3a4d32e379.png"></td> 
+		<td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36539811-545dee4e-17d8-11e8-9437-98de5ee62c13.png"></td> 
+	</tr>
+	<tr>
+		<td>Diagonal*</td>
+			<td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540061-3b193f00-17d9-11e8-85f2-d0fd38f7ef0b.png"></td>
+			<td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540122-7b4167f6-17d9-11e8-81a5-60fe0c040b69.png"></td> 
+			<td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36540236-ec332c56-17d9-11e8-8442-30f90db53845.png"></td> 
+			<td><img width = 100% src="https://user-images.githubusercontent.com/9025925/36539812-5484601a-17d8-11e8-8f86-5b3ea320e500.png"></td> 
+	</tr>
+</table>
+
+* The images are still of version 1.X.X. The diagonal hash got altered to correctly handle the offset at the corner of the image.
+
+### Perceptive Hash
+
+The image is rescaled as usual and the discrete cosine transformation of the lum values are calculated. Bits are assigned depending on if the coefficient of the dct is greater or smaller than the average. Due to the fact that the first few values are outlier and the lower half of the dct matrix represents features which are not visible to the human perception (the same reason why jpg compression works) the hash is calculated only on a subset of the data.
+
+Due to the cosine structured values a great part of the hash is very likely to be similar in the vast majority of the images. The usual range of normalized hamming distances for pHash is smaller than than [0-1] and usually occupies values from [0-.5] (no hard evidence just observations). While the bits are not optimally used the differentiation between different types of images is outstanding and pHash represents a very good hashing algorithm.
+
+Due to computing the dct this algorithm is slower than aHash or dHash.
+
+<table>
+	<tr> <td>Algo / Resolution</td> <td>2^6 = 64 bit</td><td>2^8 = 256 bit</td><td>2^12 = 4096 bit</td><td>2^18 = 262144 bit</td> </tr>
+	<tr> <td>Perceptive Hash</td> 
+	 <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/49261366-1d379180-f442-11e8-915b-d7fd94b86598.png"></td>
+	 <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/49261363-1c9efb00-f442-11e8-94a9-c3b7b2a8b545.png"></td>  
+	 <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/49261364-1c9efb00-f442-11e8-9a81-d3318b8c1161.png"></td> 
+	 <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/49261365-1d379180-f442-11e8-987f-982622fe37b4.png"></td> 
+	</tr>
+</table>
+
 
 ### RotPHash
 
@@ -523,8 +569,32 @@ Similar to the perceptive hash this algorithm uses a discrete cosine transformat
 
 1. Precomputation -> resize and extract Y luma component 
 2. Ring parition. Rotate pixels around the center and fit it into a bucket
-![rotationalhash](https://user-images.githubusercontent.com/9025925/47964206-6f99b400-e036-11e8-8843-471242f9943a.png)
 3. Sorting the lum values of each bucket increasingly and compute a 1d dct transformation. Compute hash by comparing the values to the mean of each bucket. (Multiple bits per bucket)
 
-The sorting step eliminates the order of the pixels and therefore gets robust against rotated images. 
+<p align="center"><image src="https://user-images.githubusercontent.com/9025925/47964206-6f99b400-e036-11e8-8843-471242f9943a.png"/></p>
+
+Again only a subset of the dct matrix is used due to the same constraints as the original pHash. RotPHash shows the same behaviour as it's brother. The hamming distance usually is on the lower range.The more pixels are present in a bucket the more bits can be computed and extracted from said collection of pixels.
+
+The sorting step eliminates the order of the pixels and therefore gets robust against rotated images. The gray pixels at the outside currently get discarded but it could be possible to assume missing information or simply fill it with a default value to include all information.
+
+### RotAverageHash
+
+Works identical RotPHash. The values are computed in buckets but now the average of each bucket is computed and compared to the next bucket. This allows for a quick and good computation for small bit resolutions but requires 1 bucket per bit, meaning this hash will scale badly (performance wise) for higher bit resolutions. Additionally outer buckets contain more pixel than their inner counterparts but still only contribute to 1 pixel meaning that the rot average hash suffers from pixels further away from the center being not weighted as much as central pixels.
+
+### HogHash
+
+The HOG (Histogram of gradients) is a feature descriptor traditionally used in machine learning to identify shapes. The concept can be found in the paper <a href="http://lear.inrialpes.fr/people/triggs/pubs/Dalal-cvpr05.pdf">Histograms of Oriented Gradients for Human Detection</a> by Navneet Dalal and Bill Triggs.
+
+The hog works similar to dHash by calculating gradients and mapping these to buckets related to the angle of the gradients. The following image shows the features of normalized hog values calculated for the test image.
+<p align="center"><image src="https://user-images.githubusercontent.com/9025925/47957324-0cffd400-dfb4-11e8-93de-76e20ab09a75.png"/></p>
+The hog hash still is experimental, while it does allow to differentiate between different images, the computation cost does to justify it's poor performance. The original hog descriptor has 4k+ byte features which are much much more information than our usual 64 bit! hash. 
+I'll have to see how the hog features can be encoded into a significant hash value. This is a work in progress hash.
+
+### Example Application 
+A gui application can be found the in example folder: Be aware that the results will be poor due to only one algorithms be applied at a time.
+Only the first 100 google thumbnails are downloaded and usually there are not many true duplicates present. 
+<p align="center"><img src="https://user-images.githubusercontent.com/9025925/43670281-2ca48ab6-978a-11e8-822b-fc2414586708.png"/></p>
+
+### Known Bugs
+- Perceptive hash relies on JTransform which fails to close a threadpool upon calculating large DCT matrices resulting in the JVM not to terminate. If you want to calculate a perceptive hash with a large bit resolution call `ConcurrencyUtils.shutdownThreadPoolAndAwaitTermination();` if you want to terminate the program.
 
