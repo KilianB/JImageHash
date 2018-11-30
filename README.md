@@ -28,7 +28,7 @@ The project is hosted on bintray and jcenter. Please be aware that hashes create
 <dependency>
 	<groupId>com.github.kilianB</groupId>
 	<artifactId>JImageHash</artifactId>
-	<version>2.0.0</version>
+	<version>2.0.1</version>
 </dependency>
 ````
 
@@ -356,8 +356,10 @@ When creating an algorithm instance you are asked to supply a bit resolution val
 <img src= "https://placehold.it/15/f03c15/000000?text=+" /> <b>Note:</b> a huge resolution is <b>NOT</b> preferable as image fingerprinting shall be more concerned about broad feature and structure of an image rather than individual details. Resolution ranges between from 32 - 128 bit have proven to be suitable values but highly depend on the algorithm chosen.
 </div>
 
+<p>
 To visualize the tradeoff let's move away from images. Assume we have two classes of objects (red apples and green pears) we want to categorize. With 1 bit of information [Color] we can categorize red objects as 0 and green objects as 1. 
 The two groups/fruits are perfectly distinct. If we would calculate a normalized hamming distance we would get a distance of 100%. Great. But what happens if we suddenly also need to categorize yellow apples? Due to the way hashing functions work they are more likely to be categorized as pears due to their color. To fix this we could add a few new categories [Color,Shape,Price]. Suddenly we will again be able to separate the groups based on the information.
+</p>
 
 <pre>
 		[Color, Shape, Price]

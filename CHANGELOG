@@ -1,13 +1,17 @@
 - Semantic versioning
 
 
-##[Unreleased -> 2.0.1]
+##[Unreleased -> 2.0.2]
 
 ## Changed 
  - Wait for JUnit 5.4.0 to implement test method ordering to write proper database tests.
 
+## [2.0.1] 30.11.2018
 
-## [2.0.0]
+### Fixed
+- Update to UtilityCode 1.5.1 which excludes test ressources which got added accidentally due to mvn:clean not being executed before deployment
+
+## [2.0.0] 29.11.2018
 
 #### Note
 	- Development of version 2.0.0 was a bit all over the place. Commits are out of order and the changelog wasn't accuratly tracked.
@@ -84,7 +88,7 @@ would fall back to the old jdk 1 awt implementation decreasing speed by a factor
 ## [0.1.0] - 3.8.2018
 ### Added
 - BinaryTree class to save & compare precomputed hashes
-- UnitTests for hash algorthms and basic matchers
+- UnitTests for hash algorithms and basic matchers
 - Examples
 	- Extensive gui example
 - Algorithm identifiers preventing mismatching hashes to be compared
