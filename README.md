@@ -393,7 +393,7 @@ pHash.addFilter(new SobelFilter(0.7));
 each image in full resolution carries a major performance penalty, therefore it should be evaluated carefully if this step is really worth the effort. Most of the times filter do not improve the performance of hashing algorithms due to the fact that a lot of the effect is lost during reszing at a later stage.
 
 
-<p> Alternatively take a look at <a href="src/main/java/com/github/kilianB/hashingAlgorithms/AverageKernelHash.java">AverageKernelHash</a> to see how to apply
+<p> Alternatively take a look at <a href="/src/main/java/com/github/kilianB/hashAlgorithms/AverageKernelHash.java">AverageKernelHash</a> to see how to apply
 kernels to the rescaled image. </p>
 
 Here are some of the available filters:
@@ -404,9 +404,6 @@ Here are some of the available filters:
 	<tr><td>Gaussian</td>	<td><img width=300 height=300 src="https://user-images.githubusercontent.com/9025925/49189543-11c76600-f36f-11e8-838c-b0e284a2a8a1.png"/></td>	<td><img width=300 height=300 src="https://user-images.githubusercontent.com/9025925/49189613-60750000-f36f-11e8-9914-9c385e9b0b4d.png"/></td></tr>
 	<tr><td>Sobel</td>	<td><img width=300 height=300 src="https://user-images.githubusercontent.com/9025925/49189543-11c76600-f36f-11e8-838c-b0e284a2a8a1.png"/></td>	<td><img width=300 height=300 src="https://user-images.githubusercontent.com/9025925/49189448-b2695600-f36e-11e8-93a3-e842c1a2e632.png" /></td></tr>
 </table>
-
-
-
 
 ### Example of hamming distances with 64 bit key
 
@@ -428,10 +425,6 @@ Due to difference hash relying on gradient search on a compressed image and the 
 <p>
 <img align="left" width = 25% src="https://user-images.githubusercontent.com/9025925/36517179-a59b47a4-1781-11e8-8f00-a8d47856e6f0.jpg"><img width = 25% src="https://user-images.githubusercontent.com/9025925/36517181-a71751fe-1781-11e8-81d6-56cdfdae614f.jpg">
 </p>
-
-
-
-
 
 ## Some more information reagarding the differen hashing algorithms
 
