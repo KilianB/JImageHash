@@ -208,17 +208,17 @@ db = DatabaseImageMatcher.getFromDatabase(conn,1);
 Image matchers can be configured using different algorithm. Each comes with individual properties
 <table>
   <tr><th>Algorithm</th>  <th>Feature</th><th>Notes</th> </tr>
-  <tr><td>AverageHash</td>  <td>Average Luminosity</td> <td>Fast and good all purpose algorithm</td> </tr>
-  <tr><td>AverageColorHash</td>  <td>Average Color</td> <td>Version 1.x.x AHash. Usually worse off than AverageHash. Not robust against color changes</td> </tr>
-  <tr><td>DifferenceHash</td> <td>Gradient/Edge detection</td> <td>A bit more robust against hue/sat changes compared to AColorHash </td> </tr>
-  <tr><td>PerceptiveHash</td> <td>Frequency</td> <td>Hash based on Discrete Cosine Transformation. Smaller hash distribution but best accuracy / bitResolution.</td> </tr>
-  <tr><td>MedianHash</td> <td>Median Luminosity</td> <td>Identical to AHash but takes the median value into account. A bit better to detect watermarks but worse at scale transformation</td> </tr>
-  <tr><td>AverageKernelHash</td>  <td>Average luminosity </td> <td>Same as AHash with kernel preprocessing. So far usually performs worse, but testing is not done yet.</td> </tr>
-  <tr><td colspan=3>Rotational Invariant</td></tr>
-  <tr><td>RotAverageHash</td>  <td>Average Luminosity</td> <td>Rotational robust version of AHash. Performs well but performance scales disastrous with higher bit resolutions . Conceptual issue: pixels further away from the center are weightend less.</td> </tr>
-  <tr><td>RotPHash</td> <td>Frequency</td> <td> Rotational invariant version of pHash using ring partition to map pixels in a circular fashion. Lower complexity for high bit sizes but due to sorting pixel values usually maps to a lower normalized distance. Usually bit res of >= 64bits are preferable</td> </tr>  
+  <tr><td><a href="#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageHash</a></td>  <td>Average Luminosity</td> <td>Fast and good all purpose algorithm</td> </tr>
+  <tr><td><a href="#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageColorHash</a></td>  <td>Average Color</td> <td>Version 1.x.x AHash. Usually worse off than AverageHash. Not robust against color changes</td> </tr>
+  <tr><td><a href="#differencehash">DifferenceHash</a></td> <td>Gradient/Edge detection</td> <td>A bit more robust against hue/sat changes compared to AColorHash </td> </tr>
+  <tr><td><a href="#perceptive-hash">PerceptiveHash</a></td> <td>Frequency</td> <td>Hash based on Discrete Cosine Transformation. Smaller hash distribution but best accuracy / bitResolution.</td> </tr>
+  <tr><td><a href="#averagehash-averagekernelhash-medianhash-averagecolorhash">MedianHash</a></td> <td>Median Luminosity</td> <td>Identical to AHash but takes the median value into account. A bit better to detect watermarks but worse at scale transformation</td> </tr>
+  <tr><td><a href="#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageKernelHash</a></td>  <td>Average luminosity </td> <td>Same as AHash with kernel preprocessing. So far usually performs worse, but testing is not done yet.</td> </tr>
+  <tr><td colspan=3 align=center><b>Rotational Invariant</b></td></tr>
+  <tr><td><a href="#rotaveragehash">RotAverageHash</a></td>  <td>Average Luminosity</td> <td>Rotational robust version of AHash. Performs well but performance scales disastrous with higher bit resolutions . Conceptual issue: pixels further away from the center are weightend less.</td> </tr>
+  <tr><td><a href="#rotphash"RotPHash</a></td> <td>Frequency</td> <td> Rotational invariant version of pHash using ring partition to map pixels in a circular fashion. Lower complexity for high bit sizes but due to sorting pixel values usually maps to a lower normalized distance. Usually bit res of >= 64bits are preferable</td> </tr>  
    <tr><td colspan=3 align="center"><i><b>Experimental.</b> Hashes available but not well tuned and subject to changes</i></td></tr>
-   <tr><td>HogHash*</td> <td>Angular Gradient based (detection of shapes?) </td> <td>A hashing algorithm based on hog feature detection which extracts gradients and pools them by angles. Usually used in support vector machine/NNs human outline detection. It's not entirely set how the feature vectors should be encoded. Currently average, but not great results, expensive to compute and requires a rather high bit resolution</td> </tr>  
+  <tr><td><a href="#hoghash">HogHash</a></td> <td>Angular Gradient based (detection of shapes?) </td> <td>A hashing algorithm based on hog feature detection which extracts gradients and pools them by angles. Usually used in support vector machine/NNs human outline detection. It's not entirely set how the feature vectors should be encoded. Currently average, but not great results, expensive to compute and requires a rather high bit resolution</td> </tr>  
 </table>
 
 A combination of Average and PerceptiveHashes are usually your way to go. 
@@ -393,10 +393,10 @@ pHash.addFilter(new SobelFilter(0.7));
 each image in full resolution carries a major performance penalty, therefore it should be evaluated carefully if this step is really worth the effort. Most of the times filter do not improve the performance of hashing algorithms due to the fact that a lot of the effect is lost during reszing at a later stage.
 
 
-Alternatively take a look at <a href="src/main/java/com/github/kilianB/hashingAlgorithms/AverageKernelHash.java´">AverageKernelHash</a> to see how to apply
-kernels to the rescaled image.
+<p> Alternatively take a look at <a href="src/main/java/com/github/kilianB/hashingAlgorithms/AverageKernelHash.java´">AverageKernelHash</a> to see how to apply
+kernels to the rescaled image. </p>
 
-Here are some of the filters available:
+Here are some of the available filters:
 
 <table>
 	<tr><th>Filter</th> 			<th>Original</th> <th>Output</th> </tr>
@@ -433,17 +433,26 @@ Due to difference hash relying on gradient search on a compressed image and the 
 
 
 
-## Some more information to each hashing algorithm
+## Some more information reagarding the differen hashing algorithms
 
-### AverageHash,  AverageKernelHash, MedianHash, AverageColorHash
+### AverageHash, AverageKernelHash, MedianHash, AverageColorHash
 
 The <b>average hash</b> works on the Y(Luma) component of the YCbCr color model. First the image is rescaled and the luma value calculated.
 `Y = R * 0.299 + G + 0.587 + B * 0.114`. if the luma of the current pixel is higher or smaller than the average luminosity the bit of the hash is set.
 This is a quick and easy operation but might get you in trouble once the luminosity of the image shifts.
+
 The <b>Average kernel hash</b> simply performs an additional filter pass with an arbitrary kernel. By default a box filter is applied.
+
 The <b>Average Color Hash</b> computes the grayscale value for each pixel `V = (R + G + B) /3`. The same approach as the AverageHash in version 1.x.x. Relying on the actual color values makes this hash vulnerable against color changes abd it usually performs worse than the luminosity based average hash.
 The MedianHash compares the luminosity value against the median value. This guarantees each has to be 50% consistent out of 0 and 1 bits but eliminates outliers which may or may not be useable to differentiate images.
 
+<table>
+	<tr> <td>Algo / Resolution</td> <td>2^6 = 64 bit</td><td>2^8 = 256 bit</td><td>2^12 = 4096 bit</td><td>2^18 = 262144 bit</td> </tr>
+	<tr> <td>AverageHash</td> <td><img src="https://user-images.githubusercontent.com/9025925/49260416-c4fe9080-f43d-11e8-8c67-1c09313227c4.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260417-c4fe9080-f43d-11e8-9979-5d6fff90415b.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260418-c4fe9080-f43d-11e8-8074-c110c887efa0.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260419-c4fe9080-f43d-11e8-93e5-46d067578581.png" width=100%/></td> </tr>
+	<tr> <td>AverageKernelHash</td> <td><img src="https://user-images.githubusercontent.com/9025925/49260471-0727d200-f43e-11e8-8193-bcc00c9c46f2.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260472-0727d200-f43e-11e8-8700-5a5712d1e255.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260473-0727d200-f43e-11e8-9330-3bb77af886f3.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260474-07c06880-f43e-11e8-934b-b2d0d2ef0601.png" width=100%/></td> </tr>
+	<tr> <td>MedianHash</td> <td><img src="https://user-images.githubusercontent.com/9025925/49260506-232b7380-f43e-11e8-8cb1-55e562c2cd24.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260503-232b7380-f43e-11e8-8fad-58d10f7b6319.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260504-232b7380-f43e-11e8-9eb4-141ccea41b59.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260505-232b7380-f43e-11e8-88f4-0811f21a50b4.png" width=100%/></td> </tr>
+	<tr> <td>AverageColorHash</td> <td><img src="https://user-images.githubusercontent.com/9025925/49260555-638af180-f43e-11e8-8f5e-9f0dddc74860.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260556-638af180-f43e-11e8-8fd0-2a03a96cd300.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260553-638af180-f43e-11e8-8ecb-1c67dfc52088.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260554-638af180-f43e-11e8-802f-7db6012591e3.png" width=100%/></td> </tr>
+</table>
 
 
 ### DifferenceHash
