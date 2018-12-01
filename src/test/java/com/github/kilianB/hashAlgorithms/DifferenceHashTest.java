@@ -3,12 +3,18 @@ package com.github.kilianB.hashAlgorithms;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,6 +26,7 @@ import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
+//TODO  move difference hash to the default test scenarios
 class DifferenceHashTest {
 
 	private static BufferedImage ballon;
@@ -58,17 +65,17 @@ class DifferenceHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(228339096, new DifferenceHash(14, Precision.Simple).algorithmId());
+				assertEquals(-115572257, new DifferenceHash(14, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(228339437, new DifferenceHash(25, Precision.Simple).algorithmId());
+				assertEquals(-114589154, new DifferenceHash(25, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-195332169, new DifferenceHash(14, Precision.Double).algorithmId());
+				assertEquals(758235198, new DifferenceHash(14, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(-195331828, new DifferenceHash(25, Precision.Double).algorithmId());
+				assertEquals(759218301, new DifferenceHash(25, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(265160772, new DifferenceHash(14, Precision.Triple).algorithmId());
+				assertEquals(910320011, new DifferenceHash(14, Precision.Triple).algorithmId());
 			}, () -> {
-				assertEquals(265161113, new DifferenceHash(25, Precision.Triple).algorithmId());
+				assertEquals(911303114, new DifferenceHash(25, Precision.Triple).algorithmId());
 			});
 		}
 
@@ -99,6 +106,48 @@ class DifferenceHashTest {
 
 	}
 
+	@Nested
+	@DisplayName("Serialization")
+	class Serizalization{
+		
+		HashingAlgorithm originalAlgo;
+		HashingAlgorithm deserializedAlgo;
+		
+		@BeforeEach
+		void serializeAlgo() {
+			originalAlgo = new DifferenceHash(32,Precision.Double);
+		
+			File serFile = new File("AverageHash.ser");
+			
+			//Write to file
+			try(ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(serFile))){
+				os.writeObject(originalAlgo);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			//Read from file
+			try(ObjectInputStream is = new ObjectInputStream(new FileInputStream(serFile))){
+				deserializedAlgo = (HashingAlgorithm) is.readObject();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}finally {
+				if(serFile.exists()) {
+					serFile.delete();
+				}
+			}
+		}
+		
+		@Test
+		void consistentId() {
+			assertEquals(originalAlgo.algorithmId(),deserializedAlgo.algorithmId());
+		}
+		@Test
+		void consistentHash() {
+			assertEquals(originalAlgo.hash(ballon),deserializedAlgo.hash(ballon));
+		}
+	}
 	@Test
 	void keyLength() {
 		// To get comparable hashes the key length has to be consistent for all
@@ -113,16 +162,27 @@ class DifferenceHashTest {
 		Hash thumbnailHash = d1.hash(thumbnail);
 
 		assertAll(() -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), copyrightHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), copyrightHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), lowQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), lowQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), highQualityHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), highQualityHash.getBitResolution());
 		}, () -> {
-			assertEquals(ballonHash.getHashValue().bitLength(), thumbnailHash.getHashValue().bitLength());
+			assertEquals(ballonHash.getBitResolution(), thumbnailHash.getBitResolution());
 		});
 
 	}
+	
+	/**
+	 * The hash length of the algorithm is at least the supplied bits long
+	 * @param hasher
+	 */
+	@ParameterizedTest
+	@MethodSource(value = "algoInstancesBroad")
+	void keyLengthMinimumBits(HashingAlgorithm hasher) {
+		assertTrue(hasher.hash(ballon).getBitResolution() >= hasher.bitResolution);
+	}
+
 
 	
 	/**
@@ -137,7 +197,7 @@ class DifferenceHashTest {
 	}
 
 	/**
-	 * The hemming distance of the same image has to be 0
+<	 * The hamming distance of the same image has to be 0
 	 * @deprecated not really a algorithm test case. Same as consistent
 	 * @param d1
 	 */
@@ -149,8 +209,8 @@ class DifferenceHashTest {
 	}
 
 	/**
-	 * The hemming distance of similar images shall be lower than the distance of 
-	 * vastly different picutres
+	 * The hamming distance of similar images shall be lower than the distance of 
+	 * vastly different pictures
 	 * @param d1
 	 */
 	@ParameterizedTest
@@ -171,6 +231,15 @@ class DifferenceHashTest {
 	private static Stream<HashingAlgorithm> algoInstances() {
 		return Stream.of(new DifferenceHash(32, Precision.Simple), new DifferenceHash(32, Precision.Double),
 				new DifferenceHash(32, Precision.Triple));
+	}
+	
+	@SuppressWarnings("unused")
+	private static Stream<HashingAlgorithm> algoInstancesBroad() {
+		HashingAlgorithm[] hasher = new HashingAlgorithm[98];
+		for(int i = 2; i < 100; i++) {
+			hasher[i-2] = new DifferenceHash(i,Precision.Simple);
+		}
+		return Stream.of(hasher);
 	}
 
 }

@@ -51,26 +51,8 @@ public class SingleImageMatcher extends ImageMatcher {
 	 * @return The matcher used to check if images are similar
 	 */
 	public static SingleImageMatcher createDefaultMatcher(Setting algorithmSetting) {
-
 		SingleImageMatcher matcher = new SingleImageMatcher();
-
-		switch (algorithmSetting) {
-			case Forgiving:
-				matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 20);
-				matcher.addHashingAlgorithm(new PerceptiveHash(32), 15);
-				break;
-			case Fair:
-				matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 15);
-				matcher.addHashingAlgorithm(new PerceptiveHash(32), 10);
-				break;
-			case Strict:
-				matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 10);
-				matcher.addHashingAlgorithm(new PerceptiveHash(32), 6);
-				break;
-			case Quality:
-				matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 15);
-				matcher.addHashingAlgorithm(new PerceptiveHash(32), 15);
-		}
+		matcher.addDefaultHashingAlgorithms(matcher,algorithmSetting);
 		return matcher;
 	}
 
