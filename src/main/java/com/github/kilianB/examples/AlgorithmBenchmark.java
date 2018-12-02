@@ -4,7 +4,6 @@ import java.io.File;
 
 import com.github.kilianB.benchmark.AlgorithmBenchmarker;
 import com.github.kilianB.benchmark.AlgorithmBenchmarker.TestData;
-import com.github.kilianB.hashAlgorithms.AverageColorHash;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
@@ -26,6 +25,7 @@ import com.github.kilianB.matcher.SingleImageMatcher;
  * @author Kilian
  *
  */
+@SuppressWarnings("deprecation")
 public class AlgorithmBenchmark {
 
 	public static void main(String[] args) {

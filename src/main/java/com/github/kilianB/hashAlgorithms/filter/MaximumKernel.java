@@ -1,9 +1,6 @@
 package com.github.kilianB.hashAlgorithms.filter;
 
-import java.util.Arrays;
-
 import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy;
 
 /**
  * A maximum kernel is a non linear filter scanning the image and replacing

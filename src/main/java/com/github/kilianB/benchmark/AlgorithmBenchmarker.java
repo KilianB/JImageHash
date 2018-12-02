@@ -20,7 +20,6 @@ import javax.imageio.ImageIO;
 
 import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.MathUtil;
-import com.github.kilianB.clustering.KMeansPlusPlus;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
@@ -273,6 +272,7 @@ public class AlgorithmBenchmarker {
 			statMap.put(h, stats);
 
 			if (initChart) {
+				@SuppressWarnings("unchecked")
 				List<Double>[] l = new List[2];
 				l[0] = new ArrayList<>();
 				l[1] = new ArrayList<>();
@@ -378,7 +378,7 @@ public class AlgorithmBenchmarker {
 			boolean initChart) {
 		int lastCategory = 0;
 
-		List<TestData> sortedKeys = new ArrayList(imagesToTest);
+		List<TestData> sortedKeys = new ArrayList<>(imagesToTest);
 
 		for (TestData base : imagesToTest) {
 			// Compute the distance for all crosses we have not looked at.
@@ -716,8 +716,6 @@ public class AlgorithmBenchmarker {
 				HashingAlgorithm hasher = e.getKey();
 				List<Double>[] occurances = e.getValue();
 
-				KMeansPlusPlus kMeans = new KMeansPlusPlus(2);
-				// DBScan dbScan = new DBScan(2,0.1);
 				double[][] data = new double[occurances[0].size() + occurances[1].size()][1];
 
 				for (int i = 0; i < occurances[0].size(); i++) {

@@ -1,6 +1,5 @@
 package com.github.kilianB.matcher;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 

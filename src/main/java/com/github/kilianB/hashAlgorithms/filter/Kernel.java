@@ -356,6 +356,7 @@ public class Kernel implements Serializable, Filter {
 	 * 
 	 * @param template the kernel to clone
 	 */
+	@SuppressWarnings("deprecation")
 	public Kernel(Kernel template) {
 		this.edgeHandling = template.edgeHandling;
 		try {

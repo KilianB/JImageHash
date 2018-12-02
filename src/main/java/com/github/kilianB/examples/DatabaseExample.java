@@ -2,13 +2,10 @@ package com.github.kilianB.examples;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.PriorityQueue;
-
-import javax.imageio.ImageIO;
 
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
@@ -118,13 +115,6 @@ public class DatabaseExample {
 		// in the earlier function!
 		PriorityQueue<Result<String>> results = db.getMatchingImages(copyright);
 		results.forEach(System.out::println);
-	}
-	
-	
-	
-	private static void addImageFromURL() {
-		
-		//BufferdeImage wikipediaIcon = ImageIO.read(new URL("https://de.wikipedia.org/static/images/project-logos/dewiki.png"));
 	}
 
 }

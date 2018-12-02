@@ -3,6 +3,10 @@
 
 ##[Unreleased -> 2.0.2]
 
+### Fixed
+ - unused imports removed in multiple files
+ - ignore multiple deprecation warnings were applicable
+
 ## Changed 
  - Wait for JUnit 5.4.0 to implement test method ordering to write proper database tests.
 

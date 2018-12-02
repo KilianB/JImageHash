@@ -445,7 +445,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 
 			// Copy list to prevent concurrent mod exception. In turn this is not thread
 			// save!
-			List<HashingAlgorithm> hasher = new ArrayList(this.getAlgorithms().keySet());
+			List<HashingAlgorithm> hasher = new ArrayList<>(this.getAlgorithms().keySet());
 			for (HashingAlgorithm hashingAlgo : hasher) {
 				removeHashingAlgo(hashingAlgo, true);
 			}

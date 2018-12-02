@@ -11,10 +11,7 @@ import java.util.PriorityQueue;
 
 import com.github.kilianB.dataStrorage.tree.BinaryTree;
 import com.github.kilianB.dataStrorage.tree.Result;
-import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 
 /**
  * Convenience class allowing to chain multiple hashing algorithms to find
