@@ -41,9 +41,6 @@ public class DatabaseExample {
 
 		// Serialize and deserialize
 
-//				
-//				
-//				
 //				db.addImage(new File("ImageFile.png"));
 //				db.addImage("UniqueId",BufferedImage);
 //				
@@ -82,9 +79,12 @@ public class DatabaseExample {
 			db.addImages(ballon, copyright, highQuality);
 
 			PriorityQueue<Result<String>> results = db.getMatchingImages(copyright);
-
 			results.forEach(System.out::println);
+		
+			//Find all images which are similar to any image in the database
+			System.out.println(db.getAllMatchingImages());
 		}
+		
 		/*
 		 * finally { //Not necessary since we use a try with otherwise db.close(); }
 		 */

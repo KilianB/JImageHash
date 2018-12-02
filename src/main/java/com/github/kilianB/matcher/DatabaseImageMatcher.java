@@ -205,6 +205,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * @param id       the id supplied to the serializeDatabase call
 	 * @return the image matcher found in the database or null if not present
 	 * @throws SQLException if an SQL exception occurs
+	 * @throws ClassNotFoundException if the h2 driver can not be found
 	 */
 	public static DatabaseImageMatcher getFromDatabase(String subname, String user, String password, int id)
 			throws SQLException, ClassNotFoundException {
@@ -491,7 +492,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * @throws SQLException             if an SQL error occurs
 	 * @throws IllegalArgumentException if uniqueIds and images don't have the same
 	 *                                  length
-	 * @see also {@link #addImage(String, BufferedImage)} for non batch operation
+	 * @see #addImage(String, BufferedImage)
 	 * @since 2.0.2
 	 */
 	public void addImages(String[] uniqueIds, BufferedImage[] images) throws SQLException {
@@ -604,21 +605,21 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * 
 	 *         <pre>
 	 * Key: UniqueId Of Image U1
-	 * Value: Images considered matches to U1>
+	 * Value: Images considered matches to U1
 	 *         </pre>
 	 * 
 	 *         The matched images are unique ids/file paths sorted by the
 	 *         <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming
 	 *         distance</a> of the last applied algorithms
 	 * 
-	 * @throws SQLException
+	 * @throws SQLException if an SQL error occurs
 	 * @since 2.0.2
 	 */
 	public Map<String, PriorityQueue<Result<String>>> getAllMatchingImages() throws SQLException {
 
 		Map<String, PriorityQueue<Result<String>>> returnVal = new HashMap<>();
 
-		// Get any hashing algorithm TODO optimize the one with the lowsest entry count.
+		// Get any hashing algorithm
 		HashingAlgorithm hasher = steps.keySet().iterator().next();
 
 		String tableName = resolveTableName(hasher);
@@ -687,7 +688,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * sparsely only when you know what you are doing. Usually you may want to use
 	 * {@link #getMatchingImages(BufferedImage) instead.}
 	 * 
-	 * @param imageFile          The image to search matches for
+	 * @param image              The image to search matches for
 	 * @param normalizedDistance the distance used for the algorithms
 	 * @return Return all unique ids/file paths sorted by the
 	 *         <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming
@@ -704,6 +705,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 
 		PriorityQueue<Result<String>> returnValues = null;
 
+		@SuppressWarnings("unchecked")
 		Entry<HashingAlgorithm, AlgoSettings>[] entries = steps.entrySet().toArray(new Entry[steps.size()]);
 
 		for (int i = 0; i < steps.size(); i++) {
