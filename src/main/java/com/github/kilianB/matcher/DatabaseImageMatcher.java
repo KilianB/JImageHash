@@ -137,7 +137,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 
 	/**
 	 * Attempts to establish a connection to the given database using the supplied
-	 * connection object.. If the database does not yet exist an empty db will be
+	 * connection object. If the database does not yet exist an empty db will be
 	 * initialized.
 	 * 
 	 * @param connection the database connection
@@ -212,6 +212,29 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	}
 
 	/**
+	 * Create a preconfigured image matcher backed by the supplied SQL Database. If
+	 * the database does not yet exist an empty db will be initialized.
+	 * 
+	 * @param subname  the database file name. By default the file looks at the base
+	 *                 directory of the user.
+	 *                 <p>
+	 *                 <code>"jdbc:h2:~/" + subname</code>
+	 * 
+	 * @param user     the database user on whose behalf the connection is being
+	 *                 made.
+	 * @param password the user's password. May be empty
+	 * @return The matcher used to check if images are similar
+	 * @throws SQLException           if an error occurs while connecting to the
+	 *                                database
+	 * @throws ClassNotFoundException if the h2 driver can not be found
+	 * @since 2.0.2
+	 */
+	public static DatabaseImageMatcher createDefaultMatcher(String subname, String user, String password)
+			throws SQLException, ClassNotFoundException {
+		return createDefaultMatcher(Setting.Quality, subname, user, password);
+	}
+
+	/**
 	 * A preconfigured image matcher backed by the supplied SQL Database
 	 * 
 	 * @param dbConnection Connection object pointing to a database. If the database
@@ -221,6 +244,46 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 */
 	public static DatabaseImageMatcher createDefaultMatcher(Connection dbConnection) throws SQLException {
 		return createDefaultMatcher(Setting.Quality, dbConnection);
+	}
+
+	/**
+	 * Create a preconfigured image matcher backed by the supplied SQL Database. If
+	 * the database does not yet exist an empty db will be initialized.
+	 * 
+	 * @param algorithmSetting
+	 *                         <p>
+	 *                         How aggressive the algorithm advances while comparing
+	 *                         images
+	 *                         </p>
+	 *                         <ul>
+	 *                         <li><b>Forgiving:</b> Matches a bigger range of
+	 *                         images</li>
+	 *                         <li><b>Fair:</b> Matches all sample images</li>
+	 *                         <li><b>Quality:</b> Recommended: Does not initially
+	 *                         filter as aggressively as Fair but returns usable
+	 *                         results</li>
+	 *                         <li><b>Strict:</b> Only matches images which are
+	 *                         closely related to each other</li>
+	 *                         </ul>
+	 * @param subname          the database file name. By default the file looks at
+	 *                         the base directory of the user.
+	 *                         <p>
+	 *                         <code>"jdbc:h2:~/" + subname</code>
+	 * 
+	 * @param user             the database user on whose behalf the connection is
+	 *                         being made.
+	 * @param password         the user's password. May be empty
+	 * @return The matcher used to check if images are similar
+	 * @throws SQLException           if an error occurs while connecting to the
+	 *                                database
+	 * @throws ClassNotFoundException if the h2 driver can not be found
+	 * @since 2.0.2
+	 */
+	public static DatabaseImageMatcher createDefaultMatcher(Setting algorithmSetting, String subname, String user,
+			String password) throws SQLException, ClassNotFoundException {
+		Class.forName("org.h2.Driver");
+		Connection conn = DriverManager.getConnection("jdbc:h2:~/" + subname, user, password);
+		return createDefaultMatcher(algorithmSetting, conn);
 	}
 
 	/**

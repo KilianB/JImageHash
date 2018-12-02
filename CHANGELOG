@@ -3,6 +3,9 @@
 
 ##[Unreleased -> 2.0.2]
 
+### Added
+ - Database image matcher create default matcher with string constructors
+
 ### Fixed
  - unused imports removed in multiple files
  - ignore multiple deprecation warnings were applicable
