@@ -10,10 +10,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -174,8 +179,9 @@ class DatabaseImageMatcherTest {
 			}
 		}
 	}
+
 	@Nested
-	class TestDefaultSettings{
+	class TestDefaultSettings {
 		@Test
 		@DisplayName("Check Similarity String Label")
 		void imageMatches() {
@@ -215,17 +221,17 @@ class DatabaseImageMatcherTest {
 				e.printStackTrace();
 			}
 		}
-		
+
 		@Test
 		@DisplayName("Check Similarity Fair Setting")
-		void imageMatchesFait() {
+		void imageMatchesFair() {
 			try {
 				Class.forName("org.h2.Driver");
 				Connection conn = DriverManager.getConnection("jdbc:h2:~/imageHashTest", "sa", "");
 
 				DatabaseImageMatcher matcher = null;
 				try {
-					matcher = DatabaseImageMatcher.createDefaultMatcher(Setting.Fair,conn);
+					matcher = DatabaseImageMatcher.createDefaultMatcher(Setting.Fair, conn);
 					matcher.addImage("Ballon", ballon);
 					matcher.addImage("CopyRight", copyright);
 					matcher.addImage("HighQuality", highQuality);
@@ -255,7 +261,7 @@ class DatabaseImageMatcherTest {
 				e.printStackTrace();
 			}
 		}
-		
+
 		@Test
 		@DisplayName("Check Similarity Forgiving Setting")
 		void imageMatchesForgiving() {
@@ -265,7 +271,7 @@ class DatabaseImageMatcherTest {
 
 				DatabaseImageMatcher matcher = null;
 				try {
-					matcher = DatabaseImageMatcher.createDefaultMatcher(Setting.Forgiving,conn);
+					matcher = DatabaseImageMatcher.createDefaultMatcher(Setting.Forgiving, conn);
 					matcher.addImage("Ballon", ballon);
 					matcher.addImage("CopyRight", copyright);
 					matcher.addImage("HighQuality", highQuality);
@@ -295,11 +301,106 @@ class DatabaseImageMatcherTest {
 				e.printStackTrace();
 			}
 		}
-		
-		
-	}
-	
 
-//
+	}
+
+	@Test
+	void reconstructHash() {
+
+		AverageHash aHash = new AverageHash(32);
+		Hash h = aHash.hash(ballon);
+
+		DatabaseImageMatcher dbMatcher = null;
+
+		try {
+			dbMatcher = new DatabaseImageMatcher("TestReconstruct", "sa", "") {
+				public byte[] getBytesFromTable() {
+					try (Statement s = conn.createStatement()) {
+						ResultSet rs = s.executeQuery("SELECT hash FROM " + resolveTableName(aHash));
+						rs.next();
+						return rs.getBytes(1);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					return null;
+				}
+			};
+			dbMatcher.addHashingAlgorithm(aHash, 0.4f);
+			dbMatcher.addImage("ballon", ballon);
+			byte[] rawDbBytes = (byte[]) dbMatcher.getClass().getMethod("getBytesFromTable").invoke(dbMatcher);
+			Hash hReconstructed = dbMatcher.reconstructHashFromDatabase(aHash, rawDbBytes);
+			assertEquals(h, hReconstructed);
+		} catch (ClassNotFoundException | SQLException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				dbMatcher.deleteDatabase();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Test
+	void getAllMatchingImages() {
+		DatabaseImageMatcher dbMatcher = null;
+		try {
+			dbMatcher = DatabaseImageMatcher.createDefaultMatcher("TestAllMatching", "sa", "");
+			dbMatcher.addImage("ballon", ballon);
+			dbMatcher.addImage("highQuality", highQuality);
+			dbMatcher.addImage("lowQuality", lowQuality);
+			dbMatcher.addImage("thumbnail", thumbnail);
+
+			Map<String, PriorityQueue<Result<String>>> allMatchingImages = dbMatcher.getAllMatchingImages();
+
+			Set<String> images = allMatchingImages.keySet();
+
+			// Check if we get a result for every supplied image
+			assertAll("All images matched", () -> {
+				assertTrue(images.contains("ballon"));
+			}, () -> {
+				assertTrue(images.contains("highQuality"));
+			}, () -> {
+				assertTrue(images.contains("lowQuality"));
+			}, () -> {
+				assertTrue(images.contains("thumbnail"));
+			});
+
+			// Check if we get the expected results
+			assertAll("Matches", () -> {
+				assertEquals(1, allMatchingImages.get("ballon").size());
+			}, () -> {
+				assertTrue(allMatchingImages.get("ballon").peek().value.equals("ballon"));
+			});
+
+			assertAll("Matches", () -> {
+				assertEquals(3, allMatchingImages.get("highQuality").size());
+			}, () -> {
+				assertFalse(allMatchingImages.get("highQuality").stream().anyMatch(result -> result.value.equals("ballon")));
+			});
+
+			assertAll("Matches", () -> {
+				assertEquals(3, allMatchingImages.get("lowQuality").size());
+			}, () -> {
+				assertFalse(allMatchingImages.get("lowQuality").stream().anyMatch(result -> result.value.equals("ballon")));
+			});
+
+			assertAll("Matches", () -> {
+				assertEquals(3, allMatchingImages.get("thumbnail").size());
+			}, () -> {
+				assertFalse(allMatchingImages.get("thumbnail").stream().anyMatch(result -> result.value.equals("ballon")));
+			});
+
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				dbMatcher.deleteDatabase();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 }

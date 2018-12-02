@@ -18,8 +18,10 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.logging.Logger;
@@ -104,7 +106,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	private static final long serialVersionUID = 1L;
 
 	/** Database connection. Maybe use connection pooling? */
-	private transient Connection conn;
+	protected transient Connection conn;
 
 	/**
 	 * Attempts to establish a connection to the given database URL using the h2
@@ -591,6 +593,139 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	}
 
 	/**
+	 * Return all images stored in the database which are considered matches to
+	 * other images in the database.
+	 * 
+	 * <p>
+	 * Be careful that depending on the number of images in the database this
+	 * operation can be very expensive.
+	 * 
+	 * @return A Map containing a queue which points to matched images
+	 * 
+	 *         <pre>
+	 * Key: UniqueId Of Image U1
+	 * Value: Images considered matches to U1>
+	 *         </pre>
+	 * 
+	 *         The matched images are unique ids/file paths sorted by the
+	 *         <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming
+	 *         distance</a> of the last applied algorithms
+	 * 
+	 * @throws SQLException
+	 * @since 2.0.2
+	 */
+	public Map<String, PriorityQueue<Result<String>>> getAllMatchingImages() throws SQLException {
+
+		Map<String, PriorityQueue<Result<String>>> returnVal = new HashMap<>();
+
+		// Get any hashing algorithm TODO optimize the one with the lowsest entry count.
+		HashingAlgorithm hasher = steps.keySet().iterator().next();
+
+		String tableName = resolveTableName(hasher);
+
+		// Get all unique id's from this database
+		ResultSet rs = conn.createStatement().executeQuery("SELECT url FROM " + tableName);
+
+		Map<HashingAlgorithm, PreparedStatement> cachedStatements = new HashMap<>();
+
+		for (HashingAlgorithm hashAlgo : steps.keySet()) {
+			cachedStatements.put(hashAlgo,
+					conn.prepareStatement("SELECT hash FROM " + resolveTableName(hashAlgo) + " WHERE url = ?"));
+		}
+
+		// Check for each unique id stored in the database how far away the resulting
+		// hashes are
+		while (rs.next()) {
+			// For each target hash
+			String id = rs.getString(1);
+			// Get target hash
+
+			PriorityQueue<Result<String>> returnValues = null;
+
+			for (Entry<HashingAlgorithm, AlgoSettings> entry1 : steps.entrySet()) {
+				HashingAlgorithm algo = entry1.getKey();
+
+				PreparedStatement ps = cachedStatements.get(algo);
+				ps.setString(1, id);
+
+				ResultSet targetHashRs = ps.executeQuery();
+				targetHashRs.next();
+				Hash targetHash = reconstructHashFromDatabase(algo, targetHashRs.getBytes(1));
+				AlgoSettings settings = entry1.getValue();
+
+				int threshold = 0;
+				if (settings.normalized) {
+					int hashLength = targetHash.getBitResolution();
+					threshold = Math.round(settings.threshold * hashLength);
+				} else {
+					threshold = (int) settings.threshold;
+				}
+				PriorityQueue<Result<String>> temp = new PriorityQueue<Result<String>>(
+						getSimilarImages(targetHash, threshold, algo));
+
+				if (returnValues == null) {
+					returnValues = temp;
+				} else {
+					temp.retainAll(returnValues);
+					returnValues = temp;
+				}
+			}
+
+			returnVal.put(id, returnValues);
+		}
+		return returnVal;
+	}
+
+	/**
+	 * 
+	 * Search for all similar images passing the algorithm filters supplied to this
+	 * matcher. If the image itself was added to the matcher it will be returned
+	 * with a distance of 0
+	 * 
+	 * <p>
+	 * This method effectively circumvents the algorithm settings and should be used
+	 * sparsely only when you know what you are doing. Usually you may want to use
+	 * {@link #getMatchingImages(BufferedImage) instead.}
+	 * 
+	 * @param imageFile          The image to search matches for
+	 * @param normalizedDistance the distance used for the algorithms
+	 * @return Return all unique ids/file paths sorted by the
+	 *         <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming
+	 *         distance</a> of the last applied algorithms
+	 * @throws SQLException if an SQL error occurs
+	 * @since 2.0.2
+	 */
+	public PriorityQueue<Result<String>> getMatchingImagesWithinDistance(BufferedImage image,
+			float[] normalizedDistance) throws SQLException {
+
+		if (steps.isEmpty())
+			throw new IllegalStateException(
+					"Please supply at least one hashing algorithm prior to invoking the match method");
+
+		PriorityQueue<Result<String>> returnValues = null;
+
+		Entry<HashingAlgorithm, AlgoSettings>[] entries = steps.entrySet().toArray(new Entry[steps.size()]);
+
+		for (int i = 0; i < steps.size(); i++) {
+			HashingAlgorithm algo = entries[i].getKey();
+			Hash targetHash = algo.hash(image);
+
+			int threshold = Math.round(normalizedDistance[i] * targetHash.getBitResolution());
+
+			PriorityQueue<Result<String>> temp = new PriorityQueue<Result<String>>(
+					getSimilarImages(targetHash, threshold, algo));
+
+			if (returnValues == null) {
+				returnValues = temp;
+			} else {
+				temp.retainAll(returnValues);
+				returnValues = temp;
+			}
+		}
+		return returnValues;
+	}
+
+	/**
 	 * Search for all similar images passing the algorithm filters supplied to this
 	 * matcher. If the image itself was added to the matcher it will be returned
 	 * with a distance of 0
@@ -698,26 +833,12 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 		String tableName = resolveTableName(hasher);
 		List<Result<String>> urls = new ArrayList<>();
 		try (Statement stmt = conn.createStatement()) {
-			// We could implement the interface SQLData in. This will not improve
-			// performance and looks out every other database family. Lets do it the old
-			// traditional ways
-			// PreparedStatement pS = conn.prepareStatement("SELECT *,HAMMINGDISTS(HASH,?)
-			// AS Distance FROM AVERAGEHASH1626907789)");
-			// ResultSet rs = stmt.executeQuery("SELECT * FROM(SELECT
-			// *,HAMMINGDISTS(HASH,"+targetHash+") AS Distance FROM AVERAGEHASH1626907789)
-			// WHERE Distance < " +maxDistance);
 			ResultSet rs = stmt.executeQuery("SELECT url,hash FROM " + tableName);
 			while (rs.next()) {
 				// Url
-
 				byte[] bytes = rs.getBytes(2);
-
-				// We are always save to pad with 0 bytes for signum
-				byte[] bArrayWithSign = new byte[bytes.length + 1];
-				System.arraycopy(bytes, 0, bArrayWithSign, 1, bytes.length);
-				BigInteger bInt = new BigInteger(bArrayWithSign);
-
-				int distance = targetHash.hammingDistanceFast(bInt);
+				Hash h = reconstructHashFromDatabase(hasher, bytes);
+				int distance = targetHash.hammingDistanceFast(h);
 				double normalizedDistance = distance / (double) targetHash.getBitResolution();
 				if (distance <= maxDistance) {
 					String url = rs.getString(1);
@@ -794,6 +915,23 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 		// random symbol.
 		return hashAlgo.getClass().getSimpleName()
 				+ (hashAlgo.algorithmId() > 0 ? hashAlgo.algorithmId() : "m" + Math.abs(hashAlgo.algorithmId()));
+	}
+
+	/**
+	 * Reconstruct a hash value from the database
+	 * 
+	 * @param hasher The hashing algorithm used to create the hash
+	 * @param bytes  the byte array stored in the database
+	 * @return a hash value which tests .equals == true to the hash object saved in
+	 *         the database
+	 * @since 2.0.2
+	 */
+	protected Hash reconstructHashFromDatabase(HashingAlgorithm hasher, byte[] bytes) {
+		// We are always save to pad with 0 bytes for signum
+		byte[] bArrayWithSign = new byte[bytes.length + 1];
+		System.arraycopy(bytes, 0, bArrayWithSign, 1, bytes.length);
+		BigInteger bInt = new BigInteger(bArrayWithSign);
+		return new Hash(bInt, hasher.getKeyResolution(), hasher.algorithmId());
 	}
 
 	@Override
