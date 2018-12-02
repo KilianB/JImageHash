@@ -4,7 +4,9 @@
 ##[Unreleased -> 2.0.2]
 
 ### Added
- - Database image matcher create default matcher with string constructors
+ - Database image matcher: create default matcher with string constructors
+ - Database image matcher: add Images String batch operation.
+ - Database image matcher: add Images with files string batch operation
 
 ### Fixed
  - unused imports removed in multiple files

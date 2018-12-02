@@ -397,6 +397,22 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	}
 
 	/**
+	 * Index the image. This enables the image matcher to find the image in future
+	 * searches. The database image matcher does not store the image data itself but
+	 * indexes the hash bound to the absolute path of the image.
+	 * 
+	 * @param uniqueId  a unique identifier returned if querying for the image
+	 * @param imageFile The image whose hash will be added to the matcher
+	 * @throws IOException  if an error exists reading the file
+	 * @throws SQLException if an SQL error occurs
+	 * @since 2.0.2
+	 */
+	public void addImage(String uniqueId, File imageFile) throws IOException, SQLException {
+		BufferedImage img = ImageIO.read(imageFile);
+		addImage(uniqueId, img);
+	}
+
+	/**
 	 * Index the images. This enables the image matcher to find the image in future
 	 * searches. The database image matcher does not store the image data itself but
 	 * indexes the hash bound to the absolute path of the image.
@@ -415,6 +431,33 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	}
 
 	/**
+	 * Index the images. This enables the image matcher to find the image in future
+	 * searches. The database image matcher does not store the image data itself but
+	 * indexes the hash bound to the absolute path of the image.
+	 * 
+	 * The path of the file has to be unique in order for this operation to return
+	 * deterministic results.
+	 * 
+	 * @param uniqueIds a unique identifier returned if querying for the image
+	 * @param images    The images whose hash will be added to the matcher
+	 * @throws IOException              if an error exists reading the file
+	 * @throws SQLException             if an SQL error occurs
+	 * @throws IllegalArgumentException if uniqueIds and images don't have the same
+	 *                                  length
+	 * @since 2.0.2
+	 */
+	public void addImages(String[] uniqueIds, File[] images) throws IOException, SQLException {
+
+		if (uniqueIds.length != images.length) {
+			throw new IllegalArgumentException("You need to supply the same number of id's and images");
+		}
+
+		for (int i = 0; i < uniqueIds.length; i++) {
+			addImage(uniqueIds[i], images[i]);
+		}
+	}
+
+	/**
 	 * Index the image. This enables the image matcher to find the image in future
 	 * searches. The database image matcher does not store the image data itself but
 	 * indexes the hash bound to a user supplied string.
@@ -422,7 +465,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * If the id does not uniquely identify a single image the results are
 	 * undetermined.
 	 * 
-	 * @param uniqueId a unique index returned if querying for the image
+	 * @param uniqueId a unique identifier returned if querying for the image
 	 * @param image    The image to hash
 	 * @throws SQLException if an SQL error occurs
 	 */
@@ -431,6 +474,36 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			HashingAlgorithm algo = entry.getKey();
 			addImage(algo, uniqueId, image);
 		}
+	}
+
+	/**
+	 * Index the images. This enables the image matcher to find the image in future
+	 * searches. The database image matcher does not store the image data itself but
+	 * indexes the hash bound to a user supplied string.
+	 * 
+	 * If the id does not uniquely identify a single image the results are
+	 * undetermined.
+	 * 
+	 * @param uniqueIds a unique identifier returned if querying for the image
+	 * @param images    The images to hash
+	 * @throws SQLException             if an SQL error occurs
+	 * @throws IllegalArgumentException if uniqueIds and images don't have the same
+	 *                                  length
+	 * @see also {@link #addImage(String, BufferedImage)} for non batch operation
+	 * @since 2.0.2
+	 */
+	public void addImages(String[] uniqueIds, BufferedImage[] images) throws SQLException {
+		if (uniqueIds.length != images.length) {
+			throw new IllegalArgumentException("You need to supply the same number of id's and images");
+		}
+
+		for (int i = 0; i < uniqueIds.length; i++) {
+			for (Entry<HashingAlgorithm, AlgoSettings> entry : steps.entrySet()) {
+				HashingAlgorithm algo = entry.getKey();
+				addImage(algo, uniqueIds[i], images[i]);
+			}
+		}
+
 	}
 
 	/**
