@@ -7,10 +7,7 @@ import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 
 /**
  * Convenience class to chain multiple hashing algorithms to check if two images

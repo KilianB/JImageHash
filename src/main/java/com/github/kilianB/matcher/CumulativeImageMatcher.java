@@ -12,11 +12,10 @@ import com.github.kilianB.dataStrorage.tree.BinaryTree;
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
+import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.hashAlgorithms.RotPHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * Instead of early aborting if one algorithm fails like the

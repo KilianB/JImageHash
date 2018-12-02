@@ -15,7 +15,7 @@ This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.h
 
 ## Maven - Bintray
 
-The project is hosted on bintray and jcenter. Please be aware that hashes created with versions 1.x.x are not compatible with versions >= 2.0.0. Some method signatures and variable names have changed as well!
+The project is hosted on bintray and jcenter. <b>Please be aware that hashes created with versions 1.x.x are not compatible with versions >= 2.0.0.</b> Some method signatures and variable names have changed as well!
 
 ````
 <repositories>
@@ -28,7 +28,7 @@ The project is hosted on bintray and jcenter. Please be aware that hashes create
 <dependency>
 	<groupId>com.github.kilianB</groupId>
 	<artifactId>JImageHash</artifactId>
-	<version>2.0.1</version>
+	<version>2.0.2</version>
 </dependency>
 ````
 
@@ -186,6 +186,8 @@ db.addImage("UniqueId",BufferedImage);
 PriorityQueue results = db.getMatchingImages(...);
 	
 //....
+//Find all images which are similar to any image in the database
+Map allMatchingImages = db.getAllMatchingImages();
 	
 //Once done you can also save the matcher to the database for later retrieval desired.
 db.serializeToDatabase(1);

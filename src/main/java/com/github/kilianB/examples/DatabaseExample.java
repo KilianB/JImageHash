@@ -2,13 +2,10 @@ package com.github.kilianB.examples;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.PriorityQueue;
-
-import javax.imageio.ImageIO;
 
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
@@ -44,9 +41,6 @@ public class DatabaseExample {
 
 		// Serialize and deserialize
 
-//				
-//				
-//				
 //				db.addImage(new File("ImageFile.png"));
 //				db.addImage("UniqueId",BufferedImage);
 //				
@@ -85,9 +79,12 @@ public class DatabaseExample {
 			db.addImages(ballon, copyright, highQuality);
 
 			PriorityQueue<Result<String>> results = db.getMatchingImages(copyright);
-
 			results.forEach(System.out::println);
+		
+			//Find all images which are similar to any image in the database
+			System.out.println(db.getAllMatchingImages());
 		}
+		
 		/*
 		 * finally { //Not necessary since we use a try with otherwise db.close(); }
 		 */
@@ -118,13 +115,6 @@ public class DatabaseExample {
 		// in the earlier function!
 		PriorityQueue<Result<String>> results = db.getMatchingImages(copyright);
 		results.forEach(System.out::println);
-	}
-	
-	
-	
-	private static void addImageFromURL() {
-		
-		//BufferdeImage wikipediaIcon = ImageIO.read(new URL("https://de.wikipedia.org/static/images/project-logos/dewiki.png"));
 	}
 
 }

@@ -1,15 +1,29 @@
 - Semantic versioning
 
+## [2.0.2] 2.12.2018
 
-##[Unreleased -> 2.0.2]
+### Changed
+  - Bump version of compiler (3.8.0) 
+  - Bum version of source and javadoc (3.0.1) maven plugin 
+  - Bump version of Surefire plugin (3.0.0-M1)
+  - Specify html 5 as default javadoc version.
 
-## Changed 
- - Wait for JUnit 5.4.0 to implement test method ordering to write proper database tests.
+### Added
+ Database image matcher: 
+  create default matcher with string constructors
+  - add Images String batch operation.
+  - add Images with files string batch operatio
+  - getAllMatchingImages. Method to retrieve all images which matches any other image in the entire database
+  - getMatchingImagesWithinDistance utility method to circumvent threshold settings.
+  
+### Fixed
+ - unused imports removed in multiple files
+ - ignore multiple deprecation warnings were applicable
 
 ## [2.0.1] 30.11.2018
 
 ### Fixed
-- Update to UtilityCode 1.5.1 which excludes test ressources which got added accidentally due to mvn:clean not being executed before deployment
+- Update to UtilityCode 1.5.1 which excludes test resources which got added accidentally due to mvn:clean not being executed before deployment
 
 ## [2.0.0] 29.11.2018
 
@@ -58,7 +72,7 @@ would fall back to the old jdk 1 awt implementation decreasing speed by a factor
  - add equals and hashcode to image matcher
  - ImageMatcher results now also reference  the normalized distance
  - CummulativeInMemoryMatcher
- - getBit and getBitUnsafe to Hash.java to retrieve individual bits without needing to access the underlaying big integer object. 
+ - getBit and getBitUnsafe to Hash.java to retrieve individual bits without needing to access the underlying big integer object. 
  - added tests
  - Add AverageColorHash
  - multiple differen hog variants

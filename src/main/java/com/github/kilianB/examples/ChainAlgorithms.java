@@ -1,10 +1,6 @@
 package com.github.kilianB.examples;
 
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -12,6 +8,8 @@ import javax.imageio.ImageIO;
 
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
+import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.matcher.ImageMatcher.Setting;
 import com.github.kilianB.matcher.SingleImageMatcher;
 
@@ -51,6 +49,7 @@ public class ChainAlgorithms {
 	/**
 	 * Demonstrates the different presets of the default matcher
 	 */
+	@SuppressWarnings("unused")
 	public void configuredDefaultMatcher() {
 		SingleImageMatcher fair, forgiving, strict, quality;
 
