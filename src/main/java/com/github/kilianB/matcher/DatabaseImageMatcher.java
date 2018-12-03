@@ -204,7 +204,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * @param password the user's password. May be empty
 	 * @param id       the id supplied to the serializeDatabase call
 	 * @return the image matcher found in the database or null if not present
-	 * @throws SQLException if an SQL exception occurs
+	 * @throws SQLException           if an SQL exception occurs
 	 * @throws ClassNotFoundException if the h2 driver can not be found
 	 */
 	public static DatabaseImageMatcher getFromDatabase(String subname, String user, String password, int id)
@@ -387,22 +387,36 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * searches. The database image matcher does not store the image data itself but
 	 * indexes the hash bound to the absolute path of the image.
 	 * 
+	 * <p>
 	 * The path of the file has to be unique in order for this operation to return
-	 * deterministic results.
+	 * deterministic results. Otherwise this image will only added to the database
+	 * for the hashing algorithms no entry exists yet.
+	 * <p>
+	 * This is useful for the situation in which you want to add an additional
+	 * hashing algorithm to the database image matcher, but will leave the db in
+	 * inconsistent stage the unique id is used multiple times.
 	 * 
 	 * @param imageFile The image whose hash will be added to the matcher
 	 * @throws IOException  if an error exists reading the file
 	 * @throws SQLException if an SQL error occurs
 	 */
 	public void addImage(File imageFile) throws IOException, SQLException {
-		BufferedImage img = ImageIO.read(imageFile);
-		addImage(imageFile.getAbsolutePath(), img);
+		addImage(imageFile.getAbsolutePath(), imageFile);
 	}
 
 	/**
 	 * Index the image. This enables the image matcher to find the image in future
 	 * searches. The database image matcher does not store the image data itself but
 	 * indexes the hash bound to the absolute path of the image.
+	 * 
+	 * <p>
+	 * The uniqueId has to be globally unique in order for this operation to return
+	 * deterministic results. Otherwise this image will only added to the database
+	 * for the hashing algorithms no entry exists yet.
+	 * <p>
+	 * This is useful for the situation in which you want to add an additional
+	 * hashing algorithm to the database image matcher, but will leave the db in
+	 * inconsistent stage the unique id is used multiple times.
 	 * 
 	 * @param uniqueId  a unique identifier returned if querying for the image
 	 * @param imageFile The image whose hash will be added to the matcher
@@ -411,8 +425,19 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * @since 2.0.2
 	 */
 	public void addImage(String uniqueId, File imageFile) throws IOException, SQLException {
-		BufferedImage img = ImageIO.read(imageFile);
-		addImage(uniqueId, img);
+
+		// Only load if necessary.
+		BufferedImage img = null;
+
+		for (HashingAlgorithm algo : steps.keySet()) {
+			if (!doesEntryExist(uniqueId, algo)) {
+				// Lazily load
+				if (img == null) {
+					img = ImageIO.read(imageFile);
+				}
+				addImage(algo, uniqueId, img);
+			}
+		}
 	}
 
 	/**
@@ -420,8 +445,15 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * searches. The database image matcher does not store the image data itself but
 	 * indexes the hash bound to the absolute path of the image.
 	 * 
-	 * The path of the file has to be unique in order for this operation to return
-	 * deterministic results.
+	 * *
+	 * <p>
+	 * The path of the files have to be unique in order for this operation to return
+	 * deterministic results. Otherwise this image will only added to the database
+	 * for the hashing algorithms no entry exists yet.
+	 * <p>
+	 * This is useful for the situation in which you want to add an additional
+	 * hashing algorithm to the database image matcher, but will leave the db in
+	 * inconsistent stage the unique id is used multiple times.
 	 * 
 	 * @param images The images whose hash will be added to the matcher
 	 * @throws IOException  if an error exists reading the file
@@ -438,8 +470,14 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * searches. The database image matcher does not store the image data itself but
 	 * indexes the hash bound to the absolute path of the image.
 	 * 
-	 * The path of the file has to be unique in order for this operation to return
-	 * deterministic results.
+	 * <p>
+	 * The uniqueIds have to be globally unique in order for this operation to
+	 * return deterministic results. Otherwise this image will only added to the
+	 * database for the hashing algorithms no entry exists yet.
+	 * <p>
+	 * This is useful for the situation in which you want to add an additional
+	 * hashing algorithm to the database image matcher, but will leave the db in
+	 * inconsistent stage the unique id is used multiple times.
 	 * 
 	 * @param uniqueIds a unique identifier returned if querying for the image
 	 * @param images    The images whose hash will be added to the matcher
@@ -465,8 +503,14 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * searches. The database image matcher does not store the image data itself but
 	 * indexes the hash bound to a user supplied string.
 	 * 
-	 * If the id does not uniquely identify a single image the results are
-	 * undetermined.
+	 * <p>
+	 * The uniqueId has to be globally unique in order for this operation to return
+	 * deterministic results. Otherwise this image will only added to the database
+	 * for the hashing algorithms no entry exists yet.
+	 * <p>
+	 * This is useful for the situation in which you want to add an additional
+	 * hashing algorithm to the database image matcher, but will leave the db in
+	 * inconsistent stage the unique id is used multiple times.
 	 * 
 	 * @param uniqueId a unique identifier returned if querying for the image
 	 * @param image    The image to hash
@@ -475,7 +519,9 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	public void addImage(String uniqueId, BufferedImage image) throws SQLException {
 		for (Entry<HashingAlgorithm, AlgoSettings> entry : steps.entrySet()) {
 			HashingAlgorithm algo = entry.getKey();
-			addImage(algo, uniqueId, image);
+			if (!doesEntryExist(uniqueId, algo)) {
+				addImage(algo, uniqueId, image);
+			}
 		}
 	}
 
@@ -484,8 +530,14 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * searches. The database image matcher does not store the image data itself but
 	 * indexes the hash bound to a user supplied string.
 	 * 
-	 * If the id does not uniquely identify a single image the results are
-	 * undetermined.
+	 * <p>
+	 * The uniqueIds have to be globally unique in order for this operation to return
+	 * deterministic results. Otherwise this image will only added to the database
+	 * for the hashing algorithms no entry exists yet.
+	 * <p>
+	 * This is useful for the situation in which you want to add an additional
+	 * hashing algorithm to the database image matcher, but will leave the db in
+	 * inconsistent stage the unique id is used multiple times.
 	 * 
 	 * @param uniqueIds a unique identifier returned if querying for the image
 	 * @param images    The images to hash
@@ -503,7 +555,9 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 		for (int i = 0; i < uniqueIds.length; i++) {
 			for (Entry<HashingAlgorithm, AlgoSettings> entry : steps.entrySet()) {
 				HashingAlgorithm algo = entry.getKey();
-				addImage(algo, uniqueIds[i], images[i]);
+				if (!doesEntryExist(uniqueIds[i], algo)) {
+					addImage(algo, uniqueIds[i], images[i]);
+				}
 			}
 		}
 
@@ -939,6 +993,23 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	@Override
 	public String toString() {
 		return "DatabaseImageMatcher [steps=" + steps + "]";
+	}
+
+	/**
+	 * Check if an entry with the given uniqueId already exists
+	 * 
+	 * @param uniqueId the unique id to check against
+	 * @param hashAlgo the hashing algorithm
+	 * @return true if the entry does not exist. false otherwise
+	 * @throws SQLException if an SQL error occurs
+	 * @since 2.1.0
+	 */
+	public boolean doesEntryExist(String uniqueId, HashingAlgorithm hashAlgo) throws SQLException {
+		try (PreparedStatement doesEntryExist = conn
+				.prepareStatement("SELECT * FROM " + resolveTableName(hashAlgo) + " WHERE URL = ?")) {
+			doesEntryExist.setString(1, uniqueId);
+			return doesEntryExist.executeQuery().next();
+		}
 	}
 
 	// Serialization

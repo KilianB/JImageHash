@@ -1,5 +1,12 @@
 - Semantic versioning
 
+
+## [2.1.0] 3.12.2018
+
+### Changed
+ - DatabaseImageMatcher now checks if an image with the id already exists before adding the image. 
+ - refactor database image matcher tests to fail on sql exception rather than printing stack traces
+ 
 ## [2.0.2] 2.12.2018
 
 ### Changed
