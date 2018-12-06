@@ -72,7 +72,7 @@ public class InMemoryImageMatcher extends ImageMatcher {
 	}
 
 	/** keep track of images already added. No reason to rehash */
-	private HashSet<BufferedImage> addedImages = new HashSet<>();
+	protected HashSet<BufferedImage> addedImages = new HashSet<>();
 
 	/** Binary Tree holding results for each individual hashing algorithm */
 	protected HashMap<HashingAlgorithm, BinaryTree<BufferedImage>> binTreeMap = new HashMap<>();

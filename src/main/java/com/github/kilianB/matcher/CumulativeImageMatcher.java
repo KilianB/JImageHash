@@ -213,6 +213,7 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 		super.addHashingAlgorithm(algo, weight, false);
 	}
 
+	@Override
 	public PriorityQueue<Result<BufferedImage>> getMatchingImages(BufferedImage image) {
 
 		if (steps.isEmpty())
