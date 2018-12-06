@@ -1,5 +1,13 @@
 - Semantic versioning
 
+## [2.1.1] 
+
+### Added
+ - RandomForestInMemoryImageMatcherGiny for testing purposes
+
+### Changed
+ - moved TestData class to invidiual class to allow usage in other parts of the program.
+ - renamed TestData to LabeledImage
 
 ## [2.1.0] 3.12.2018
 
