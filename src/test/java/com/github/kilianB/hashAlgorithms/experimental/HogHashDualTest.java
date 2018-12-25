@@ -37,6 +37,7 @@ class HogHashDualTest {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	void illegalConstructor() {
 		assertThrows(IllegalArgumentException.class, () -> {

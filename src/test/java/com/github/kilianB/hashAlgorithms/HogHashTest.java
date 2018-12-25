@@ -2,30 +2,19 @@ package com.github.kilianB.hashAlgorithms;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.stream.Stream;
-
-import javax.imageio.ImageIO;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.hashAlgorithms.experimental.HogHash;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * @author Kilian
  *
  */
+@SuppressWarnings("deprecation")
 class HogHashTest {
 
 	@Nested
