@@ -26,6 +26,8 @@ class SingleImageMatcherTest {
 	private static BufferedImage highQuality;
 	private static BufferedImage lowQuality;
 	private static BufferedImage thumbnail;
+	// Custom type image
+	private static BufferedImage catCustom;
 
 	@BeforeAll
 	static void loadImages() {
@@ -39,12 +41,12 @@ class SingleImageMatcherTest {
 					.read(SingleImageMatcherTest.class.getClassLoader().getResourceAsStream("lowQuality.jpg"));
 			thumbnail = ImageIO
 					.read(SingleImageMatcherTest.class.getClassLoader().getResourceAsStream("thumbnail.jpg"));
-
+			catCustom = ImageIO
+					.read(SingleImageMatcherTest.class.getClassLoader().getResourceAsStream("catCustom.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
+	}	
 	@Nested
 	class CheckDefaultMatcher {
 		@Test
@@ -64,6 +66,8 @@ class SingleImageMatcherTest {
 				assertTrue(matcher.checkSimilarity(lowQuality, lowQuality));
 			}, () -> {
 				assertTrue(matcher.checkSimilarity(thumbnail, thumbnail));
+			}, () -> {
+				assertTrue(matcher.checkSimilarity(catCustom, catCustom));
 			});
 
 			// Similar images
@@ -90,6 +94,16 @@ class SingleImageMatcherTest {
 				assertFalse(matcher.checkSimilarity(copyright, ballon));
 			}, () -> {
 				assertFalse(matcher.checkSimilarity(thumbnail, ballon));
+			}, () -> {
+				assertFalse(matcher.checkSimilarity(highQuality, ballon));
+			}, () -> {
+				assertFalse(matcher.checkSimilarity(lowQuality, catCustom));
+			}, () -> {
+				assertFalse(matcher.checkSimilarity(copyright, catCustom));
+			}, () -> {
+				assertFalse(matcher.checkSimilarity(thumbnail, catCustom));
+			}, () -> {
+				assertFalse(matcher.checkSimilarity(ballon, catCustom));
 			});
 
 		}
