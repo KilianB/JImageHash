@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher;
+package com.github.kilianB.matcher.unsupervised;
 
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
@@ -13,13 +13,17 @@ import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
+import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.matcher.ImageMatcher;
+import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
+import com.github.kilianB.matcher.ImageMatcher.Setting;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.hashAlgorithms.RotPHash;
 
 /**
  * Instead of early aborting if one algorithm fails like the
- * {@link com.github.kilianB.matcher.InMemoryImageMatcher}, this class looks at
+ * {@link com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher}, this class looks at
  * the summed distance and decides if images match.
  * 
  * <pre>
@@ -222,7 +226,7 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 
 		// The maximum distance we have to search in our tree until we can't find any
 		// more images
-		double maxDistanceUntilTermination = overallSetting.threshold;
+		double maxDistanceUntilTermination = overallSetting.getThreshold();
 
 		// [Result,Summed distance of the image]
 		HashMap<Result<BufferedImage>, Double> distanceMap = new HashMap<>();
@@ -252,7 +256,7 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 
 			int threshold = 0;
 
-			if (overallSetting.normalized) {
+			if (overallSetting.isNormalized()) {
 				// Normalized threshold
 				threshold = (int) (maxDistanceUntilTermination * bitRes);
 			} else {
@@ -284,7 +288,7 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 
 						// update distance left until considered invalid
 						double distanceSoFar = distanceMap.get(res) + normalDistance;
-						double distanceLeft = overallSetting.threshold - distanceSoFar;
+						double distanceLeft = overallSetting.getThreshold() - distanceSoFar;
 
 						// System.out.printf("Distance: %.3f | dLeft: %.3f distSoFar: %.3f %s %n",
 						// normalDistance,

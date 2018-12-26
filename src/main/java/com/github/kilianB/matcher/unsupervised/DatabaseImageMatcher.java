@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher;
+package com.github.kilianB.matcher.unsupervised;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -32,6 +32,10 @@ import org.h2.tools.DeleteDbFiles;
 
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.matcher.ImageMatcher;
+import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
+import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * A naive database based image matcher implementation. Images indexed by this
@@ -709,11 +713,11 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 				AlgoSettings settings = entry1.getValue();
 
 				int threshold = 0;
-				if (settings.normalized) {
+				if (settings.isNormalized()) {
 					int hashLength = targetHash.getBitResolution();
-					threshold = Math.round(settings.threshold * hashLength);
+					threshold = Math.round(settings.getThreshold() * hashLength);
 				} else {
-					threshold = (int) settings.threshold;
+					threshold = (int) settings.getThreshold();
 				}
 				PriorityQueue<Result<String>> temp = new PriorityQueue<Result<String>>(
 						getSimilarImages(targetHash, threshold, algo));
@@ -822,11 +826,11 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			AlgoSettings settings = entry.getValue();
 
 			int threshold = 0;
-			if (settings.normalized) {
+			if (settings.isNormalized()) {
 				int hashLength = targetHash.getBitResolution();
-				threshold = Math.round(settings.threshold * hashLength);
+				threshold = Math.round(settings.getThreshold() * hashLength);
 			} else {
-				threshold = (int) settings.threshold;
+				threshold = (int) settings.getThreshold();
 			}
 
 			PriorityQueue<Result<String>> temp = new PriorityQueue<Result<String>>(

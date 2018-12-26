@@ -20,7 +20,8 @@ import com.github.kilianB.MathUtil;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.SingleImageMatcher;
+import com.github.kilianB.matcher.supervised.LabeledImage;
+import com.github.kilianB.matcher.unsupervised.SingleImageMatcher;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -283,7 +284,7 @@ public class AlgorithmBenchmarker {
 			HashMap<LabeledImage, Hash> algorithmSpecificHash = new HashMap<>();
 			hashes.put(h, algorithmSpecificHash);
 			for (LabeledImage t : imagesToTest) {
-				algorithmSpecificHash.put(t, h.hash(t.bImage));
+				algorithmSpecificHash.put(t, h.hash(t.getbImage()));
 			}
 		}
 
@@ -382,8 +383,8 @@ public class AlgorithmBenchmarker {
 			// It's symmetric no need to check it twice
 			sortedKeys.remove(base);
 
-			if (base.category != lastCategory) {
-				lastCategory = base.category;
+			if (base.getCategory() != lastCategory) {
+				lastCategory = base.getCategory();
 				emptyTableRow(htmlBuilder);
 			}
 
@@ -395,7 +396,7 @@ public class AlgorithmBenchmarker {
 					HashingAlgorithm h = entry.getKey();
 					AlgoSettings algoSettings = entry.getValue();
 
-					boolean supposedToMatch = base.category == cross.category;
+					boolean supposedToMatch = base.getCategory() == cross.getCategory();
 
 					Hash baseHash = hashes.get(h).get(base);
 					Hash crossHash = hashes.get(h).get(cross);
@@ -433,9 +434,9 @@ public class AlgorithmBenchmarker {
 					}
 
 					if (first) {
-						htmlBuilder.append("<td>").append(base.name).append("-").append(cross.name)
-								.append("</td><td class='category'>").append("[").append(base.category).append("-")
-								.append(cross.category).append("]</td>");
+						htmlBuilder.append("<td>").append(base.getName()).append("-").append(cross.getName())
+								.append("</td><td class='category'>").append("[").append(base.getCategory()).append("-")
+								.append(cross.getCategory()).append("]</td>");
 						first = false;
 					}
 
@@ -609,7 +610,7 @@ public class AlgorithmBenchmarker {
 			long start = System.nanoTime();
 			for (int i = 0; i < 100; i++) {
 				for (LabeledImage testData : imagesToTest) {
-					sum += hasher.hash(testData.bImage).getHashValue().bitCount();
+					sum += hasher.hash(testData.getbImage()).getHashValue().bitCount();
 				}
 				if (System.nanoTime() - start > warmUpCutoff) {
 					LOGGER.info("warmup cutoff surpassed.");
@@ -648,7 +649,7 @@ public class AlgorithmBenchmarker {
 				long startIndividual = System.nanoTime();
 
 				for (LabeledImage testData : imagesToTest) {
-					sum += hasher.hash(testData.bImage).getHashValue().bitCount();
+					sum += hasher.hash(testData.getbImage()).getHashValue().bitCount();
 				}
 				double elapsed = (((System.nanoTime() - startIndividual))) / (double) 1e6 / imagesToTest.size();
 				averageRuntime.merge(hasher, elapsed, (old, newVal) -> {
@@ -730,7 +731,7 @@ public class AlgorithmBenchmarker {
 
 				// Two lines
 				// TODO calculate the number of images we can not correctly predict no matter
-				// where the threshold is.
+				// where the threshold is. ROC curve as it's done in the forest image matcher
 
 				// Average between centers.
 				double avg = (statMap.get(hasher)[0].getAverage() + statMap.get(hasher)[1].getAverage()) / 2;

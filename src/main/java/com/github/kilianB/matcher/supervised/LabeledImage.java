@@ -1,4 +1,4 @@
-package com.github.kilianB.benchmark;
+package com.github.kilianB.matcher.supervised;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -8,6 +8,9 @@ import javax.imageio.ImageIO;
 
 /**
  * A labeled image used to benchmark hashing algorithms.
+ * <p>
+ * Labeled images bind an image to a category. All images in the same category
+ * are expected to produce a match if an image matcher is queried.
  * 
  * @author Kilian
  * @since 2.0.0
@@ -105,6 +108,5 @@ public class LabeledImage implements Comparable<LabeledImage> {
 	public BufferedImage getbImage() {
 		return bImage;
 	}
-	
-	
+
 }

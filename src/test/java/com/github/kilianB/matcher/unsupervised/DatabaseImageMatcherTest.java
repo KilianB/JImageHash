@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher;
+package com.github.kilianB.matcher.unsupervised;
 
 import static com.github.kilianB.TestResources.ballon;
 import static com.github.kilianB.TestResources.copyright;
@@ -33,7 +33,10 @@ import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
+import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.matcher.ImageMatcher;
 import com.github.kilianB.matcher.ImageMatcher.Setting;
+import com.github.kilianB.matcher.unsupervised.DatabaseImageMatcher;
 
 /**
  * @author Kilian
