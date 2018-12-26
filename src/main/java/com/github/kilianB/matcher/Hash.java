@@ -276,9 +276,6 @@ public class Hash {
 				}
 			}
 		}
-		System.out.println(hashLength + " " + i); 
-		
-		
 		return bi;
 	}
 
@@ -317,7 +314,7 @@ public class Hash {
 	}
 
 	public String toString() {
-		return "Hash: " + StringUtil.fillString("0", hashLength, hashValue.toString(2)) + " [algoId: " + algorithmId
+		return "Hash: " + StringUtil.fillStringBeginning("0", hashLength, hashValue.toString(2)) + " [algoId: " + algorithmId
 				+ "]";
 	}
 
