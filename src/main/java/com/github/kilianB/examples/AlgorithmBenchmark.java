@@ -63,19 +63,19 @@ public class AlgorithmBenchmark {
 
 		// 1, Add the desired algorithms we want to test
 		// We configure the image matcher to see if t
-		matcher.addHashingAlgorithm(new AverageHash(8), 0.4f);
-		matcher.addHashingAlgorithm(new AverageHash(32), 0.4f);
-		matcher.addHashingAlgorithm(new AverageHash(64), 0.4f);
+		matcher.addHashingAlgorithm(new AverageHash(8), 0.4);
+		matcher.addHashingAlgorithm(new AverageHash(32), 0.4);
+		matcher.addHashingAlgorithm(new AverageHash(64), 0.4);
 		
-		matcher.addHashingAlgorithm(new PerceptiveHash(32), 0.4f);
-		matcher.addHashingAlgorithm(new PerceptiveHash(64), 0.4f);
+		matcher.addHashingAlgorithm(new PerceptiveHash(32), 0.4);
+		matcher.addHashingAlgorithm(new PerceptiveHash(64), 0.4);
 		
-		matcher.addHashingAlgorithm(new MedianHash(32), 0.4f);
-		matcher.addHashingAlgorithm(new MedianHash(64), 0.4f);
+		matcher.addHashingAlgorithm(new MedianHash(32), 0.4);
+		matcher.addHashingAlgorithm(new MedianHash(64), 0.4);
 		
 		
-		matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.4f);
-		matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Triple), 0.4f);
+		matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.4);
+		matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Triple), 0.4);
 
 		// 2. Create a benchmarker
 
@@ -117,22 +117,22 @@ public class AlgorithmBenchmark {
 
 		// 1, Add the desired algorithms we want to test
 		// We configure the image matcher to see if t
-		matcher.addHashingAlgorithm(new AverageHash(16), 0.4f);
-		matcher.addHashingAlgorithm(new AverageHash(64), 0.4f);
+		matcher.addHashingAlgorithm(new AverageHash(16), 0.4);
+		matcher.addHashingAlgorithm(new AverageHash(64), 0.4);
 
-		matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.3f);
-		matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Double), 0.3f);
-		matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Triple), 0.3f);
+		matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.3);
+		matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Double), 0.3);
+		matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Triple), 0.3);
 
 		// Experimental
-		matcher.addHashingAlgorithm(new MedianHash(16), 0.4f);
-		matcher.addHashingAlgorithm(new MedianHash(32), 0.21f);
-		matcher.addHashingAlgorithm(new MedianHash(64), 0.21f);
+		matcher.addHashingAlgorithm(new MedianHash(16), 0.4);
+		matcher.addHashingAlgorithm(new MedianHash(32), 0.21);
+		matcher.addHashingAlgorithm(new MedianHash(64), 0.21);
 
-		matcher.addHashingAlgorithm(new PerceptiveHash(16), 0.4f);
+		matcher.addHashingAlgorithm(new PerceptiveHash(16), 0.4);
 
 		// You may also use the non normalized version
-		matcher.addHashingAlgorithm(new PerceptiveHash(64), 0.4f);
+		matcher.addHashingAlgorithm(new PerceptiveHash(64), 0.4);
 
 		// 2. Create a benchmarker
 
@@ -174,18 +174,18 @@ public class AlgorithmBenchmark {
 		 */
 		SingleImageMatcher imageMatcher = new SingleImageMatcher();
 
-		imageMatcher.addHashingAlgorithm(new RotAverageHash(16), 0.4f);
-		imageMatcher.addHashingAlgorithm(new RotAverageHash(64), 0.4f);
-		imageMatcher.addHashingAlgorithm(new RotAverageHash(128), 0.4f);
-		imageMatcher.addHashingAlgorithm(new RotPHash(16), 0.1f);
-		imageMatcher.addHashingAlgorithm(new RotPHash(64), 0.1f);
-		imageMatcher.addHashingAlgorithm(new RotPHash(128), 0.1f);
+		imageMatcher.addHashingAlgorithm(new RotAverageHash(16), 0.4);
+		imageMatcher.addHashingAlgorithm(new RotAverageHash(64), 0.4);
+		imageMatcher.addHashingAlgorithm(new RotAverageHash(128), 0.4);
+		imageMatcher.addHashingAlgorithm(new RotPHash(16), 0.1);
+		imageMatcher.addHashingAlgorithm(new RotPHash(64), 0.1);
+		imageMatcher.addHashingAlgorithm(new RotPHash(128), 0.1);
 
 
-		imageMatcher.addHashingAlgorithm(new AverageHash(16), 0.4f);
-		imageMatcher.addHashingAlgorithm(new AverageHash(64), 0.4f);
-		imageMatcher.addHashingAlgorithm(new PerceptiveHash(16), 0.4f);
-		imageMatcher.addHashingAlgorithm(new PerceptiveHash(64), 0.4f);
+		imageMatcher.addHashingAlgorithm(new AverageHash(16), 0.4);
+		imageMatcher.addHashingAlgorithm(new AverageHash(64), 0.4);
+		imageMatcher.addHashingAlgorithm(new PerceptiveHash(16), 0.4);
+		imageMatcher.addHashingAlgorithm(new PerceptiveHash(64), 0.4);
 
 		// 2. Create the object
 		AlgorithmBenchmarker db = new AlgorithmBenchmarker(imageMatcher, true);
@@ -217,13 +217,13 @@ public class AlgorithmBenchmark {
 		HogHashDual hogDual128 = new HogHashDual(128);
 		HogHashDual hogAng128 = new HogHashDual(128);
 		
-		imageMatcher.addHashingAlgorithm(aHash,0.3f);
-		imageMatcher.addHashingAlgorithm(hog64,0.3f);
-		imageMatcher.addHashingAlgorithm(hogDual64,0.3f);
-		imageMatcher.addHashingAlgorithm(hogAng64,0.3f);
-		imageMatcher.addHashingAlgorithm(hog128,0.3f);
-		imageMatcher.addHashingAlgorithm(hogDual128,0.3f);
-		imageMatcher.addHashingAlgorithm(hogAng128,0.3f);
+		imageMatcher.addHashingAlgorithm(aHash,0.3);
+		imageMatcher.addHashingAlgorithm(hog64,0.3);
+		imageMatcher.addHashingAlgorithm(hogDual64,0.3);
+		imageMatcher.addHashingAlgorithm(hogAng64,0.3);
+		imageMatcher.addHashingAlgorithm(hog128,0.3);
+		imageMatcher.addHashingAlgorithm(hogDual128,0.3);
+		imageMatcher.addHashingAlgorithm(hogAng128,0.3);
 		
 		addDefaultTestImages(db);
 

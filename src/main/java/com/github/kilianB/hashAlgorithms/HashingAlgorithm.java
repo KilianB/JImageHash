@@ -281,7 +281,6 @@ public abstract class HashingAlgorithm implements Serializable {
 		if (immutableState) {
 			throw new IllegalStateException(LOCKED_MODIFICATION_EXCEPTION);
 		}
-
 		return this.preProcessing.remove(filter);
 	}
 

@@ -92,7 +92,7 @@ public class ChainAlgorithms {
 
 		HashingAlgorithm pHash = new PerceptiveHash(32);
 		// When shall an image be counted as a duplicate? [0-1]
-		float normalizedPHashThreshold = 0.6f;
+		double normalizedPHashThreshold = 0.6;
 		boolean normalized = true;
 
 		// This instance can be reused. No need to recreate it every time you want to

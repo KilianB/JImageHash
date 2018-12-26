@@ -31,7 +31,7 @@ public abstract class ImageMatcher {
 		 */
 		Fair,
 		/**
-		 * Strict image matcher. Only matches close images. 
+		 * Strict image matcher. Only matches close images.
 		 */
 		Strict,
 		/**
@@ -63,28 +63,27 @@ public abstract class ImageMatcher {
 
 		case Speed:
 			// Chain in the order of execution speed
-			matcherToConfigure.addHashingAlgorithm(new AverageHash(16), 0.31f);
-			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.31f);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(16), 0.33f);
+			matcherToConfigure.addHashingAlgorithm(new AverageHash(16), 0.31);
+			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.31);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(16), 0.33);
 			break;
 		case Rotational:
 			// PHash scales better for higher resolutions. Average hash is good as well but
 			// do we need to add it here?
-			matcherToConfigure.addHashingAlgorithm(new RotPHash(64), 0.19f);
-			// matcherToConfigure.addHashingAlgorithm(new RotAverageHash (32),0.21f);
+			matcherToConfigure.addHashingAlgorithm(new RotPHash(64), 0.19);
 		case Forgiving:
-			matcherToConfigure.addHashingAlgorithm(new AverageHash(64), 0.5f);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.5f);
+			matcherToConfigure.addHashingAlgorithm(new AverageHash(64), 0.5);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.5);
 			break;
 		case Quality:
 		case Fair:
-			matcherToConfigure.addHashingAlgorithm(new AverageHash(64), 0.4f);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.3f);
+			matcherToConfigure.addHashingAlgorithm(new AverageHash(64), 0.4);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.3);
 			break;
 		case Strict:
-			matcherToConfigure.addHashingAlgorithm(new AverageHash(8), 0f);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.15f);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(64), 0.15f);
+			matcherToConfigure.addHashingAlgorithm(new AverageHash(8), 0);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.15);
+			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(64), 0.15);
 			break;
 		}
 	}
@@ -102,13 +101,13 @@ public abstract class ImageMatcher {
 	 * <p>
 	 * This method assumes the normalized hamming distance. If the definite distance
 	 * shall be used take a look at
-	 * {@link #addHashingAlgorithm(HashingAlgorithm, float, boolean)}
+	 * {@link #addHashingAlgorithm(HashingAlgorithm, double, boolean)}
 	 * 
 	 * @param algo      The algorithms to be added
 	 * @param threshold maximum normalized hamming distance between hashes in order
 	 *                  to pass as identical image
 	 */
-	public void addHashingAlgorithm(HashingAlgorithm algo, float threshold) {
+	public void addHashingAlgorithm(HashingAlgorithm algo, double threshold) {
 		addHashingAlgorithm(algo, threshold, true);
 	}
 
@@ -124,7 +123,7 @@ public abstract class ImageMatcher {
 	 *                   [0-1] while the hamming distance depends on the length of
 	 *                   the hash
 	 */
-	public void addHashingAlgorithm(HashingAlgorithm algo, float threshold, boolean normalized) {
+	public void addHashingAlgorithm(HashingAlgorithm algo, double threshold, boolean normalized) {
 
 		if (threshold < 0) {
 			throw new IllegalArgumentException(
@@ -203,13 +202,13 @@ public abstract class ImageMatcher {
 		/**
 		 * Threshold value hash hamming may be for images to be considered equal
 		 */
-		float threshold;
+		double threshold;
 		/**
 		 * Use normalized or ordinary hamming distance during calculation
 		 */
 		boolean normalized;
 
-		public AlgoSettings(float threshold, boolean normalized) {
+		public AlgoSettings(double threshold, boolean normalized) {
 			this.threshold = threshold;
 			this.normalized = normalized;
 		}
@@ -225,7 +224,7 @@ public abstract class ImageMatcher {
 		/**
 		 * @return the threshold
 		 */
-		public float getThreshold() {
+		public double getThreshold() {
 			return threshold;
 		}
 
@@ -241,23 +240,30 @@ public abstract class ImageMatcher {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + (normalized ? 1231 : 1237);
-			result = prime * result + Float.floatToIntBits(threshold);
+			long temp;
+			temp = Double.doubleToLongBits(threshold);
+			result = prime * result + (int) (temp ^ (temp >>> 32));
 			return result;
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
-			if (getClass() != obj.getClass())
+			}
+			if (!(obj instanceof AlgoSettings)) {
 				return false;
+			}
 			AlgoSettings other = (AlgoSettings) obj;
-			if (normalized != other.normalized)
+			if (normalized != other.normalized) {
 				return false;
-			if (Float.floatToIntBits(threshold) != Float.floatToIntBits(other.threshold))
+			}
+			if (Double.doubleToLongBits(threshold) != Double.doubleToLongBits(other.threshold)) {
 				return false;
+			}
 			return true;
 		}
 

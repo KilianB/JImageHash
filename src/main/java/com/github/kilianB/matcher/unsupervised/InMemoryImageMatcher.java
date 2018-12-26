@@ -93,7 +93,7 @@ public class InMemoryImageMatcher extends ImageMatcher {
 	 *                   [0-1] while the hamming distance depends on the length of
 	 *                   the hash
 	 */
-	public void addHashingAlgorithm(HashingAlgorithm algo, float threshold, boolean normalized) {
+	public void addHashingAlgorithm(HashingAlgorithm algo, double threshold, boolean normalized) {
 		super.addHashingAlgorithm(algo, threshold, normalized);
 
 		BinaryTree<BufferedImage> binTree = new BinaryTree<>(true);
@@ -200,7 +200,7 @@ public class InMemoryImageMatcher extends ImageMatcher {
 			int threshold = 0;
 			if (settings.isNormalized()) {
 				int hashLength = needleHash.getBitResolution();
-				threshold = Math.round(settings.getThreshold() * hashLength);
+				threshold = (int)Math.round(settings.getThreshold() * hashLength);
 			} else {
 				threshold = (int) settings.getThreshold();
 			}

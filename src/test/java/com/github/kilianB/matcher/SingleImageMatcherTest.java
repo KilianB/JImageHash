@@ -205,7 +205,7 @@ class SingleImageMatcherTest {
 		Map<HashingAlgorithm, AlgoSettings> algos = matcher.getAlgorithms();
 
 		assertEquals(0, algos.size());
-		matcher.addHashingAlgorithm(new AverageHash(14), 0.5f, true);
+		matcher.addHashingAlgorithm(new AverageHash(14), 0.5, true);
 		assertEquals(1, algos.size());
 		matcher.clearHashingAlgorithms();
 		assertEquals(0, algos.size());

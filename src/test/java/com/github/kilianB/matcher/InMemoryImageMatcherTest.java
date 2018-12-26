@@ -205,7 +205,7 @@ class InMemoryImageMatcherTest {
 		InMemoryImageMatcher matcher = new InMemoryImageMatcher();
 
 		assertEquals(0, matcher.getAlgorithms().size());
-		matcher.addHashingAlgorithm(new AverageHash(14), 0.5f, true);
+		matcher.addHashingAlgorithm(new AverageHash(14), 0.5, true);
 		assertEquals(1, matcher.getAlgorithms().size());
 		matcher.clearHashingAlgorithms();
 		assertEquals(0, matcher.getAlgorithms().size());

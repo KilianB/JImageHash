@@ -23,8 +23,8 @@ import com.github.kilianB.hashAlgorithms.RotPHash;
 
 /**
  * Instead of early aborting if one algorithm fails like the
- * {@link com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher}, this class looks at
- * the summed distance and decides if images match.
+ * {@link com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher}, this
+ * class looks at the summed distance and decides if images match.
  * 
  * <pre>
  * Example:
@@ -102,36 +102,36 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 
 		switch (algorithmSetting) {
 		case Speed:
-			matcher = new CumulativeImageMatcher(0.6f);
+			matcher = new CumulativeImageMatcher(0.6);
 			// Chain in the order of execution speed
-			matcher.addHashingAlgorithm(new AverageHash(16), 1f);
-			matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 1f);
+			matcher.addHashingAlgorithm(new AverageHash(16), 1);
+			matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 1);
 			break;
 		case Rotational:
 			// PHash scales better for higher resolutions. Average hash is good as well but
 			// do we need to add it here?
-			matcher = new CumulativeImageMatcher(0.2f);
+			matcher = new CumulativeImageMatcher(0.2);
 			matcher.addHashingAlgorithm(new RotPHash(64), 1f);
 			// matcherToConfigure.addHashingAlgorithm(new RotAverageHash (32),0.21f);
 		case Forgiving:
 
-			matcher = new CumulativeImageMatcher(0.8f);
+			matcher = new CumulativeImageMatcher(0.8);
 			matcher.addHashingAlgorithm(new AverageHash(64), 1);
 			// Add some mroe weight to the perceptive hash since it usually is more accurate
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 2f);
+			matcher.addHashingAlgorithm(new PerceptiveHash(32), 2);
 			break;
 		case Quality:
 		case Fair:
-			matcher = new CumulativeImageMatcher(0.5f);
+			matcher = new CumulativeImageMatcher(0.5);
 			matcher.addHashingAlgorithm(new AverageHash(64), 1);
 			// Add some more weight to the perceptive hash since it usually is more accurate
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 2f);
+			matcher.addHashingAlgorithm(new PerceptiveHash(32), 2);
 			break;
 		case Strict:
-			matcher = new CumulativeImageMatcher(0.3f);
-			matcher.addHashingAlgorithm(new AverageHash(8), 1f);
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 1f);
-			matcher.addHashingAlgorithm(new PerceptiveHash(64), 1f);
+			matcher = new CumulativeImageMatcher(0.3);
+			matcher.addHashingAlgorithm(new AverageHash(8), 1);
+			matcher.addHashingAlgorithm(new PerceptiveHash(32), 1);
+			matcher.addHashingAlgorithm(new PerceptiveHash(64), 1);
 			break;
 		default:
 			throw new IllegalArgumentException("Setting not handled");
@@ -151,11 +151,11 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 	 *                  If additional algorithms are added an increase in the
 	 *                  threshold parameter is justified.
 	 */
-	public CumulativeImageMatcher(float threshold) {
+	public CumulativeImageMatcher(double threshold) {
 		this(threshold, true);
 	}
 
-	public CumulativeImageMatcher(float threshold, boolean normalized) {
+	public CumulativeImageMatcher(double threshold, boolean normalized) {
 		this(new AlgoSettings(threshold, normalized));
 	}
 
@@ -180,15 +180,16 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 	 * distances of all added hashing algorithms.
 	 * 
 	 * <p>
-	 * The weight parameter scales the returned hash distance. For example a weight multiplier
-	 * of 2 means that the returned distance is multiplied by 2. If the total allowed
-	 * distance of this matcher is 0.7 and the returned hash is 0.3 * 2 the next algorithm
-	 * only may return a distance of 0.1 or smaller in order for the image to pass. 
+	 * The weight parameter scales the returned hash distance. For example a weight
+	 * multiplier of 2 means that the returned distance is multiplied by 2. If the
+	 * total allowed distance of this matcher is 0.7 and the returned hash is 0.3 *
+	 * 2 the next algorithm only may return a distance of 0.1 or smaller in order
+	 * for the image to pass.
 	 * 
 	 * @param algo   The algorithms to be added
 	 * @param weight The weight multiplier of this algorithm.
 	 */
-	public void addHashingAlgorithm(HashingAlgorithm algo, float weight) {
+	public void addHashingAlgorithm(HashingAlgorithm algo, double weight) {
 		/*
 		 * only used to redefine javadocs Add false to cirumvent the range check. We do
 		 * not check for normalized in this case either way
@@ -201,18 +202,20 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 	 * order for images to match they have to be beneath the threshold of the summed
 	 * distances of all added hashing algorithms.
 	 * 
-	 * * <p>
-	 * The weight parameter scales the returned hash distance. For example a weight multiplier
-	 * of 2 means that the returned distance is multiplied by 2. If the total allowed
-	 * distance of this matcher is 0.7 and the returned hash is 0.3 * 2 the next algorithm
-	 * only may return a distance of 0.1 or smaller in order for the image to pass. 
+	 * *
+	 * <p>
+	 * The weight parameter scales the returned hash distance. For example a weight
+	 * multiplier of 2 means that the returned distance is multiplied by 2. If the
+	 * total allowed distance of this matcher is 0.7 and the returned hash is 0.3 *
+	 * 2 the next algorithm only may return a distance of 0.1 or smaller in order
+	 * for the image to pass.
 	 * 
 	 * @param algo   The algorithms to be added
 	 * @param weight The weight multiplier of this algorithm.
 	 * @param dummy  not used by this type of image matcher. This method signature
 	 *               is only available due to inheritance.
 	 */
-	public void addHashingAlgorithm(HashingAlgorithm algo, float weight, boolean dummy) {
+	public void addHashingAlgorithm(HashingAlgorithm algo, double weight, boolean dummy) {
 		// only used to redefine javadocs
 		super.addHashingAlgorithm(algo, weight, false);
 	}

@@ -108,7 +108,7 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 	class DecisionTreeNode {
 
 		HashingAlgorithm hasher;
-		float threshold;
+		double threshold;
 
 		// Not really entropy in all cases
 		double quality;
@@ -120,7 +120,7 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 		public DecisionTreeNode(HashingAlgorithm hasher, double bestCutoff, double quality) {
 			super();
 			this.hasher = hasher;
-			this.threshold = (float) bestCutoff;
+			this.threshold = bestCutoff;
 			this.quality = quality;
 		}
 

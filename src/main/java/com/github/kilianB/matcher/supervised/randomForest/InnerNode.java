@@ -12,7 +12,7 @@ import com.github.kilianB.matcher.Hash;
 class InnerNode extends TreeNode {
 
 	HashingAlgorithm hasher;
-	float threshold;
+	double threshold;
 
 	// Not really entropy in all cases
 	double quality;
@@ -30,7 +30,7 @@ class InnerNode extends TreeNode {
 			double qualityRight) {
 		super();
 		this.hasher = hasher;
-		this.threshold = (float) bestCutoff;
+		this.threshold = bestCutoff;
 		this.quality = quality;
 		this.qualityLeft = qualityLeft;
 		this.qualityRight = qualityRight;

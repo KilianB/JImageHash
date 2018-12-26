@@ -350,7 +350,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * throws a wrapped SQL exception as RuntimeException if an SQL error occurs
 	 * during table creation.
 	 */
-	public void addHashingAlgorithm(HashingAlgorithm algo, float threshold) {
+	public void addHashingAlgorithm(HashingAlgorithm algo, double threshold) {
 		try {
 			if (!doesTableExist(resolveTableName(algo))) {
 				createHashTable(algo);
@@ -371,7 +371,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * throws a wrapped SQL exception as RuntimeException if an SQL error occurs
 	 * during table creation.
 	 */
-	public void addHashingAlgorithm(HashingAlgorithm algo, float threshold, boolean normalized) {
+	public void addHashingAlgorithm(HashingAlgorithm algo, double threshold, boolean normalized) {
 		try {
 			if (!doesTableExist(resolveTableName(algo))) {
 				createHashTable(algo);
@@ -535,9 +535,9 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * indexes the hash bound to a user supplied string.
 	 * 
 	 * <p>
-	 * The uniqueIds have to be globally unique in order for this operation to return
-	 * deterministic results. Otherwise this image will only added to the database
-	 * for the hashing algorithms no entry exists yet.
+	 * The uniqueIds have to be globally unique in order for this operation to
+	 * return deterministic results. Otherwise this image will only added to the
+	 * database for the hashing algorithms no entry exists yet.
 	 * <p>
 	 * This is useful for the situation in which you want to add an additional
 	 * hashing algorithm to the database image matcher, but will leave the db in
@@ -715,7 +715,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 				int threshold = 0;
 				if (settings.isNormalized()) {
 					int hashLength = targetHash.getBitResolution();
-					threshold = Math.round(settings.getThreshold() * hashLength);
+					threshold = (int) Math.round(settings.getThreshold() * hashLength);
 				} else {
 					threshold = (int) settings.getThreshold();
 				}
@@ -755,7 +755,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 * @since 2.0.2
 	 */
 	public PriorityQueue<Result<String>> getMatchingImagesWithinDistance(BufferedImage image,
-			float[] normalizedDistance) throws SQLException {
+			double[] normalizedDistance) throws SQLException {
 
 		if (steps.isEmpty())
 			throw new IllegalStateException(
@@ -770,7 +770,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			HashingAlgorithm algo = entries[i].getKey();
 			Hash targetHash = algo.hash(image);
 
-			int threshold = Math.round(normalizedDistance[i] * targetHash.getBitResolution());
+			int threshold = (int)Math.round(normalizedDistance[i] * targetHash.getBitResolution());
 
 			PriorityQueue<Result<String>> temp = new PriorityQueue<Result<String>>(
 					getSimilarImages(targetHash, threshold, algo));
@@ -828,7 +828,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			int threshold = 0;
 			if (settings.isNormalized()) {
 				int hashLength = targetHash.getBitResolution();
-				threshold = Math.round(settings.getThreshold() * hashLength);
+				threshold = (int) Math.round(settings.getThreshold() * hashLength);
 			} else {
 				threshold = (int) settings.getThreshold();
 			}
