@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher;
+package com.github.kilianB.matcher.supervised.randomForest;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -15,17 +15,20 @@ import java.util.Set;
 
 import com.github.kilianB.MathUtil;
 import com.github.kilianB.StringUtil;
-import com.github.kilianB.benchmark.LabeledImage;
 import com.github.kilianB.dataStrorage.tree.BinaryTree;
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
+import com.github.kilianB.matcher.supervised.LabeledImage;
+import com.github.kilianB.matcher.unsupervised.SingleImageMatcher;
+import com.github.kilianB.pcg.fast.PcgRSFast;
 
 /**
  * @author Kilian
  *
  */
-public class RandomForestSingleImageMatcher extends SingleImageMatcher {
+public class RandomForestInMemoryImageMatcher extends SingleImageMatcher {
 
 	// Random forest
 
@@ -33,11 +36,7 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 
 	DecisionTreeNode root;
 
-//	public PriorityQueue<Result<BufferedImage>> getMatchingImages(BufferedImage image) {
-//		
-//	}
-
-	List<LabeledImage> labeledImages = new ArrayList<LabeledImage>();
+	Map<Integer, List<BufferedImage>> labeledImages = new HashMap<>();
 
 	public void addTestImages(Collection<LabeledImage> data) {
 		for (LabeledImage t : data) {
@@ -52,7 +51,14 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 	}
 
 	public void addTestImages(LabeledImage tData) {
-		labeledImages.add(tData);
+
+		if (labeledImages.containsKey(tData.getCategory())) {
+			labeledImages.get(tData.getCategory()).add(tData.getbImage());
+		} else {
+			List<BufferedImage> list = new ArrayList<>();
+			list.add(tData.getbImage());
+			labeledImages.put(tData.getCategory(), list);
+		}
 	}
 
 	class Pair<S, U> {
@@ -85,7 +91,6 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 	class TestData {
 
 		BufferedImage b0;
-		BufferedImage b1;
 		boolean match;
 
 		/**
@@ -93,12 +98,17 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 		 * @param b1
 		 * @param match
 		 */
-		public TestData(BufferedImage b0, BufferedImage b1, boolean match) {
+		public TestData(BufferedImage b0, boolean match) {
 			super();
 			this.b0 = b0;
-			this.b1 = b1;
 			this.match = match;
 		}
+
+		@Override
+		public String toString() {
+			return "TestData [b0=" + b0.hashCode() + ", match=" + match + "]";
+		}
+
 	}
 
 	Map<HashingAlgorithm, Map<BufferedImage, Hash>> preComputedHashes;
@@ -125,53 +135,76 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 		DecisionTreeNode leftNode;
 		DecisionTreeNode rightNode;
 
-		/**
-		 * Attempt to find a single duplicate
-		 * 
-		 * @param bi
-		 * @return
-		 */
-		public boolean predict(BufferedImage bi, BufferedImage bi2) {
-
-			Hash targetHash = hasher.hash(bi);
-			Hash targetHash1 = hasher.hash(bi2);
-
-			double difference = targetHash.normalizedHammingDistance(targetHash1);
-
-			if (difference < threshold) {
-				if (leftNode == null) {
-					return true;
-				} else {
-					return leftNode.predict(bi, bi2);
-				}
-			} else {
-				if (rightNode != null) {
-					return rightNode.predict(bi, bi2);
-				}
-			}
-			return false;
-		}
-
 		public boolean predictAgainstAll(BufferedImage bi) {
 
 			Hash targetHash = hasher.hash(bi);
 
+			double minDif = Double.MAX_VALUE;
+
 			for (Entry<BufferedImage, Hash> e : preComputedHashes.get(hasher).entrySet()) {
 				double difference = targetHash.normalizedHammingDistance(e.getValue());
+				if (e.getKey().equals(bi)) {
+					continue; // TODO just for debug
+				}
+				if (difference < minDif) {
+					minDif = difference;
+				}
+			}
 
-				if (difference < threshold) {
-					if (leftNode == null) {
-						return true;
-					} else {
-						if (leftNode.predictAgainstAll(bi)) {
-							return true;
-						}
-					}
+			if (minDif < threshold) {
+				if (leftNode == null) {
+					return true;
 				} else {
-					if (rightNode != null) {
-						if (rightNode.predictAgainstAll(bi)) {
-							return true;
-						}
+					if (leftNode.predictAgainstAll(bi)) {
+						return true;
+					}
+				}
+			} else {
+				if (rightNode != null) {
+					if (rightNode.predictAgainstAll(bi)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		
+		//TODO bootstrap data
+
+		/**
+		 * @param b0
+		 */
+		public boolean predictAgainstAllDebug(BufferedImage bi) {
+
+			Hash targetHash = hasher.hash(bi);
+
+			double minDif = Double.MAX_VALUE;
+
+			for (Entry<BufferedImage, Hash> e : preComputedHashes.get(hasher).entrySet()) {
+				double difference = targetHash.normalizedHammingDistance(e.getValue());
+				if (difference == 0.0) {
+					continue; // TODO just for debug
+				}
+				if (difference < minDif) {
+					minDif = difference;
+				}
+			}
+
+			
+			
+			if (minDif < threshold) {
+				if (leftNode == null) {
+					return true;
+				} else {
+					if (leftNode.predictAgainstAll(bi)) {
+						return true;
+					}
+				}
+			} else {
+				if (rightNode != null) {
+					if (rightNode.predictAgainstAll(bi)) {
+						return true;
 					}
 				}
 			}
@@ -201,9 +234,12 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 
 	}
 
-	// TODO handle overfitting
-	public void createDecisionTree() {
+	Map<HashingAlgorithm, Map<BufferedImage, Double>> preComputedMinDistances;
 
+	// TODO handle overfitting
+	public void createDecisionTree(int numVars) {
+
+		System.out.println("");
 		// System.out.println(testData.size() + " " + );
 
 		// TODO do we really want to check everything against everything?
@@ -212,47 +248,62 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 		// Pre compute all hashes
 		// For training use a different set
 		Map<HashingAlgorithm, Map<BufferedImage, Hash>> preComputedHashes = new HashMap<>();
+
 		for (HashingAlgorithm hashAlgorithm : this.getAlgorithms().keySet()) {
 			Map<BufferedImage, Hash> hashMap = new HashMap<>();
-			for (LabeledImage image : labeledImages) {
-				hashMap.put(image.getbImage(), hashAlgorithm.hash(image.getbImage()));
+			for (List<BufferedImage> images : labeledImages.values()) {
+				for (BufferedImage image : images) {
+					hashMap.put(image, hashAlgorithm.hash(image));
+				}
 			}
 			preComputedHashes.put(hashAlgorithm, hashMap);
 		}
 
-		// For now!
-		this.preComputedHashes = preComputedHashes;
-
-		// TODO this can become pretty expensive for a lot of test values?
-		// We are working with numeric data. compute potential cutoff values.
-
-		// Step 1 How good does each variable predict the outcome
-
-		// Root Node
-
+		/**
+		 * Compute the minimum distance the hash of one image has to all other hashes
+		 * indexed in the tree.
+		 */
 		List<TestData> testData = createTestData();
 
-		DecisionTreeNode treeRoot = buildTree(testData, preComputedHashes);
-		treeRoot.printTree();
+		preComputedMinDistances = new HashMap<>();
+		for (HashingAlgorithm hashAlgorithm : this.getAlgorithms().keySet()) {
 
-//		System.out.println("");
-//		System.out.println(
-//				"duplicate: " + treeRoot.predict(testData.get(0).b0) + " expected: " + testData.get(0).match + "\n");
-//
-//		for (int i = 0; i < testData.size(); i++) {
-//			TestData t = testData.get(i);
-//			if (!t.match) {
-//				System.out.println(t);
-//				System.out.println(i + " duplicate: " + treeRoot.predict(t.b1) + " expected: " + t.match + "\n");
-//			}
-//		}
-////		
+			Map<BufferedImage, Hash> hashes = preComputedHashes.get(hashAlgorithm);
+
+			Map<BufferedImage, Double> distanceMap = new HashMap<>();
+
+			for (TestData tData : testData) {
+				Hash tHash = hashes.get(tData.b0);
+				double minDistance = Double.MAX_VALUE;
+				for (TestData tData1 : testData) {
+					if (tData != tData1) {
+						Hash t1Hash = hashes.get(tData1.b0);
+						double distance = tHash.normalizedHammingDistanceFast(t1Hash);
+						if (distance < minDistance) {
+							minDistance = distance;
+						}
+					}
+				}
+				distanceMap.put(tData.b0, minDistance);
+			}
+			preComputedMinDistances.put(hashAlgorithm, distanceMap);
+		}
+		this.preComputedHashes = preComputedHashes;
+
+		root = buildTree(testData, preComputedHashes);
+		root.printTree();
+		test();
+	
+	}
+
+	void test(){
+		System.out.println("\n----- TEST ------\n");
 
 		// Test
 
-		// TP: 35 TN: 8595 FP: 4 FN: 12
-
-		// TODO double
+		List<TestData> testData = createTestData();
+		
+//		// TODO double
 		int truePositive = 0;
 		int trueNegative = 0;
 		int falsePositive = 0;
@@ -265,30 +316,19 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 
 			TestData tData = testData.get(i);
 
-			// boolean match = treeRoot.predict(tData.b0, tData.b1);
-
-			boolean match = treeRoot.predictAgainstAll(tData.b0);
-			boolean shouldMatch = false;
-
-			for (TestData tt : testData) {
-				if (tt.b0.equals(tData.b0) || tt.b1.equals(tData.b0)) {
-					if (tt.match) {
-						shouldMatch = true;
-						break;
-					}
-				}
-			}
+			boolean match = root.predictAgainstAll(tData.b0);
 
 			if (match) {
-				if (shouldMatch) {
+				if (tData.match) {
 					truePositive++;
 				} else {
 					falsePositive++;
 				}
 				matchNode.add(tData);
 			} else {
-				if (shouldMatch) {
+				if (tData.match) {
 					falseNegative++;
+					root.predictAgainstAllDebug(tData.b0);
 				} else {
 					trueNegative++;
 				}
@@ -319,7 +359,12 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 
 		double giniImpurityDistinct = 1 - Math.pow(trueNegative / (double) (trueNegative + falseNegative), 2)
 				- Math.pow(falseNegative / (double) (trueNegative + falseNegative), 2);
-		double giniImpurity = (giniImpurityMatch + giniImpurityDistinct) / 2;
+		
+		//Weighted gini impurity
+		double leftWeight = (truePositive + falsePositive) / (double)sum;
+		double rightWeight = (trueNegative + falseNegative) / (double)sum;
+		
+		double giniImpurity = (leftWeight*giniImpurityMatch + rightWeight*giniImpurityDistinct) / 2;
 
 		// The stuff we classify as duplicates really are duplicates!
 		double recall = truePositive / (double) (truePositive + falseNegative);
@@ -337,17 +382,15 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 				giniImpurity, truePositive, trueNegative, falsePositive, falseNegative, recall, specifity, precision,
 				f1);
 
-		// Predict the tree and check it's quality
-
 	}
-
+	
 	// TODO average hash has a good f1 score due to filtering out many true
 	// negatives. but fails at false negatives..
 	// TODO also get the false negatives...
 
 	public DecisionTreeNode buildTree(List<TestData> testData,
 			Map<HashingAlgorithm, Map<BufferedImage, Hash>> preComputedHashes) {
-		return buildTree(testData, preComputedHashes, -Double.MAX_VALUE);
+		return buildTree(testData, preComputedHashes, Double.MAX_VALUE);
 	}
 
 	private DecisionTreeNode buildTree(List<TestData> testData,
@@ -363,12 +406,10 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 
 		// TODO dataset is empty we are done
 		if (packed.getSecond()[0].size() > 1) {
-			System.out.println("Left Node: " + packed.getSecond()[0].size());
 			node.leftNode = buildTree(packed.getSecond()[0], preComputedHashes, node.quality);
 		}
 
 		if (packed.getSecond()[1].size() > 1) {
-			System.out.println("Right Node: " + packed.getSecond()[0].size());
 			node.rightNode = buildTree(packed.getSecond()[1], preComputedHashes, node.quality);
 		}
 
@@ -392,17 +433,32 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 		propagatedTestData[1] = new ArrayList<>();
 
 		for (HashingAlgorithm hashAlgorithm : this.getAlgorithms().keySet()) {
+			
+			System.out.println(hashAlgorithm);
+			
 			// Test every image against each others image
 			Map<BufferedImage, Hash> hashes = preComputedHashes.get(hashAlgorithm);
 
 			List<Double> distances = new ArrayList<>();
 
+			Map<BufferedImage, Double> minDistanceMap = new HashMap<>();
+
+			// TODO cache
 			/* Prepare numerical categories */
 			for (TestData tData : testData) {
-				Hash h0 = hashes.get(tData.b0);
-				Hash h1 = hashes.get(tData.b1);
-				double distance = h0.normalizedHammingDistanceFast(h1);
-				distances.add(distance);
+				Hash tHash = hashes.get(tData.b0);
+				double minDistance = Double.MAX_VALUE;
+				for (TestData tData1 : testData) {
+					if (tData != tData1) {
+						Hash t1Hash = hashes.get(tData1.b0);
+						double distance = tHash.normalizedHammingDistanceFast(t1Hash);
+						if (distance < minDistance) {
+							minDistance = distance;
+						}
+					}
+				}
+				minDistanceMap.put(tData.b0, minDistance);
+				distances.add(minDistance);
 			}
 			// Numeric double data is a bit funky ...
 			Collections.sort(distances);
@@ -413,11 +469,6 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 				// compute avg values
 				potentialCutoffValues.add((distances.get(i) + distances.get(i + 1)) / 2);
 			}
-
-			// TODO maybe not use all double values but generalize at some point.
-
-			List<String> debug = new ArrayList<>();
-
 			for (double cutoff : potentialCutoffValues) {
 
 				// TODO double
@@ -430,9 +481,7 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 				List<TestData> distinctNode = new ArrayList<TestData>();
 
 				for (TestData tData : testData) {
-					Hash h0 = hashes.get(tData.b0);
-					Hash h1 = hashes.get(tData.b1);
-					double distance = h0.normalizedHammingDistanceFast(h1);
+					double distance = minDistanceMap.get(tData.b0);
 
 					if (distance < cutoff) {
 						if (tData.match) {
@@ -487,17 +536,33 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 				}
 				double f1 = 2 * (precision * recall) / (precision + recall);
 
-				if (f1 > bestF1Score) {
+//				bestDebug = String.format(
+//						"Gini impurity: %.4f Cutoff: %.3f | TP: %4d TN: %4d FP: %4d FN: %4d | Recall: %.4f Spec: %.3f Precision %.3f F1: %.3f",
+//						giniImpurity, cutoff, truePositive, trueNegative, falsePositive, falseNegative, recall,
+//						specifity, precision, f1);
+//				
+//				System.out.println(bestDebug);
+				
+				bestDebug = String.format(
+						"Gini impurity: %.4f Cutoff: %.3f | TP: %4d TN: %4d FP: %4d FN: %4d | Recall: %.4f Spec: %.3f Precision %.3f F1: %.3f",
+						giniImpurity, cutoff, truePositive, trueNegative, falsePositive, falseNegative, recall,
+						specifity, precision, f1);
+				System.out.println(bestDebug);
+				
+				if (giniImpurity < bestGini) {
+				//if (f1 > bestF1Score) {
 					bestCutoff = cutoff;
 					bestF1Score = f1;
 					bestHashingAlgo = hashAlgorithm;
 					propagatedTestData[0] = matchNode;
 					propagatedTestData[1] = distinctNode;
-
+					bestGini = giniImpurity;
+					
 					bestDebug = String.format(
-							"Gini impurity: %.4f Cutoff: %.3f | TP: %4d TN: %4d FP: %4d FN: %4d | Recall: %.4f Spec: %.3f Precision %.3f F1: %.3f %n",
+							"Gini impurity: %.4f Cutoff: %.3f | TP: %4d TN: %4d FP: %4d FN: %4d | Recall: %.4f Spec: %.3f Precision %.3f F1: %.3f",
 							giniImpurity, cutoff, truePositive, trueNegative, falsePositive, falseNegative, recall,
 							specifity, precision, f1);
+					//System.out.println(bestDebug);
 				}
 
 				// For distincts
@@ -510,14 +575,16 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 			}
 		}
 
-		System.out.println("\nTest Data 'Size: " + testData.size());
-		System.out.println("LeftNode: " + propagatedTestData[0].size() + " RightNode: " + propagatedTestData[1].size());
-
 		// best
-		if (bestF1Score > qualityThreshold) {
-			DecisionTreeNode node = new DecisionTreeNode(bestHashingAlgo, bestCutoff, bestF1Score);
+		
+		if (bestGini < qualityThreshold) {
+		//if (bestF1Score > qualityThreshold) {
+			DecisionTreeNode node = new DecisionTreeNode(bestHashingAlgo, bestCutoff, bestGini);
 			System.out.println(node);
 			System.out.println(bestDebug);
+			System.out.println(
+					"LeftNode: " + propagatedTestData[0].size() + " RightNode: " + propagatedTestData[1].size() + "\n");
+
 			return new Pair(node, propagatedTestData);
 		} else {
 			// TODO we are done. it does not make the tree better
@@ -530,18 +597,47 @@ public class RandomForestSingleImageMatcher extends SingleImageMatcher {
 		int testCases = MathUtil.triangularNumber(labeledImages.size() - 1);
 		List<TestData> testData = new ArrayList<>(testCases);
 
-		List<LabeledImage> labeledImagesCopy = new ArrayList<>(labeledImages);
+		
+		
+		List<TestData> matchData = new ArrayList<>(testCases);
+		List<TestData> distinctData = new ArrayList<>(testCases);
 
+		
 		// Create every possible combintation
-		for (LabeledImage img0 : labeledImages) {
-			// No reason to check against itself or others against this value in the future
-			labeledImagesCopy.remove(img0);
-			for (LabeledImage img1 : labeledImagesCopy) {
-				boolean match = img0.getCategory() == img1.getCategory();
-				testData.add(new TestData(img0.getbImage(), img1.getbImage(), match));
+		for (List<BufferedImage> images : labeledImages.values()) {
+			boolean match = images.size() > 1;
+			for (BufferedImage b : images) {
+				//testData.add(new TestData(b, match));
+				if(match) {
+					matchData.add(new TestData(b, match));
+				}else {
+					distinctData.add(new TestData(b, match));
+				}
 			}
 		}
-
+		
+		int matchC = matchData.size();
+		int distinctC = distinctData.size();
+		
+		PcgRSFast rng = new PcgRSFast();
+		
+		if(matchC > distinctC) {
+			while(matchC > distinctC) {
+				matchData.remove(rng.nextInt(matchC--));
+			}
+		}else if(distinctC > matchC) {
+			while(distinctC > matchC) {
+				distinctData.remove(rng.nextInt(distinctC--));
+			}
+		}
+		
+		testData.addAll(matchData);
+		testData.addAll(distinctData);
+		
+		System.out.println("Match: " + matchC + " Distinct: " + distinctC);
+		
+		//Balance the dataset;
+		
 		return testData;
 	}
 

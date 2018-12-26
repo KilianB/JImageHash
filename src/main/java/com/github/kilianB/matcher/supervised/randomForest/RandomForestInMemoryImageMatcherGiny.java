@@ -1,32 +1,32 @@
-package com.github.kilianB.matcher;
+package com.github.kilianB.matcher.supervised.randomForest;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 import com.github.kilianB.MathUtil;
 import com.github.kilianB.Require;
-import com.github.kilianB.StringUtil;
-import com.github.kilianB.benchmark.LabeledImage;
 import com.github.kilianB.datastructures.CountHashCollection;
-import com.github.kilianB.hashAlgorithms.AverageHash;
+import com.github.kilianB.datastructures.Pair;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.matcher.supervised.LabeledImage;
+import com.github.kilianB.matcher.unsupervised.SingleImageMatcher;
 import com.github.kilianB.pcg.fast.PcgRSFast;
 
 /**
@@ -39,28 +39,58 @@ import com.github.kilianB.pcg.fast.PcgRSFast;
  */
 public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 
-	// Random forest
+	/**
+	 * Root nodes of all decision trees making up the random forest
+	 */
+	protected List<TreeNode> forest = new ArrayList<>();
 
-	// Create a devision tree
+	/**
+	 * Test images used to create test sets to train the forest
+	 */
+	protected Map<Integer, List<BufferedImage>> labeledImages = new HashMap<>();
 
-	// TreeNode root;
-
-	List<TreeNode> forest = new ArrayList<>();
-
-	Map<Integer, List<BufferedImage>> labeledImages = new HashMap<>();
-
+	/**
+	 * Add test images to this image matcher which will be used to construct the
+	 * random forest.
+	 * 
+	 * <p>
+	 * Be aware that labeled images are kept in memory as long as
+	 * {@link #clearTestImages()} has not been called.
+	 * 
+	 * @param data the images to add
+	 */
 	public void addTestImages(Collection<LabeledImage> data) {
 		for (LabeledImage t : data) {
 			addTestImages(t);
 		}
 	}
 
+	/**
+	 * Add test images to this image matcher which will be used to construct the
+	 * random forest.
+	 * 
+	 * <p>
+	 * Be aware that labeled images are kept in memory as long as
+	 * {@link #clearTestImages()} has not been called.
+	 * 
+	 * @param data the images to add
+	 */
 	public void addTestImages(LabeledImage... data) {
 		for (LabeledImage t : data) {
 			addTestImages(t);
 		}
 	}
 
+	/**
+	 * Add a labeled image to this image matcher which will be used to construct the
+	 * random forest.
+	 * 
+	 * <p>
+	 * Be aware that labeled images are kept in memory as long as
+	 * {@link #clearTestImages()} has not been called.
+	 * 
+	 * @param data the image to add
+	 */
 	public void addTestImages(LabeledImage tData) {
 
 		if (labeledImages.containsKey(tData.getCategory())) {
@@ -72,197 +102,41 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 		}
 	}
 
-	class Pair<S, U> {
-		S first;
-		U second;
-
-		/**
-		 * @param first
-		 * @param second
-		 */
-		public Pair(S first, U second) {
-			super();
-			this.first = first;
-			this.second = second;
-		}
-
-		/**
-		 * @return
-		 */
-		public S getFirst() {
-			return first;
-		}
-
-		public U getSecond() {
-			return second;
-		}
-
+	/**
+	 * Clears the test images. Any references made by this object are released and
+	 * allows the gc to free the underlaying buffered image if it's not referenced
+	 * anywhere else.
+	 * 
+	 * <p>
+	 * Be aware that you need to add new test images before calling
+	 * {@link #trainMatcher(int, int, int)}.
+	 */
+	public void clearTestImages() {
+		labeledImages.clear();
 	}
 
-	class TestData {
-
-		BufferedImage b0;
-		boolean match;
-
-		/**
-		 * @param b0
-		 * @param b1
-		 * @param match
-		 */
-		public TestData(BufferedImage b0, boolean match) {
-			super();
-			this.b0 = b0;
-			this.match = match;
-		}
-
-		@Override
-		public String toString() {
-			return "TestData [b0=" + b0.hashCode() + ", match=" + match + "]";
-		}
-
-	}
-
-	Map<HashingAlgorithm, Map<BufferedImage, Hash>> preComputedHashes;
-
-	abstract class TreeNode {
-		public abstract boolean predictAgainstAll(BufferedImage bi);
-
-		protected abstract void printTree(int depth);
-
-		protected void printTree() {
-			printTree(0);
-		}
-	}
-
-	class LeafNode extends TreeNode {
-
-		/** indicate if this node indicates a match or mismatch leaf node */
-		boolean match;
-
-		/**
-		 * @param hasher
-		 * @param bestCutoff
-		 * @param quality
-		 */
-		public LeafNode(boolean match) {
-			this.match = match;
-		}
-
-		protected void printTree(int depth) {
-			System.out.println(StringUtil.multiplyChar("\t", depth) + this);
-		}
-
-		public String toString() {
-			return "LeafNode " + this.hashCode() + " [Match:" + match + "] ";
-		}
-
-		public boolean predictAgainstAll(BufferedImage bi) {
-			return match;
-		}
-	}
-
-	class InnerNode extends TreeNode {
-
-		HashingAlgorithm hasher;
-		float threshold;
-
-		// Not really entropy in all cases
-		double quality;
-		double qualityLeft;
-		double qualityRight;
-
-		protected InnerNode() {
-		};
-
-		/**
-		 * @param hasher
-		 * @param bestCutoff
-		 */
-		public InnerNode(HashingAlgorithm hasher, double bestCutoff, double quality, double qualityLeft,
-				double qualityRight) {
-			super();
-			this.hasher = hasher;
-			this.threshold = (float) bestCutoff;
-			this.quality = quality;
-			this.qualityLeft = qualityLeft;
-			this.qualityRight = qualityRight;
-		}
-
-		TreeNode leftNode;
-		TreeNode rightNode;
-
-		public boolean predictAgainstAll(BufferedImage bi) {
-
-			Hash targetHash = hasher.hash(bi);
-
-			double minDif = Double.MAX_VALUE;
-
-			for (Entry<BufferedImage, Hash> e : preComputedHashes.get(hasher).entrySet()) {
-				double difference = targetHash.normalizedHammingDistance(e.getValue());
-				if (e.getKey().equals(bi)) {
-					continue; // TODO just for debug
-				}
-				if (difference < minDif) {
-					minDif = difference;
-				}
-			}
-
-			if (minDif < threshold) {
-				if (leftNode.predictAgainstAll(bi)) {
-					return true;
-				}
-			} else {
-				if (rightNode.predictAgainstAll(bi)) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		// TODO bootstrap data
-
-		@Override
-		public String toString() {
-			return "InnerNode " + this.hashCode() + " [hasher=" + hasher + ", threshold=" + threshold + ", quality="
-					+ quality + "] ";
-		}
-
-		public void printTree() {
-			printTree(0);
-		}
-
-		public void printTree(int depth) {
-			System.out.println(StringUtil.multiplyChar("\t", depth) + this);
-			leftNode.printTree(++depth);
-
-			// TODO!!!
-			if (rightNode != null)
-				rightNode.printTree(depth);
-		}
-
-	}
+	private Map<HashingAlgorithm, Map<String, Hash>> preComputedHashes;
 
 	// TODO
 	// Map<HashingAlgorithm, Map<BufferedImage, Double>> preComputedMinDistances;
-
-	// TODO handle overfitting
 
 	/**
 	 * Populate the decision trees used in this image matcher. The forest has to be
 	 * initialized when ever new labeled test images are added.
 	 * 
-	 * @param trees      The number of trees created. Has to be odd. The more trees
-	 *                   present the better the accuracy is
-	 * @param numVars    The number of variables used in each tree. Which variables
-	 *                   are chosen is randomly decided. Not using every variable
-	 *                   prevents overfitting.
-	 * @param numVarsRep The variables used are numerical values which can appear
-	 *                   multiple times per branch. Limit the number of consecutive
-	 *                   times a single var can appear in the same brench.
+	 * @param trees              The number of trees created. Has to be odd. The
+	 *                           more trees present the better the accuracy is
+	 * @param numVarsSearchRange The number of variables used in each tree. Which
+	 *                           variables are chosen is randomly decided. Not using
+	 *                           every variable prevents overfitting.
+	 * @param numVarsRep         The variables used are numerical values which can
+	 *                           appear multiple times per branch. Limit the number
+	 *                           of consecutive times a single var can appear in the
+	 *                           same brench.
 	 */
-	public void createDecisionTree(int trees, int numVars, int numVarsRep) {
+	public void trainMatcher(int trees, int numVarsSearchRange, int numVarsRep) {
 
-		Require.inRange(numVars, 0, steps.size(), "Can't create a tree with more variables than vars available.");
+		Require.positiveValue(numVarsSearchRange, "NumVarsSearchRange has to be positive.");
 		Require.oddValue(trees, "The number of trees should be odd to prevent ambiguity");
 
 		System.out.println("");
@@ -291,25 +165,55 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 			preComputedHashes.put(hashAlgorithm, hashMap);
 		}
 
-		this.preComputedHashes = preComputedHashes;
+		ExecutorService tPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+
+		int numVars = (int) Math.sqrt(this.getAlgorithms().size());
+
+		boolean newBestFound = false;
+		for (int i = numVars - numVarsSearchRange; i < numVars + numVarsSearchRange || newBestFound; i++) {
+			// If we have less than 1 var skip it
+
+			System.out.println("Create Forest with number of vars: " + i + "/" + this.getAlgorithms().size());
+			if (i < 0) {
+				continue;
+			}
+			// Done
+			if (i > this.getAlgorithms().size()) {
+				break;
+			}
+
+			Object[] packedForestData = createForest(trees, numVarsRep, testData, preComputedHashes, tPool);
+
+			@SuppressWarnings("unchecked")
+			List<TreeNode> forest = (List<TreeNode>) packedForestData[0];
+
+			double outOfBagClassificationError = (double) packedForestData[1];
+			double classificationErrorAll = (double) packedForestData[2];
+
+			System.out.println("Out of bag error: " + outOfBagClassificationError);
+			System.out.println("Class error all : " + classificationErrorAll);
+
+			this.forest = forest;
+			System.out.println(" ");
+		}
+
+		tPool.shutdown();
+
+		// testArtificialDecisionTree(bootstrappedData);
+	}
+
+	protected Object[] createForest(int trees, int numVarsRep, List<TestData> testData,
+			Map<HashingAlgorithm, Map<BufferedImage, Hash>> preComputedHashesTestAgainst, ExecutorService tPool) {
+		Map<TreeNode, Set<TestData>> bootstrappedOutOfBag = new HashMap<>();
+
+		List<TreeNode> forestCandidate = new ArrayList<TreeNode>();
 
 		PcgRSFast rng = new PcgRSFast();
 
-		// TODO this can be multi threaded
-
-		// TODO build random forest with numVars changing
-
-		// TODO overwrite numVars
-
-		int numVarsEffectiveFinal = (int) Math.sqrt(this.getAlgorithms().size());
-		System.out.println("build rf with " + numVars);
-
-		ExecutorService tPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
-
-		ReentrantLock lock = new ReentrantLock();
+		Collection<Future<Void>> tasks = new ArrayList<>();
 
 		for (int i = 0; i < trees; i++) {
-			tPool.execute(() -> {
+			tasks.add(tPool.submit(() -> {
 				/*
 				 * 1. Bootstrap. Draw a random subsample of datasets
 				 */
@@ -330,7 +234,7 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 
 				// We don't need to rehash
 				for (HashingAlgorithm hashAlgorithm : this.getAlgorithms().keySet()) {
-					Map<BufferedImage, Hash> cache = preComputedHashes.get(hashAlgorithm);
+					Map<BufferedImage, Hash> cache = preComputedHashesTestAgainst.get(hashAlgorithm);
 					Map<BufferedImage, Hash> hashMap = new HashMap<>();
 					for (TestData t : bootstrappedData) {
 						hashMap.put(t.b0, cache.get(t.b0));
@@ -338,32 +242,28 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 					preComputedHashesBootstrap.put(hashAlgorithm, hashMap);
 				}
 				// this.preComputedHashes = preComputedHashes;
-				TreeNode root = buildTree(bootstrappedData, cHasher, numVarsEffectiveFinal, preComputedHashesBootstrap);
-				forest.add(root);
+				TreeNode root = buildTree(bootstrappedData, cHasher, numVarsRep, preComputedHashesBootstrap);
+				forestCandidate.add(root);
 
-//				lock.lock();
-//				root.printTree();
-//				lock.unlock();
-				// testIndividualTree(root, bootstrappedData);
-				System.out.println("");
-			});
-
+				bootstrappedOutOfBag.put(root, new HashSet<>(outOfBagData));
+				return null;
+			}));
 		}
 
-		tPool.shutdown();
-		try {
-			tPool.awaitTermination(1, TimeUnit.MINUTES);
-
-			// Test with out of bag TODO
-
-			// TODO itterate with different settings.
-			test(testData);
-
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		// Wait for completion
+		for (Future<?> task : tasks) {
+			try {
+				task.get();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
 		}
 
-		// testArtificialDecisionTree(bootstrappedData);
+		double outOfBagError = test(forestCandidate, testData, bootstrappedOutOfBag, preComputedHashesTestAgainst,
+				true);
+		double classificationErrorAll = test(forestCandidate, testData, null, preComputedHashesTestAgainst, true);
+
+		return new Object[] { forestCandidate, outOfBagError, classificationErrorAll };
 	}
 
 	/**
@@ -387,12 +287,21 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 		return bootstrapped;
 	}
 
-	void testIndividualTree(TreeNode root, List<TestData> testData) {
+	/**
+	 * 
+	 * @param testData
+	 * @param bootstrappedOutOfBag         provide an out of bag test set. if null
+	 *                                     test against everything
+	 * @param preComputedHashesTestAgainst
+	 * @param verbose                      print computed metrics
+	 * @return the classification error (out of bag error)
+	 */
+	private double test(List<TreeNode> forest, List<TestData> testData,
+			Map<TreeNode, Set<TestData>> bootstrappedOutOfBag,
+			Map<HashingAlgorithm, Map<BufferedImage, Hash>> preComputedHashesTestAgainst, boolean verbose) {
 		// System.out.println("\n----- TEST ------\n");
 
 		// Test
-
-//				// TODO double
 		int truePositive = 0;
 		int trueNegative = 0;
 		int falsePositive = 0;
@@ -401,99 +310,7 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 		List<TestData> matchNode = new ArrayList<TestData>();
 		List<TestData> distinctNode = new ArrayList<TestData>();
 
-		for (int i = 0; i < testData.size(); i++) {
-
-			TestData tData = testData.get(i);
-
-			int matchCount = 0;
-			int distinctCount = 0;
-			if (root.predictAgainstAll(tData.b0)) {
-				matchCount++;
-			} else {
-				distinctCount++;
-			}
-
-			boolean match = matchCount > distinctCount;
-
-			if (match) {
-				if (tData.match) {
-					truePositive++;
-				} else {
-					falsePositive++;
-				}
-				matchNode.add(tData);
-			} else {
-				if (tData.match) {
-					falseNegative++;
-					// root.predictAgainstAllDebug(tData.b0);
-				} else {
-					trueNegative++;
-				}
-				distinctNode.add(tData);
-			}
-		}
-
-		int sum = (int) (truePositive + falseNegative + trueNegative + falsePositive);
-		// TODO lets weight ehese
-		double weightMatching = (truePositive + falseNegative);
-		double weightDistinct = (trueNegative + falsePositive);
-
-		double tpW = truePositive * weightDistinct;
-		double fnW = falseNegative * weightDistinct;
-		double tnW = trueNegative * weightMatching;
-		double fpW = falsePositive * weightMatching;
-
-//				double giniImpurityMatch = 1 - Math.pow(tpW / (double) (tpW + fpW), 2)
-//						- Math.pow(fpW / (double) (tpW + fpW), 2);
-		//
-//				double giniImpurityDistinct = 1 - Math.pow(tnW / (double) (tnW + fnW), 2)
-//						- Math.pow(fnW / (double) (tnW + fnW), 2);
-//				double giniImpurity = (giniImpurityMatch + giniImpurityDistinct) / 2;
-//				
-
-		double giniImpurityMatch = 1 - Math.pow(truePositive / (double) (truePositive + falsePositive), 2)
-				- Math.pow(falsePositive / (double) (truePositive + falsePositive), 2);
-
-		double giniImpurityDistinct = 1 - Math.pow(trueNegative / (double) (trueNegative + falseNegative), 2)
-				- Math.pow(falseNegative / (double) (trueNegative + falseNegative), 2);
-
-		// Weighted gini impurity
-		double leftWeight = (truePositive + falsePositive) / (double) sum;
-		double rightWeight = (trueNegative + falseNegative) / (double) sum;
-
-		double giniImpurity = (leftWeight * giniImpurityMatch + rightWeight * giniImpurityDistinct);
-
-		// The stuff we classify as duplicates really are duplicates!
-		double recall = truePositive / (double) (truePositive + falseNegative);
-		double specifity = trueNegative / (double) (trueNegative + falsePositive);
-
-		double temp = truePositive + falsePositive;
-		double precision = Double.NaN;
-		if (temp != 0) {
-			precision = truePositive / temp;
-		}
-		double f1 = 2 * (precision * recall) / (precision + recall);
-
-		System.out.printf(
-				"Gini impurity: %.4f | TP: %4d TN: %4d FP: %4d FN: %4d | Recall: %.4f Spec: %.3f Precision %.3f F1: %.3f %n",
-				giniImpurity, truePositive, trueNegative, falsePositive, falseNegative, recall, specifity, precision,
-				f1);
-
-	}
-
-	void test(List<TestData> testData) {
-		// System.out.println("\n----- TEST ------\n");
-
-		// Test
-
-//		// TODO double
-		int truePositive = 0;
-		int trueNegative = 0;
-		int falsePositive = 0;
-		int falseNegative = 0;
-
-		List<TestData> matchNode = new ArrayList<TestData>();
-		List<TestData> distinctNode = new ArrayList<TestData>();
+		boolean outOfBag = bootstrappedOutOfBag != null;
 
 		for (int i = 0; i < testData.size(); i++) {
 
@@ -501,11 +318,16 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 
 			int matchCount = 0;
 			int distinctCount = 0;
+
 			for (TreeNode tree : forest) {
-				if (tree.predictAgainstAll(tData.b0)) {
-					matchCount++;
-				} else {
-					distinctCount++;
+				// Only test if it's an out of bag sample
+
+				if (!outOfBag || bootstrappedOutOfBag.get(tree).contains(tData)) {
+					if (tree.predictAgainstAllExcludingSelf(tData.b0, preComputedHashesTestAgainst)) {
+						matchCount++;
+					} else {
+						distinctCount++;
+					}
 				}
 			}
 
@@ -530,58 +352,61 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 		}
 
 		int sum = (int) (truePositive + falseNegative + trueNegative + falsePositive);
-		// TODO lets weight ehese
-		double weightMatching = (truePositive + falseNegative);
-		double weightDistinct = (trueNegative + falsePositive);
 
-		double tpW = truePositive * weightDistinct;
-		double fnW = falseNegative * weightDistinct;
-		double tnW = trueNegative * weightMatching;
-		double fpW = falsePositive * weightMatching;
+		if (verbose) {
+//			double weightMatching = (truePositive + falseNegative);
+//			double weightDistinct = (trueNegative + falsePositive);
 
-//		double giniImpurityMatch = 1 - Math.pow(tpW / (double) (tpW + fpW), 2)
-//				- Math.pow(fpW / (double) (tpW + fpW), 2);
-//
-//		double giniImpurityDistinct = 1 - Math.pow(tnW / (double) (tnW + fnW), 2)
-//				- Math.pow(fnW / (double) (tnW + fnW), 2);
-//		double giniImpurity = (giniImpurityMatch + giniImpurityDistinct) / 2;
-//		
+//			double tpW = truePositive * weightDistinct;
+//			double fnW = falseNegative * weightDistinct;
+//			double tnW = trueNegative * weightMatching;
+//			double fpW = falsePositive * weightMatching;
 
-		double giniImpurityMatch = 1 - Math.pow(truePositive / (double) (truePositive + falsePositive), 2)
-				- Math.pow(falsePositive / (double) (truePositive + falsePositive), 2);
+//			double giniImpurityMatch = 1 - Math.pow(tpW / (double) (tpW + fpW), 2)
+//					- Math.pow(fpW / (double) (tpW + fpW), 2);
+			//
+//			double giniImpurityDistinct = 1 - Math.pow(tnW / (double) (tnW + fnW), 2)
+//					- Math.pow(fnW / (double) (tnW + fnW), 2);
+//			double giniImpurity = (giniImpurityMatch + giniImpurityDistinct) / 2;
+//			
 
-		double giniImpurityDistinct = 1 - Math.pow(trueNegative / (double) (trueNegative + falseNegative), 2)
-				- Math.pow(falseNegative / (double) (trueNegative + falseNegative), 2);
+			double giniImpurityMatch = 1 - Math.pow(truePositive / (double) (truePositive + falsePositive), 2)
+					- Math.pow(falsePositive / (double) (truePositive + falsePositive), 2);
 
-		// Weighted gini impurity
-		double leftWeight = (truePositive + falsePositive) / (double) sum;
-		double rightWeight = (trueNegative + falseNegative) / (double) sum;
+			double giniImpurityDistinct = 1 - Math.pow(trueNegative / (double) (trueNegative + falseNegative), 2)
+					- Math.pow(falseNegative / (double) (trueNegative + falseNegative), 2);
 
-		double giniImpurity = (leftWeight * giniImpurityMatch + rightWeight * giniImpurityDistinct);
+			// Weighted gini impurity
+			double leftWeight = (truePositive + falsePositive) / (double) sum;
+			double rightWeight = (trueNegative + falseNegative) / (double) sum;
 
-		// The stuff we classify as duplicates really are duplicates!
-		double recall = truePositive / (double) (truePositive + falseNegative);
-		double specifity = trueNegative / (double) (trueNegative + falsePositive);
+			double giniImpurity = (leftWeight * giniImpurityMatch + rightWeight * giniImpurityDistinct);
 
-		double temp = truePositive + falsePositive;
-		double precision = Double.NaN;
-		if (temp != 0) {
-			precision = truePositive / temp;
+			// The stuff we classify as duplicates really are duplicates!
+			double recall = truePositive / (double) (truePositive + falseNegative);
+			double specifity = trueNegative / (double) (trueNegative + falsePositive);
+
+			double temp = truePositive + falsePositive;
+			double precision = Double.NaN;
+			if (temp != 0) {
+				precision = truePositive / temp;
+			}
+			double f1 = 2 * (precision * recall) / (precision + recall);
+
+			System.out.printf(
+					"Gini impurity: %.4f | TP: %4d TN: %4d FP: %4d FN: %4d | Recall: %.4f Spec: %.3f Precision %.3f F1: %.3f %n",
+					giniImpurity, truePositive, trueNegative, falsePositive, falseNegative, recall, specifity,
+					precision, f1);
 		}
-		double f1 = 2 * (precision * recall) / (precision + recall);
 
-		System.out.printf(
-				"Gini impurity: %.4f | TP: %4d TN: %4d FP: %4d FN: %4d | Recall: %.4f Spec: %.3f Precision %.3f F1: %.3f %n",
-				giniImpurity, truePositive, trueNegative, falsePositive, falseNegative, recall, specifity, precision,
-				f1);
-
+		return (falsePositive + falseNegative) / (double) sum;
 	}
 
 	// TODO average hash has a good f1 score due to filtering out many true
 	// negatives. but fails at false negatives..
 	// TODO also get the false negatives...
 
-	public TreeNode buildTree(List<TestData> testData, CountHashCollection<HashingAlgorithm> cHasher, int numVars,
+	private TreeNode buildTree(List<TestData> testData, CountHashCollection<HashingAlgorithm> cHasher, int numVars,
 			Map<HashingAlgorithm, Map<BufferedImage, Hash>> preComputedHashes) {
 		return buildTree(testData, cHasher, numVars, preComputedHashes, Double.MAX_VALUE, true);
 	}
@@ -597,21 +422,18 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 			return new LeafNode(left);
 		}
 
-		if (packed.first instanceof LeafNode) {
-			return packed.first;
+		if (packed.getFirst() instanceof LeafNode) {
+			return packed.getFirst();
 		}
 
-		InnerNode node = (InnerNode) packed.first;
+		InnerNode node = (InnerNode) packed.getFirst();
 
-		// TODO dataset is empty we are done
 		if (packed.getSecond()[0].size() > 0 && !MathUtil.isDoubleEquals(node.qualityLeft, 0, 1e-8)) {
-			// System.out.println("--------------\n Attempt Left Node: ");
 			node.leftNode = buildTree(packed.getSecond()[0], algorithmCopy, numVars, preComputedHashes,
 					node.qualityLeft, true);
 
 		} else {
 			// Check if it's a true or false node. due to gini coefficient this may swap
-
 			long size = packed.getSecond()[0].size();
 			long match = packed.getSecond()[0].stream().filter(i -> i.match).count();
 			long distinct = size - match;
@@ -650,6 +472,28 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 		return node;
 	}
 
+	/**
+	 * Create a tree node at the given point in the tree.
+	 * <p>
+	 * If a new node was found which improves distinction an inner node is returned.
+	 * The algorithm copy is reduces by the algorithm picked to allow to precisely
+	 * chose how often a single hashing algorithm appears in a branch.
+	 * <p>
+	 * If no better node can be found a leaf node is created if the node has way to
+	 * tell if more matches or mismatches are present. If it's indistinguishable
+	 * null will be returned.
+	 * 
+	 * 
+	 * @param testData          The data used to test
+	 * @param algorithmCopy     The algorithms (variables) available to choose from
+	 * @param numVars           The number of variables that may be selected (only a
+	 *                          subset of variables may be chosen randomly to
+	 *                          prevent overfitting)
+	 * @param preComputedHashes The cached hashes
+	 * @param qualityThreshold  the quality the node has to suppress in order for
+	 *                          this node to contribute positively to the tree
+	 * @return
+	 */
 	private Pair<TreeNode, List<TestData>[]> computeNode(List<TestData> testData,
 			CountHashCollection<HashingAlgorithm> algorithmCopy, int numVars,
 			Map<HashingAlgorithm, Map<BufferedImage, Hash>> preComputedHashes, double qualityThreshold) {
@@ -685,7 +529,8 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 
 		Collections.shuffle(indices, new PcgRSFast());
 
-		HashingAlgorithm[] algorithmsAvailable = algorithmCopy.toArrayUnique();
+		HashingAlgorithm[] algorithmsAvailable = algorithmCopy
+				.toArrayUnique(new HashingAlgorithm[algorithmCopy.sizeUnique()]);
 
 		for (int i = 0; i < numVars; i++) {
 
@@ -864,25 +709,33 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 //							.collect(Collectors.groupingBy((i) -> i.match, Collectors.counting()))
 //					+ "\n");
 
-			return new Pair(node, propagatedTestData);
+			return new Pair<>(node, propagatedTestData);
 		} else {
-			// TODO we are done. it does not make the tree better
-
 			long size = testData.size();
 			long match = testData.stream().filter(i -> i.match).count();
 			long distinct = size - match;
 
 			if (match > distinct) {
-				return new Pair(new LeafNode(true), null);
+				return new Pair<>(new LeafNode(true), null);
 			} else if (match == distinct) {
 				return null;
 			} else {
-				return new Pair(new LeafNode(false), null);
+				return new Pair<>(new LeafNode(false), null);
 			}
 
 		}
 	}
 
+	/**
+	 * 
+	 * 
+	 * @implNote Create a balanced test data set by pairing labeled images and build
+	 *           every possible combination.
+	 * 
+	 * 
+	 * 
+	 * @return
+	 */
 	private List<TestData> createTestData() {
 
 		int testCases = MathUtil.triangularNumber(labeledImages.size() - 1);
@@ -891,7 +744,9 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 		List<TestData> matchData = new ArrayList<>(testCases);
 		List<TestData> distinctData = new ArrayList<>(testCases);
 
-		// Create every possible combintation
+		// Create every possible combination (TODO this can become expensive if we have
+		// many images).
+		// We could also just randomly drawn and create what is needed.
 		for (List<BufferedImage> images : labeledImages.values()) {
 			boolean match = images.size() > 1;
 			for (BufferedImage b : images) {
@@ -909,6 +764,7 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 
 		PcgRSFast rng = new PcgRSFast();
 
+		// Create a balanced dataset between matches and distinct ...
 		if (matchC > distinctC) {
 			while (matchC > distinctC) {
 				matchData.remove(rng.nextInt(matchC--));
@@ -919,29 +775,16 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 			}
 		}
 
-//		testData.addAll(matchData);
-//		testData.addAll(distinctData);
+		// TODO
+		testData = new ArrayList<>(testCases);
+		testData.addAll(matchData);
+		testData.addAll(distinctData);
 
-		System.out.println("Match: " + matchC + " Distinct: " + distinctC);
+		System.out.println("Match: " + matchC + " Distinct: " + distinctC + " Size : " + testData.size());
 
 		// Balance the dataset;
 
 		return testData;
 	}
-
-	/**
-	 * @param bootstrappedData
-	 * 
-	 */
-//	public void testArtificialDecisionTree(List<TestData> bootstrappedData) {
-//
-//		// Build a tree ourselves
-//
-//		InnerNode treeNode = new InnerNode(new AverageHash(32), 0.125, 0, 0, 0);
-//		treeNode.leftNode = new LeafNode(true);
-//		treeNode.rightNode = new LeafNode(false);
-//		test(treeNode, bootstrappedData);
-//
-//	}
 
 }
