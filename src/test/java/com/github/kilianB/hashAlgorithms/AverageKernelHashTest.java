@@ -45,6 +45,16 @@ class AverageKernelHashTest{
 		assertNotEquals(h0.algorithmId(),h1.algorithmId());
 	}
 	
+	@Test
+	void addMultipleKernel() {
+		HashingAlgorithm h0 = new AverageKernelHash(32);
+		HashingAlgorithm h1 = new AverageKernelHash(32,Kernel.gaussianFilter(3,3,2));
+		HashingAlgorithm h2 = new AverageKernelHash(32,Kernel.gaussianFilter(3,3,2),Kernel.boxFilterNormalized(3,3));
+		assertNotEquals(h0.algorithmId(),h1.algorithmId());
+		assertNotEquals(h0.algorithmId(),h2.algorithmId());
+		assertNotEquals(h1.algorithmId(),h2.algorithmId());
+	}
+	
 	//Base Hashing algorithm tests
 	@Nested
 	class AlgorithmBaseTests extends HashTestBase{
@@ -56,4 +66,26 @@ class AverageKernelHashTest{
 		
 	}
 
+	@Nested
+	class AlgorithmBaseTestsWithFilter extends HashTestBase{
+		@Override
+		protected HashingAlgorithm getInstance(int bitResolution) {
+			return new AverageKernelHash(bitResolution,Kernel.gaussianFilter(3,3,2));
+		}
+	}
+	
+	@Nested
+	class AlgorithmBaseTestsWithMultipleFilters extends HashTestBase{
+		@Override
+		protected HashingAlgorithm getInstance(int bitResolution) {
+			return new AverageKernelHash(bitResolution,Kernel.gaussianFilter(3,3,2),Kernel.gaussianFilter(5,3,2));
+		}
+	}
+	
+	@Test
+	void testToString() {
+		//Contains fields with kernels
+		assertTrue(new AverageKernelHash(32).toString().contains("filters="));
+	}
+	
 }

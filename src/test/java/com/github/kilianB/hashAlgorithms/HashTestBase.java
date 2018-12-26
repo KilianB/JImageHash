@@ -48,16 +48,34 @@ public abstract class HashTestBase {
 		@DisplayName("Unique AlgorithmsIds")
 		public void uniquely() {
 
-			int id0 = getInstance(15).algorithmId();
-			int id1 = getInstance(40).algorithmId();
-			int id2 = getInstance(60).algorithmId();
+			HashingAlgorithm h0 = getInstance(15);
+			HashingAlgorithm h1 = getInstance(16);
+			HashingAlgorithm h2 = getInstance(40);
+			HashingAlgorithm h3 = getInstance(60);
+
+			int id0 = h0.algorithmId();
+			int id1 = h1.algorithmId();
+			int id2 = h2.algorithmId();
+			int id3 = h3.algorithmId();
 
 			assertAll(() -> {
-				assertNotEquals(id0, id1);
+				if (h0.getKeyResolution() != h1.getKeyResolution()) {
+					assertNotEquals(id0, id1);
+				} else {
+					assertEquals(id0, id1);
+				}
 			}, () -> {
-				assertNotEquals(id0, id2);
+				if (h0.getKeyResolution() != h2.getKeyResolution()) {
+					assertNotEquals(id0, id2);
+				} else {
+					assertEquals(id0, id2);
+				}
 			}, () -> {
-				assertNotEquals(id1, id2);
+				if (h0.getKeyResolution() != h3.getKeyResolution()) {
+					assertNotEquals(id0, id3);
+				} else {
+					assertEquals(id0, id3);
+				}
 			});
 		}
 	}
@@ -86,6 +104,14 @@ public abstract class HashTestBase {
 			}, () -> {
 				assertEquals(ballonHash.getBitResolution(), thumbnailHash.getBitResolution());
 			});
+		}
+
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolutionBroad")
+		void algorithmKeyLengthConsitent(Integer bitResolution) {
+			HashingAlgorithm d1 = getInstance(bitResolution);
+			Hash ballonHash = d1.hash(ballon);
+			assertEquals(d1.getKeyResolution(), ballonHash.getBitResolution());
 		}
 
 		/**
@@ -184,6 +210,18 @@ public abstract class HashTestBase {
 		}
 
 		/**
+		 * The normalized hamming distance of the same image has to be 0
+		 * 
+		 * @param bitRes the bit resolution of the algorithm
+		 */
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		void equalImageNormalized(Integer bitRes) {
+			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
+			assertEquals(0, h.hash(ballon).hammingDistanceFast(h.hash(ballon)));
+		}
+		
+		/**
 		 * The hamming distance of similar images shall be lower than the distance of
 		 * vastly different pictures
 		 * 
@@ -203,6 +241,29 @@ public abstract class HashTestBase {
 			}, () -> {
 				assertTrue(
 						highQualityHash.hammingDistance(lowQualityHash) < highQualityHash.hammingDistance(ballonHash));
+			});
+		}
+		
+		/**
+		 * The normalized hamming distance of similar images shall be lower than the distance of
+		 * vastly different pictures
+		 * 
+		 * @param bitRes the bit resolution of the algorithm
+		 */
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		void unequalImageNormalized(Integer bitRes) {
+			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
+			Hash lowQualityHash = h.hash(lowQuality);
+			Hash highQualityHash = h.hash(highQuality);
+			Hash ballonHash = h.hash(ballon);
+
+			assertAll(() -> {
+				assertTrue(
+						lowQualityHash.normalizedHammingDistance(highQualityHash) < lowQualityHash.normalizedHammingDistance(ballonHash));
+			}, () -> {
+				assertTrue(
+						highQualityHash.normalizedHammingDistance(lowQualityHash) < highQualityHash.normalizedHammingDistance(ballonHash));
 			});
 		}
 	}

@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher;
+package com.github.kilianB.matcher.unsupervised;
 
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -12,6 +12,10 @@ import java.util.PriorityQueue;
 import com.github.kilianB.dataStrorage.tree.BinaryTree;
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.matcher.ImageMatcher;
+import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
+import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * Convenience class allowing to chain multiple hashing algorithms to find
@@ -194,11 +198,11 @@ public class InMemoryImageMatcher extends ImageMatcher {
 			Hash needleHash = algo.hash(image);
 
 			int threshold = 0;
-			if (settings.normalized) {
+			if (settings.isNormalized()) {
 				int hashLength = needleHash.getBitResolution();
-				threshold = Math.round(settings.threshold * hashLength);
+				threshold = Math.round(settings.getThreshold() * hashLength);
 			} else {
-				threshold = (int) settings.threshold;
+				threshold = (int) settings.getThreshold();
 			}
 
 			PriorityQueue<Result<BufferedImage>> temp = binTree.getElementsWithinHammingDistance(needleHash, threshold);

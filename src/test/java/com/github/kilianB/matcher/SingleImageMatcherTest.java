@@ -17,6 +17,7 @@ import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
 import com.github.kilianB.matcher.ImageMatcher.Setting;
+import com.github.kilianB.matcher.unsupervised.SingleImageMatcher;
 
 class SingleImageMatcherTest {
 
