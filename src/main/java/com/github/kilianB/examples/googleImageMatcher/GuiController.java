@@ -8,12 +8,12 @@ import java.util.PriorityQueue;
 import com.github.kilianB.dataStrorage.tree.BinaryTree;
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.examples.util.GoogleImageDownloaderMinimal;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
+import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.hashAlgorithms.PerceptiveHash;
+import com.github.kilianB.matcher.Hash;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXMasonryPane;
@@ -76,8 +76,7 @@ public class GuiController {
 	private BinaryTree<Image> dBinTree = new BinaryTree<>(true);
 	private BinaryTree<Image> pBinTree = new BinaryTree<>(true);
 
-	// Choose one of the many hashing algorithms
-	private HashingAlgorithm algo = new PerceptiveHash(32);
+	private HashSet<BufferedImage> addedImages = new HashSet<BufferedImage>();
 
 	@FXML
 	private void initialize() {
@@ -175,8 +174,6 @@ public class GuiController {
 		masonaryPane.layout();
 
 	}
-
-	HashSet<BufferedImage> addedImages = new HashSet<BufferedImage>();
 
 	private void computeHash(BufferedImage image) {
 

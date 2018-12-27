@@ -25,7 +25,12 @@ import com.github.kilianB.matcher.ImageMatcher;
  */
 public class InMemoryImageMatcher extends ImageMatcher {
 
-	//TODO update javadocs
+	/** keep track of images already added. No reason to rehash */
+	protected HashSet<BufferedImage> addedImages = new HashSet<>();
+
+	/** Binary Tree holding results for each individual hashing algorithm */
+	protected HashMap<HashingAlgorithm, BinaryTree<BufferedImage>> binTreeMap = new HashMap<>();
+
 	
 	/**
 	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
@@ -72,13 +77,7 @@ public class InMemoryImageMatcher extends ImageMatcher {
 		matcher.addDefaultHashingAlgorithms(matcher,algorithmSetting);
 		return matcher;
 	}
-
-	/** keep track of images already added. No reason to rehash */
-	protected HashSet<BufferedImage> addedImages = new HashSet<>();
-
-	/** Binary Tree holding results for each individual hashing algorithm */
-	protected HashMap<HashingAlgorithm, BinaryTree<BufferedImage>> binTreeMap = new HashMap<>();
-
+	
 	/**
 	 * Append a new hashing algorithm which will be executed after all hash
 	 * algorithms passed the test.

@@ -339,7 +339,7 @@ Lets apply the benchmark to a different set of images:
 
 Suddenly a lot of the other algorithms fail, since they are not robust against rotational attacks. If the treshold of the RotPHash algorithm gets adjusted to .1 it would be able to identify all images perfectly.
 
-## Key bit resolution. Bigger isn't "always" better!
+## Key bit resolution. Bigger isn't "always" better
 
 When creating an algorithm instance you are asked to supply a bit resolution value. Using the bit resolution setting you define the number of bits present in the resulting hashes. Altering the key resolution offers a trade off between computation time, storage space and feature detection quality. The default algorithms follow the contract to create a hash with at least the supplied bits but may require to return a longer hash if it is necessary due to geometric constraints.
 
@@ -398,13 +398,13 @@ Here are some of the available filters:
 
 The following examples were found by creating a duplicate detection system to filter reposts on 9gag.com
 
-#### Distance 5: Slight color change. 
+#### Distance 5: Slight color change
 
 <p>
 <img align="left" width = 25% src="https://user-images.githubusercontent.com/9025925/36516748-be5f9b8e-177f-11e8-813e-9ff92c6e65a8.jpg"><img width = 25% src="https://user-images.githubusercontent.com/9025925/36516750-c00b942e-177f-11e8-8e42-deadc2c49d79.jpg">
 </p>
 
-#### Distance 9: (False positive). 
+#### Distance 9: (False positive)
 Due to difference hash relying on gradient search on a compressed image and the text being swapped out for a similar object this algorithm failed. Rehash with perceptual algorithm.
 <p>
 <img align="left" width = 25% src="https://user-images.githubusercontent.com/9025925/36517079-2efe056e-1781-11e8-9db7-a182e2727985.jpg"><img width = 25% src="https://user-images.githubusercontent.com/9025925/36517081-30157f72-1781-11e8-9ed1-8ebb8d64aba9.jpg">
@@ -440,7 +440,9 @@ The MedianHash compares the luminosity value against the median value. This guar
 The difference hash calculates the gradient in the image. As gradients are depended on the direction of the scanning it's a good idea to take additional dimensions into account.
 
 -  DoublePrecision will double the resulting hashSize but additionally accounts for top to bottom gradients
+
 -  TripplePrecision will triple the resulting hashSize but additionally accounts for diagonal gradients 
+
 While additional precision will increase the amount of information a 64 bit simple precision usually performs better than a 32 bit double precision hash.
 
 <table>
@@ -485,7 +487,6 @@ Due to computing the dct this algorithm is slower than aHash or dHash.
 	 <td><img width = 100% src="https://user-images.githubusercontent.com/9025925/49261365-1d379180-f442-11e8-987f-982622fe37b4.png"></td> 
 	</tr>
 </table>
-
 
 ### RotPHash
 

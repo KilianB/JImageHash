@@ -44,47 +44,6 @@ import javafx.scene.paint.Color;
  */
 public class CategoricalMatcher extends ImageMatcher {
 
-	public static void main(String[] args) throws IOException {
-		CategoricalMatcher matcher = new CategoricalMatcher(false);
-
-		BufferedImage highQuality = ImageIO.read(new File("src/test/resources/highQuality.jpg"));
-		BufferedImage highQualityBright = ImageIO.read(new File("src/test/resources/highQualityBright.png"));
-		BufferedImage lowQuality = ImageIO.read(new File("src/test/resources/lowQuality.jpg"));
-		BufferedImage thumbnail = ImageIO.read(new File("src/test/resources/thumbnail.jpg"));
-		BufferedImage copyright = ImageIO.read(new File("src/test/resources/copyright.jpg"));
-
-		BufferedImage ballon = ImageIO.read(new File("src/test/resources/ballon.jpg"));
-
-		// BufferedImage bi = ImageIO.read(new File("src/test/resources/ballon.jpg"));
-
-		HashingAlgorithm hasher = new AverageHash(32);
-
-		ImageIO.write(hasher.hash(highQuality).toImage(10), "png", new File("PlainHash.png"));
-
-		matcher.addHashingAlgorithm(hasher, 1);
-
-		System.out.println(matcher.categorizeImageAndAdd(highQuality, 0.2d, "Hq"));
-		System.out.println(matcher.categorizeImageAndAdd(ballon, 0.2d, "ballon") + " ballon");
-		System.out.println(matcher.categorizeImageAndAdd(lowQuality, 0.2d, "lq"));
-		System.out.println(matcher.categorizeImageAndAdd(highQualityBright, 0.2d, "hqBright"));
-		System.out.println(matcher.categorizeImageAndAdd(thumbnail, 0.2d, "thumb"));
-		System.out.println(matcher.categorizeImageAndAdd(copyright, 0.2d, "copy"));
-
-		System.out.println("");
-
-		System.out.println(matcher.categorizeImage(ballon));
-		System.out.println(matcher.categorizeImage(lowQuality));
-		System.out.println(matcher.categorizeImage(highQualityBright));
-		System.out.println(matcher.categorizeImage(thumbnail));
-		System.out.println(matcher.categorizeImage(copyright));
-
-		ImageIO.write(matcher.categoricalHashToImage(hasher, 0, 10), "png", new File("HashColor.png"));
-
-		matcher.recomputeClusters(10);
-
-//		ImageIO.write(matcher.categoricalHashToImage(hasher, 1, 10), "png", new File("HashBallon.png"));
-	}
-
 	// per hashing algorithm / per category / per bit / count
 	protected Map<HashingAlgorithm, Map<Integer, int[][]>> averageBits = new HashMap<>();
 	protected Map<HashingAlgorithm, Map<Integer, Hash>> clusterAverageHash = new HashMap<>();
@@ -105,7 +64,7 @@ public class CategoricalMatcher extends ImageMatcher {
 	protected TreeSet<Integer> categories = new TreeSet<>();
 
 	protected boolean weightedDistance;
-	
+
 	public boolean recomputeClusters(int maxIterations) {
 
 		boolean globalChange = false;
@@ -158,8 +117,8 @@ public class CategoricalMatcher extends ImageMatcher {
 				Pair<Integer, Double> catResult = this.categorizeImage(hashes);
 
 				int category = catResult.getFirst();
-				double distance = catResult.getSecond();
 
+//				double distance = catResult.getSecond();
 				// TODO
 //				if (distance > maxThreshold) {
 //					if (categories.isEmpty()) {
@@ -233,7 +192,6 @@ public class CategoricalMatcher extends ImageMatcher {
 	}
 
 	public double addCategoricalImage(BufferedImage bi, int category, String uniqueId) {
-		double averageDistance = 0;
 		int i = 0;
 		Hash[] hashes = new Hash[this.steps.keySet().size()];
 		for (HashingAlgorithm hashAlgorithm : this.steps.keySet()) {
@@ -664,6 +622,47 @@ public class CategoricalMatcher extends ImageMatcher {
 	 */
 	public Hash getClusterAverageHash(HashingAlgorithm algorithm, int category) {
 		return algorithm.createAlgorithmSpecificHash(clusterAverageHash.get(algorithm).get(category));
+	}
+
+	public static void main(String[] args) throws IOException {
+		CategoricalMatcher matcher = new CategoricalMatcher(false);
+
+		BufferedImage highQuality = ImageIO.read(new File("src/test/resources/highQuality.jpg"));
+		BufferedImage highQualityBright = ImageIO.read(new File("src/test/resources/highQualityBright.png"));
+		BufferedImage lowQuality = ImageIO.read(new File("src/test/resources/lowQuality.jpg"));
+		BufferedImage thumbnail = ImageIO.read(new File("src/test/resources/thumbnail.jpg"));
+		BufferedImage copyright = ImageIO.read(new File("src/test/resources/copyright.jpg"));
+
+		BufferedImage ballon = ImageIO.read(new File("src/test/resources/ballon.jpg"));
+
+		// BufferedImage bi = ImageIO.read(new File("src/test/resources/ballon.jpg"));
+
+		HashingAlgorithm hasher = new AverageHash(32);
+
+		ImageIO.write(hasher.hash(highQuality).toImage(10), "png", new File("PlainHash.png"));
+
+		matcher.addHashingAlgorithm(hasher, 1);
+
+		System.out.println(matcher.categorizeImageAndAdd(highQuality, 0.2d, "Hq"));
+		System.out.println(matcher.categorizeImageAndAdd(ballon, 0.2d, "ballon") + " ballon");
+		System.out.println(matcher.categorizeImageAndAdd(lowQuality, 0.2d, "lq"));
+		System.out.println(matcher.categorizeImageAndAdd(highQualityBright, 0.2d, "hqBright"));
+		System.out.println(matcher.categorizeImageAndAdd(thumbnail, 0.2d, "thumb"));
+		System.out.println(matcher.categorizeImageAndAdd(copyright, 0.2d, "copy"));
+
+		System.out.println("");
+
+		System.out.println(matcher.categorizeImage(ballon));
+		System.out.println(matcher.categorizeImage(lowQuality));
+		System.out.println(matcher.categorizeImage(highQualityBright));
+		System.out.println(matcher.categorizeImage(thumbnail));
+		System.out.println(matcher.categorizeImage(copyright));
+
+		ImageIO.write(matcher.categoricalHashToImage(hasher, 0, 10), "png", new File("HashColor.png"));
+
+		matcher.recomputeClusters(10);
+
+//		ImageIO.write(matcher.categoricalHashToImage(hasher, 1, 10), "png", new File("HashBallon.png"));
 	}
 
 }

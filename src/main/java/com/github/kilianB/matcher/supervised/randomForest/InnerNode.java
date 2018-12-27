@@ -11,13 +11,16 @@ import com.github.kilianB.matcher.Hash;
 
 class InnerNode extends TreeNode {
 
-	protected HashingAlgorithm hasher;
-	protected double threshold;
+	private HashingAlgorithm hasher;
+	private double threshold;
 
 	// Not really entropy in all cases
 	protected double quality;
 	protected double qualityLeft;
 	protected double qualityRight;
+	
+	protected TreeNode leftNode;
+	protected TreeNode rightNode;
 
 	protected InnerNode() {
 	};
@@ -36,8 +39,7 @@ class InnerNode extends TreeNode {
 		this.qualityRight = qualityRight;
 	}
 
-	TreeNode leftNode;
-	TreeNode rightNode;
+	
 
 	public boolean predictAgainstAll(BufferedImage bi, Map<HashingAlgorithm, List<Hash>> precomputedHashes) {
 

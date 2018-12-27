@@ -12,7 +12,7 @@ import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.hashAlgorithms.RotPHash;
 
 public abstract class ImageMatcher {
-
+	
 	/**
 	 * Configuration level for the default matcher
 	 * 
@@ -49,6 +49,12 @@ public abstract class ImageMatcher {
 		Speed
 
 	}
+	
+	/**
+	 * Contains multiple hashing algorithms applied in the order they were added to
+	 * the image matcher
+	 */
+	protected LinkedHashMap<HashingAlgorithm, AlgoSettings> steps = new LinkedHashMap<>();
 
 	/**
 	 * Factory helper method to configure a default hashing algorithm. Implementing
@@ -87,12 +93,6 @@ public abstract class ImageMatcher {
 			break;
 		}
 	}
-
-	/**
-	 * Contains multiple hashing algorithms applied in the order they were added to
-	 * the image matcher
-	 */
-	protected LinkedHashMap<HashingAlgorithm, AlgoSettings> steps = new LinkedHashMap<>();
 
 	/**
 	 * Append a new hashing algorithm which will be executed after all hash

@@ -603,10 +603,10 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 				double weightMatching = (truePositive + falseNegative);
 				double weightDistinct = (trueNegative + falsePositive);
 
-				double tpW = truePositive * weightDistinct;
-				double fnW = falseNegative * weightDistinct;
-				double tnW = trueNegative * weightMatching;
-				double fpW = falsePositive * weightMatching;
+//				double tpW = truePositive * weightDistinct;
+//				double fnW = falseNegative * weightDistinct;
+//				double tnW = trueNegative * weightMatching;
+//				double fpW = falsePositive * weightMatching;
 
 //				double giniImpurityMatch = 1 - Math.pow(tpW / (double) (tpW + fpW), 2)
 //						- Math.pow(fpW / (double) (tpW + fpW), 2);

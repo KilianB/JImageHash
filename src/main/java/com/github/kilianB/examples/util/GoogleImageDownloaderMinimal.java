@@ -31,9 +31,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  */
 public class GoogleImageDownloaderMinimal {
 
-	public GoogleImageDownloaderMinimal() {
-
-	};
+	/**
+	 * Regex to extract file extension and data portion of base64Patterns
+	 */
+	private static Pattern base64Pattern = Pattern.compile("data:image/(?<extension>[a-zA-Z]*);base64,(?<imgData>.*)");
 
 	/**
 	 * Download the first 100 thumbnail images found on the google image search page
@@ -141,11 +142,6 @@ public class GoogleImageDownloaderMinimal {
 	}
 
 	/**
-	 * Regex to extract file extension and data portion of base64Patterns
-	 */
-	private static Pattern base64Pattern = Pattern.compile("data:image/(?<extension>[a-zA-Z]*);base64,(?<imgData>.*)");
-
-	/**
 	 * 
 	 * @param imgElement
 	 * @return
@@ -156,7 +152,7 @@ public class GoogleImageDownloaderMinimal {
 
 		String dataSrc = imgElement.getAttribute("data-src");
 
-		if (dataSrc.equals("ATTRIBUTE_NOT_DEFINED") || dataSrc.length() == 0) {
+		if ("ATTRIBUTE_NOT_DEFINED".equals(dataSrc) || dataSrc.length() == 0) {
 
 			// Base 64 image
 			String base64 = imgElement.getAttribute("src");

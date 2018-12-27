@@ -24,14 +24,6 @@ import javafx.scene.paint.Color;
  */
 public class DifferenceHash extends HashingAlgorithm {
 
-	public static void main(String[] args) throws IOException {
-		HashingAlgorithm dHash = new DifferenceHash(20000, Precision.Triple);
-
-		Hash originalHash = dHash.hash(new File("src/test/resources/ballon.jpg"));
-
-		ImageIO.write(originalHash.toImage(20), "png", new File("DHashPng.png"));
-	}
-
 	private static final long serialVersionUID = 7236596241664072005L;
 
 	/**
@@ -56,7 +48,11 @@ public class DifferenceHash extends HashingAlgorithm {
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
-	private int height, width;
+	private int height;
+	/**
+	 * The height and width of the scaled instance used to compute the hash
+	 */
+	private int width;
 
 	/**
 	 * Precision used to calculate the hash
@@ -198,9 +194,9 @@ public class DifferenceHash extends HashingAlgorithm {
 
 	public static class DHash extends Hash {
 
-		Precision precision;
-		int width;
-		int height;
+		private Precision precision;
+		private int width;
+		private int height;
 
 		public DHash(Hash h, Precision precision, int width, int height) {
 			super(h.getHashValue(), h.getBitResolution(), h.getAlgorithmId());
