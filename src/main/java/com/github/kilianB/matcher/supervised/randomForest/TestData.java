@@ -4,8 +4,8 @@ import java.awt.image.BufferedImage;
 
 class TestData {
 
-	BufferedImage b0;
-	boolean match;
+	protected BufferedImage b0;
+	protected boolean match;
 
 	/**
 	 * @param b0

@@ -27,7 +27,7 @@ import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
 
 class InMemoryImageMatcherTest {
 
-	void assertMatches(InMemoryImageMatcher matcher) {
+	private void assertMatches(InMemoryImageMatcher matcher) {
 		// We only expect ballon to be returned
 		final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
 

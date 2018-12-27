@@ -32,7 +32,7 @@ import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
  */
 class CumulativeImageMatcherTest {
 
-	void addDefaultTestImages(CumulativeImageMatcher matcher) {
+	private void addDefaultTestImages(CumulativeImageMatcher matcher) {
 		matcher.addImage(ballon);
 		matcher.addImage(copyright);
 		matcher.addImage(highQuality);
@@ -40,7 +40,7 @@ class CumulativeImageMatcherTest {
 		matcher.addImage(thumbnail);
 	}
 
-	void assertImageMatches(CumulativeImageMatcher matcher) {
+	private void assertImageMatches(CumulativeImageMatcher matcher) {
 		// We only expect ballon to be returned
 		final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
 
@@ -62,7 +62,6 @@ class CumulativeImageMatcherTest {
 	@Test
 	@DisplayName("Check Similarity")
 	void imageMatches() {
-
 		CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
 		addDefaultTestImages(matcher);
 		assertImageMatches(matcher);
