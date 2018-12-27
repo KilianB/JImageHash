@@ -102,6 +102,10 @@ public class CategoricalMatcher extends ImageMatcher {
 
 	protected boolean clusterRecomputed = false;
 
+	protected TreeSet<Integer> categories = new TreeSet<>();
+
+	protected boolean weightedDistance;
+	
 	public boolean recomputeClusters(int maxIterations) {
 
 		boolean globalChange = false;
@@ -195,10 +199,6 @@ public class CategoricalMatcher extends ImageMatcher {
 		clusterRecomputed = true;
 		return globalChange;
 	}
-
-	protected TreeSet<Integer> categories = new TreeSet<>();
-
-	boolean weightedDistance;
 
 	public CategoricalMatcher(boolean weightedDistanceClassification) {
 		weightedDistance = weightedDistanceClassification;

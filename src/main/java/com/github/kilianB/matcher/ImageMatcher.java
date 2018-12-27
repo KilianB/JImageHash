@@ -209,11 +209,11 @@ public abstract class ImageMatcher {
 		/**
 		 * Threshold value hash hamming may be for images to be considered equal
 		 */
-		double threshold;
+		private double threshold;
 		/**
 		 * Use normalized or ordinary hamming distance during calculation
 		 */
-		boolean normalized;
+		private boolean normalized;
 
 		public AlgoSettings(double threshold, boolean normalized) {
 			this.threshold = threshold;

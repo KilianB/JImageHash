@@ -215,7 +215,7 @@ class CumulativeImageMatcherTest {
 		assertEquals(1, matcher.getAlgorithms().size());
 
 		// Recreated original state of the matcher
-		matcher.addHashingAlgorithm(algos[1], setting.threshold, setting.normalized);
+		matcher.addHashingAlgorithm(algos[1], setting.getThreshold(), setting.isNormalized());
 		assertEquals(2, matcher.getAlgorithms().size());
 
 		// Check if it still performs the same matches
