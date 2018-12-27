@@ -4,8 +4,7 @@
 
 [![Travis](https://travis-ci.org/KilianB/JImageHash.svg?branch=master)](https://travis-ci.org/KilianB/JImageHash)
 [![GitHub license](https://img.shields.io/github/license/KilianB/JImageHash.svg)](https://github.com/KilianB/JImageHash/blob/master/LICENSE)
-[![Download](https://api.bintray.com/packages/kilianb/maven/JImageHash/images/download.svg) ](https://bintray.com/kilianb/maven/JImageHash/_latestVersion)
-
+[![Download](https://api.bintray.com/packages/kilianb/maven/JImageHash/images/download.svg)](https://bintray.com/kilianb/maven/JImageHash/_latestVersion)
 
 JImageHash is a performant perceptual image fingerprinting library entirely written in Java. The library returns a similarity score aiming to indentify entities which are likely modifications of the original source while being robust variouse attack vectors ie. color, rotation and scale transformation.
 
@@ -17,7 +16,7 @@ This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.h
 
 The project is hosted on bintray and jcenter. <b>Please be aware that hashes created with versions 1.x.x are not compatible with versions >= 2.0.0.</b> Some method signatures and variable names have changed as well!
 
-````
+````XML
 <repositories>
 	<repository>
 		<id>jcenter</id>
@@ -31,7 +30,6 @@ The project is hosted on bintray and jcenter. <b>Please be aware that hashes cre
 	<version>2.1.0</version>
 </dependency>
 ````
-
 
 ## Examples
 
@@ -69,8 +67,8 @@ and optimize individual algorithms on your own.
 	</tbody>
 </table>
 
+### Hello World: Check if two images are likely duplicates of each other
 
-#### Hello World: Check if two images are likely duplicates of each other
 ````java
 public static void main(String[] args){
 
@@ -86,7 +84,7 @@ public static void main(String[] args){
 }
 ````
 
-#### Check batch of images
+### Check batch of images
 
 ````java
 public void matchMultipleImagesInMemory() {
@@ -116,9 +114,7 @@ Multiple types image matchers are available for each situation
 	<tr>	<td>DatabaseImageMatcher</td> <td>Store computed hashes in a SQL database to tell apart batches of images while still keeping the hashes around even after a restart of the JVM. Conceptually this class behaves identical to the InMemoryMatcher. Performance penalties may incur due to binary tree's not being used.</td></tr>
 </table>
 
-
 <table>
-
 <tr> <th>Image</th>  <th></th> <th>High</th> <th>Low</th> <th>Copyright</th> <th>Thumbnail</th> <th>Ballon</th> </tr>
 
 <tr> <td>High Quality</td>  <td><img width= 75% src="https://user-images.githubusercontent.com/9025925/36542413-046d8116-17e1-11e8-93ed-210f65293d51.jpg"></td> 
@@ -162,8 +158,7 @@ Multiple types image matchers are available for each situation
 	
 </table>
 
-
-#### Persistently Store Hashes (New Version 2.0.0)
+### Persistently Store Hashes (New Version 2.0.0)
 
 The database image matcher allows you to store hashes persistently between JVM lifecycles.
 
@@ -225,7 +220,6 @@ Image matchers can be configured using different algorithm. Each comes with indi
 
 A combination of Average and PerceptiveHashes are usually your way to go. 
 
-
 ## Algorithm chaining & fine tuning
 In some situations it may be useful to chain multiple detection algorithms back to back to utilize the different features they are based on. 
 A promising approach is to first filter images using the fast difference hash with a low resolution key and if a potential match is found checking again with the perceptive hash function.
@@ -237,7 +231,6 @@ too many false positives. The most granular control you can achieve by calculati
 
 The <b>hamming distance</b> returned by algorithms ranges from [0 - bitKeyResolution] (choosen during algorithm creation)
 The <b>normalized hamming distance</b> ranges from [0 - 1].
-
 
 ````java
 /**
@@ -265,7 +258,6 @@ public boolean compareTwoImages(BufferedImage image1, BufferedImage image2) {
 	return similarityScore < 0.3d;
 }
 ````
-
 
 <p align= "center">
 <img src="https://user-images.githubusercontent.com/9025925/36545875-3805f32e-17ea-11e8-9b28-96e25ba0ea67.png">
@@ -345,10 +337,7 @@ Lets apply the benchmark to a different set of images:
 
 ![rot](https://user-images.githubusercontent.com/9025925/48594271-4a6b4680-e950-11e8-8a9e-8c871584b37d.png)
 
-
 Suddenly a lot of the other algorithms fail, since they are not robust against rotational attacks. If the treshold of the RotPHash algorithm gets adjusted to .1 it would be able to identify all images perfectly.
-
-
 
 ## Key bit resolution. Bigger isn't "always" better!
 
@@ -375,7 +364,6 @@ Pear     [ [1,1,1] ]
 
 Due to adding more bits we get the ability to differentiate more features, on the other hand, the hamming distance between the two groups decreased to <b>0.66</b> instead of 1. Usually the more bits you add, the more groups you will detect but the harder it will be to actually distinguish between these groups. Sadly we can not hand pick our categories and are left at the mercy of our algorithms. 
 
-
 ### Image Preprocessing (Beta)
 
 Sometimes you may wish to alter the images before they are hashed by applying filters like 
@@ -389,7 +377,6 @@ pHash.addFilter(new MedianFilter(4,4));
 pHash.addFilter(new SobelFilter(0.7));
 //Or add your custom kernel masks ...
 ````
-
 
 <b>Note:</b> Image preprocessing currently is a rough part of the module and may be improved over time. Preprocessing
 each image in full resolution carries a major performance penalty, therefore it should be evaluated carefully if this step is really worth the effort. Most of the times filter do not improve the performance of hashing algorithms due to the fact that a lot of the effect is lost during reszing at a later stage.
@@ -449,12 +436,11 @@ The MedianHash compares the luminosity value against the median value. This guar
 	<tr> <td>AverageColorHash</td> <td><img src="https://user-images.githubusercontent.com/9025925/49260555-638af180-f43e-11e8-8f5e-9f0dddc74860.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260556-638af180-f43e-11e8-8fd0-2a03a96cd300.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260553-638af180-f43e-11e8-8ecb-1c67dfc52088.png" width=100%/></td><td><img src="https://user-images.githubusercontent.com/9025925/49260554-638af180-f43e-11e8-802f-7db6012591e3.png" width=100%/></td> </tr>
 </table>
 
-
 ### DifferenceHash
 The difference hash calculates the gradient in the image. As gradients are depended on the direction of the scanning it's a good idea to take additional dimensions into account.
 
-- DoublePrecision will double the resulting hashSize but additionally accounts for top to bottom gradients
-- TripplePrecision will triple the resulting hashSize but additionally accounts for diagonal gradients 
+-  DoublePrecision will double the resulting hashSize but additionally accounts for top to bottom gradients
+-  TripplePrecision will triple the resulting hashSize but additionally accounts for diagonal gradients 
 While additional precision will increase the amount of information a 64 bit simple precision usually performs better than a 32 bit double precision hash.
 
 <table>
@@ -535,4 +521,3 @@ Only the first 100 google thumbnails are downloaded and usually there are not ma
 
 ### Known Bugs
 - Perceptive hash relies on JTransform which fails to close a threadpool upon calculating large DCT matrices resulting in the JVM not to terminate. If you want to calculate a perceptive hash with a large bit resolution call `ConcurrencyUtils.shutdownThreadPoolAndAwaitTermination();` if you want to terminate the program.
-
