@@ -1,7 +1,5 @@
 package com.github.kilianB.hashAlgorithms.filter;
 
-import java.util.Arrays;
-
 import com.github.kilianB.ArrayUtil;
 
 /**
