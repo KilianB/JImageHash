@@ -976,7 +976,7 @@ public class AlgorithmBenchmarker {
 	 * @since 2.0.0
 	 */
 	private static class StringBuilderI {
-		StringBuilder internal = new StringBuilder();
+		private StringBuilder internal = new StringBuilder();
 	
 		public StringBuilderI append(String s) {
 			internal.append(s);
