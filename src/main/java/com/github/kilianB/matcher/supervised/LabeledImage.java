@@ -20,13 +20,13 @@ import javax.imageio.ImageIO;
 public class LabeledImage implements Comparable<LabeledImage> {
 
 	/** A character representation of the file for easy feedback */
-	String name;
+	protected String name;
 
 	/** The category of the image. Same categories equals similar images */
-	int category;
+	protected int category;
 
 	/** The image to test */
-	BufferedImage bImage;
+	protected BufferedImage bImage;
 
 	/**
 	 * 

@@ -32,9 +32,9 @@ public class ScharrFilter implements Filter {
 	private static final long serialVersionUID = 7737512505762187137L;
 
 	/** Separated Gx Kernel */
-	MultiKernel xKernel;
+	private MultiKernel xKernel;
 	/** Separated Gy Kernel */
-	MultiKernel yKernel;
+	private MultiKernel yKernel;
 
 	/** Gray cutoff value */
 	private double threshold;

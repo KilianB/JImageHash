@@ -19,7 +19,7 @@ import com.github.kilianB.matcher.Hash;
 class LeafNode extends TreeNode {
 
 	/** indicate if this node indicates a match or mismatch leaf node */
-	boolean match;
+	protected boolean match;
 
 	/**
 	 * Create a leaf node.

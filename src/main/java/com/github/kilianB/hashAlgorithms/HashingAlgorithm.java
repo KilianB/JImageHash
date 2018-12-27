@@ -87,9 +87,8 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	public HashingAlgorithm(int bitResolution) {
 
-		bitResolution = Require.positiveValue(bitResolution,
+		this.bitResolution = Require.positiveValue(bitResolution,
 				"The bit resolution for hashing algorithms has to be positive");
-		this.bitResolution = bitResolution;
 	}
 
 	/**

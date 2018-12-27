@@ -9,15 +9,12 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.github.kilianB.MathUtil;
 import com.github.kilianB.Require;
@@ -447,13 +444,6 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 		}
 
 		if (packed.getSecond()[1].size() > 0 && !MathUtil.isDoubleEquals(node.qualityRight, 0, 1e-8)) {
-			long size = packed.getSecond()[1].size();
-			long match = packed.getSecond()[1].stream().filter(i -> i.match).count();
-			long distinct = size - match;
-
-			// System.out.println(
-			// "--------------\n Attempt Right Node: " + size + " match: " + match + "
-			// distinct: " + distinct);
 			node.rightNode = buildTree(packed.getSecond()[1], algorithmCopy, numVars, preComputedHashes,
 					node.qualityRight, false);
 
@@ -507,9 +497,9 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 		double giniLeft = Double.MAX_VALUE;
 		double giniRight = Double.MAX_VALUE;
 
+//		String bestDebug = "";
 		double bestF1Score = -Double.MAX_VALUE;
-		String bestDebug = "";
-
+		
 		List<TestData>[] propagatedTestData = new ArrayList[2];
 
 		propagatedTestData[0] = new ArrayList<>();
@@ -527,7 +517,7 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 			indices.add(i);
 		}
 
-		Collections.shuffle(indices, new PcgRSFast());
+		Collections.shuffle(indices,rng);
 
 		HashingAlgorithm[] algorithmsAvailable = algorithmCopy
 				.toArrayUnique(new HashingAlgorithm[algorithmCopy.sizeUnique()]);
@@ -613,10 +603,10 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 				double weightMatching = (truePositive + falseNegative);
 				double weightDistinct = (trueNegative + falsePositive);
 
-				double tpW = truePositive * weightDistinct;
-				double fnW = falseNegative * weightDistinct;
-				double tnW = trueNegative * weightMatching;
-				double fpW = falsePositive * weightMatching;
+//				double tpW = truePositive * weightDistinct;
+//				double fnW = falseNegative * weightDistinct;
+//				double tnW = trueNegative * weightMatching;
+//				double fpW = falsePositive * weightMatching;
 
 //				double giniImpurityMatch = 1 - Math.pow(tpW / (double) (tpW + fpW), 2)
 //						- Math.pow(fpW / (double) (tpW + fpW), 2);
@@ -673,10 +663,10 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 					giniLeft = giniImpurityMatch;
 					giniRight = giniImpurityDistinct;
 
-					bestDebug = String.format(
-							"Gini impurity: %.4f Cutoff: %.3f | TP: %4d TN: %4d FP: %4d FN: %4d | Recall: %.4f Spec: %.3f Precision %.3f F1: %.3f",
-							giniImpurity, cutoff, truePositive, trueNegative, falsePositive, falseNegative, recall,
-							specifity, precision, f1);
+//					bestDebug = String.format(
+//							"Gini impurity: %.4f Cutoff: %.3f | TP: %4d TN: %4d FP: %4d FN: %4d | Recall: %.4f Spec: %.3f Precision %.3f F1: %.3f",
+//							giniImpurity, cutoff, truePositive, trueNegative, falsePositive, falseNegative, recall,
+//							specifity, precision, f1);
 					// System.out.println(bestDebug);
 				}
 

@@ -1,11 +1,14 @@
 package com.github.kilianB.hashAlgorithms;
 
+import static com.github.kilianB.TestResources.lenna;
+import static com.github.kilianB.TestResources.lenna180;
+import static com.github.kilianB.TestResources.lenna270;
+import static com.github.kilianB.TestResources.lenna90;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 
-import static com.github.kilianB.TestResources.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 

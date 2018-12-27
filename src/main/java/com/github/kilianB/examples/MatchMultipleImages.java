@@ -11,7 +11,7 @@ import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.InMemoryImageMatcher;
+import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
 
 /**
  * This example shows how a greater number of images can be compared to each
@@ -41,7 +41,7 @@ public class MatchMultipleImages {
 		matchMultipleImagesInMemoryManually(ballon,copyright,highQuality,lowQuality,thumbnail);
 	}
 
-	public void matchMultipleImagesInMemory() {
+	private void matchMultipleImagesInMemory() {
 
 		System.out.println("MatchMultipleImagesInMemory():");
 		
@@ -62,7 +62,7 @@ public class MatchMultipleImages {
 		
 	}
 
-	public void matchMultipleImagesInMemoryManually(BufferedImage... images) {
+	private void matchMultipleImagesInMemoryManually(BufferedImage... images) {
 		
 		System.out.println("\nMatchMultipleImagesInMemoryManually():");
 		
@@ -122,12 +122,7 @@ public class MatchMultipleImages {
 		pCandidates.forEach(result -> System.out.println(result));
 	}
 
-	
-	public static void main(String[] args) {
-		new MatchMultipleImages();
-	}
-	
-	void loadImages() {
+	private void loadImages() {
 		try {
 			ballon = ImageIO.read(getClass().getResourceAsStream("images/ballon.jpg"));
 			copyright = ImageIO.read(getClass().getResourceAsStream("images/copyright.jpg"));
@@ -138,6 +133,10 @@ public class MatchMultipleImages {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void main(String[] args) {
+		new MatchMultipleImages();
 	}
 
 }

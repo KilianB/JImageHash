@@ -43,7 +43,7 @@ import com.github.kilianB.graphics.FastPixel;
  * @see MedianKernel
  * @see MinimumKernel
  */
-public class MedianKernel extends Kernel {
+public class MedianKernel extends NonAveragingKernel {
 
 	private static final long serialVersionUID = 5756361510407136992L;
 
@@ -80,147 +80,38 @@ public class MedianKernel extends Kernel {
 	
 	@Override
 	protected double calcValue(byte[][] input, int x, int y) {
-		int maskW = mask[0].length / 2;
-		int maskH = mask.length / 2;
-		int width = input[0].length;
-		int height = input.length;
-
-		double[] wValues = new double[mask.length * mask[0].length];
-		double[] values = new double[mask.length * mask[0].length];
-
-		int index = 0;
-		for (int yMask = -maskH; yMask <= maskH; yMask++) {
-			for (int xMask = -maskW; xMask <= maskW; xMask++) {
-
-				int xPixelIndex;
-				int yPixelIndex;
-
-				if (edgeHandling.equals(EdgeHandlingStrategy.NO_OP)) {
-					xPixelIndex = x + xMask;
-					yPixelIndex = y + yMask;
-
-					if (xPixelIndex < 0 || xPixelIndex >= width || yPixelIndex < 0 || yPixelIndex >= height) {
-						return input[y][x];
-					}
-				} else {
-					xPixelIndex = edgeHandling.correctPixel(x + xMask, width);
-					yPixelIndex = edgeHandling.correctPixel(y + yMask, height);
-				}
-
-				values[index] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-				wValues[index++] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-			}
-		}
-		
-		//TODO how do we want to do this?
-
-		Arrays.sort(values);
-
-		// Find the median value
-
-		int halfIndex = values.length / 2;
-
-		if (values.length % 2 == 0) {
-			return (values[halfIndex] + values[halfIndex + 1]) / 2;
-		} else {
-			return values[halfIndex];
-		}
+		return resolveMedian(computePotentialValues(input, x, y));
 	}
 
 	@Override
 	protected double calcValue(int[][] input, int x, int y) {
-		int maskW = mask[0].length / 2;
-		int maskH = mask.length / 2;
-		int width = input[0].length;
-		int height = input.length;
-
-		double[] wValues = new double[mask.length * mask[0].length];
-		double[] values = new double[mask.length * mask[0].length];
-
-		int index = 0;
-		for (int yMask = -maskH; yMask <= maskH; yMask++) {
-			for (int xMask = -maskW; xMask <= maskW; xMask++) {
-
-				int xPixelIndex;
-				int yPixelIndex;
-
-				if (edgeHandling.equals(EdgeHandlingStrategy.NO_OP)) {
-					xPixelIndex = x + xMask;
-					yPixelIndex = y + yMask;
-
-					if (xPixelIndex < 0 || xPixelIndex >= width || yPixelIndex < 0 || yPixelIndex >= height) {
-						return input[y][x];
-					}
-				} else {
-					xPixelIndex = edgeHandling.correctPixel(x + xMask, width);
-					yPixelIndex = edgeHandling.correctPixel(y + yMask, height);
-				}
-
-				values[index] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-				wValues[index++] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-			}
-		}
-
-		Arrays.sort(values);
-
-		// Find the median value
-
-		int halfIndex = values.length / 2;
-
-		if (values.length % 2 == 0) {
-			return (values[halfIndex] + values[halfIndex + 1]) / 2;
-		} else {
-			return values[halfIndex];
-		}
+		return resolveMedian(computePotentialValues(input, x, y));
 	}
 
 	@Override
 	protected double calcValue(double[][] input, int x, int y) {
-		int maskW = mask[0].length / 2;
-		int maskH = mask.length / 2;
-		int width = input[0].length;
-		int height = input.length;
-
-		double[] wValues = new double[mask.length * mask[0].length];
-		double[] values = new double[mask.length * mask[0].length];
-
-		int index = 0;
-		for (int yMask = -maskH; yMask <= maskH; yMask++) {
-			for (int xMask = -maskW; xMask <= maskW; xMask++) {
-
-				int xPixelIndex;
-				int yPixelIndex;
-
-				if (edgeHandling.equals(EdgeHandlingStrategy.NO_OP)) {
-					xPixelIndex = x + xMask;
-					yPixelIndex = y + yMask;
-
-					if (xPixelIndex < 0 || xPixelIndex >= width || yPixelIndex < 0 || yPixelIndex >= height) {
-						return input[y][x];
-					}
-				} else {
-					xPixelIndex = edgeHandling.correctPixel(x + xMask, width);
-					yPixelIndex = edgeHandling.correctPixel(y + yMask, height);
-				}
-
-				values[index] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-				wValues[index++] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-			}
+		return resolveMedian(computePotentialValues(input, x, y));
+	}
+	
+	protected double resolveMedian(double[][] values) {
+		if (values[1].length == 1 && values[1][0] == Double.MIN_VALUE) {
+			return values[0][0];
 		}
-
-		int[] sortedIndices = ArrayUtil.getSortedIndices(wValues,false);
+		Arrays.sort(values[0]);
 		
-		Arrays.sort(values);
+		//TODO currently not using the weighed mask
+		//halfIndex = ArrayUtil.getSortedIndices(values[1])[values.length/half];
 
+		
 		// Find the median value
 		int halfIndex = values.length / 2;
-
 		if (values.length % 2 == 0) {
-			return (values[sortedIndices[halfIndex]] + values[sortedIndices[halfIndex + 1]]) / 2;
+			return (values[0][halfIndex] + values[0][halfIndex + 1]) / 2;
 		} else {
-			return values[sortedIndices[halfIndex]];
+			return values[0][halfIndex];
 		}
 	}
+	
 	
 	@Override
 	public BufferedImage filter(BufferedImage input) {

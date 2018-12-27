@@ -41,6 +41,25 @@ public class Kernel implements Serializable, Filter {
 
 	private static final long serialVersionUID = -3490082941059458531L;
 
+	/** Kernel mask applied to the pixels */
+	protected double[][] mask;
+
+	/**
+	 * Seperable convolution to speed up masking if applicable for custom kernels
+	 */
+	// https://en.wikipedia.org/wiki/Singular_value_decomposition for custom kernels
+	// https://blogs.mathworks.com/steve/2006/11/28/separable-convolution-part-2/
+	// private double[] seperableMaskX;
+	// private double[] seperableMaskY;
+
+	/** How are edged of the images handled */
+	protected EdgeHandlingStrategy edgeHandling;
+
+	// TODO we could compute a pixel mapping map before convolution reducing method
+	// calls and maybe increase performance instead of on the fly calculation of
+	// those values?
+	// int[][] pixelAccessMap
+	
 	/**
 	 * Return an identity kernel. This kernel is a 1x1 kernel and copies the
 	 * original value to the new array
@@ -331,26 +350,7 @@ public class Kernel implements Serializable, Filter {
 
 	// Many many more sobel laplacian etc ...
 	// https://web.eecs.umich.edu/~jjcorso/t/598F14/files/lecture_0924_filtering.pdf
-
-	/** Kernel mask applied to the pixels */
-	protected double[][] mask;
-
-	/**
-	 * Seperable convolution to speed up masking if applicable for custom kernels
-	 */
-	// https://en.wikipedia.org/wiki/Singular_value_decomposition for custom kernels
-	// https://blogs.mathworks.com/steve/2006/11/28/separable-convolution-part-2/
-	// private double[] seperableMaskX;
-	// private double[] seperableMaskY;
-
-	/** How are edged of the images handled */
-	protected EdgeHandlingStrategy edgeHandling;
-
-	// TODO we could compute a pixel mapping map before convolution reducing method
-	// calls and maybe increase performance instead of on the fly calculation of
-	// those values?
-	// int[][] pixelAccessMap
-
+	
 	/**
 	 * Create a clone of the supplied kernel
 	 * 

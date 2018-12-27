@@ -11,7 +11,7 @@ import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.DatabaseImageMatcher;
+import com.github.kilianB.matcher.unsupervised.DatabaseImageMatcher;
 
 /**
  * @author Kilian

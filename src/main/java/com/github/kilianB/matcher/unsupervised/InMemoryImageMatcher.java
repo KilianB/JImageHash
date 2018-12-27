@@ -14,8 +14,6 @@ import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher;
-import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * Convenience class allowing to chain multiple hashing algorithms to find
@@ -27,7 +25,12 @@ import com.github.kilianB.matcher.ImageMatcher.Setting;
  */
 public class InMemoryImageMatcher extends ImageMatcher {
 
-	//TODO update javadocs
+	/** keep track of images already added. No reason to rehash */
+	protected HashSet<BufferedImage> addedImages = new HashSet<>();
+
+	/** Binary Tree holding results for each individual hashing algorithm */
+	protected HashMap<HashingAlgorithm, BinaryTree<BufferedImage>> binTreeMap = new HashMap<>();
+
 	
 	/**
 	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
@@ -74,13 +77,7 @@ public class InMemoryImageMatcher extends ImageMatcher {
 		matcher.addDefaultHashingAlgorithms(matcher,algorithmSetting);
 		return matcher;
 	}
-
-	/** keep track of images already added. No reason to rehash */
-	protected HashSet<BufferedImage> addedImages = new HashSet<>();
-
-	/** Binary Tree holding results for each individual hashing algorithm */
-	protected HashMap<HashingAlgorithm, BinaryTree<BufferedImage>> binTreeMap = new HashMap<>();
-
+	
 	/**
 	 * Append a new hashing algorithm which will be executed after all hash
 	 * algorithms passed the test.

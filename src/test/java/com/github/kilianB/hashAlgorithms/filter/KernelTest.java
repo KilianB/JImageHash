@@ -3,13 +3,6 @@ package com.github.kilianB.hashAlgorithms.filter;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.Arrays;
-
-import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -26,15 +19,15 @@ import com.github.kilianB.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy;
 class KernelTest {
 
 	/** 3x3 Kernel */
-	static Kernel squareKernel;
+	private static Kernel squareKernel;
 	/** 1x3 Kernel */
-	static Kernel widthKernel;
+	private static Kernel widthKernel;
 	/** 3x1 kernel */
-	static Kernel heightKernel;
+	private static Kernel heightKernel;
 
-	static double[][] dummyInputDouble = new double[10][15];
-	static int[][] dummyInputInt = new int[10][15];
-	static byte[][] dummyInputByte = new byte[10][15];
+	private static double[][] dummyInputDouble = new double[10][15];
+	private static int[][] dummyInputInt = new int[10][15];
+	private static byte[][] dummyInputByte = new byte[10][15];
 
 	@BeforeAll
 	static void prepareDefaultKernels() {
@@ -149,7 +142,6 @@ class KernelTest {
 		class Normalized {
 
 			// Works on MultiKernels
-
 			@Test
 			void widthHeightConstructor() {
 				int width = 3;
@@ -177,14 +169,36 @@ class KernelTest {
 			void testNoOpSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
-				k.apply(dummyInputDouble);
+				double[][] expected = {
+						{ 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0 } };
+				assertArrayEquals(expected, k.apply(dummyInputDouble));
 			}
 
 			@Test
 			void testNoOpWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
-				k.apply(dummyInputDouble);
+				double[][] expected = {
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 } };
+				assertArrayEquals(expected, k.apply(dummyInputDouble));
 			}
 
 			@Test
@@ -192,6 +206,17 @@ class KernelTest {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
 				k.apply(dummyInputDouble);
+				double[][] expected = {{0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0}};
+				assertArrayEquals(expected, k.apply(dummyInputDouble));
 			}
 
 			@Test

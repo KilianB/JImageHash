@@ -11,7 +11,7 @@ import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.matcher.ImageMatcher.Setting;
-import com.github.kilianB.matcher.SingleImageMatcher;
+import com.github.kilianB.matcher.unsupervised.SingleImageMatcher;
 
 /**
  * To increase the quality of the returned results it can be useful to chain
@@ -29,8 +29,8 @@ public class ChainAlgorithms {
 	public void defaultMatcher() {
 
 		/*
-		 * A single image matcher allows to compare two images against each other.
-		 * The default matcher chains an average hash followed by a perceptive hash
+		 * A single image matcher allows to compare two images against each other. The
+		 * default matcher chains an average hash followed by a perceptive hash
 		 */
 		SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher();
 
@@ -51,7 +51,12 @@ public class ChainAlgorithms {
 	 */
 	@SuppressWarnings("unused")
 	public void configuredDefaultMatcher() {
-		SingleImageMatcher fair, forgiving, strict, quality;
+
+		// Example use one of those
+		SingleImageMatcher fair;
+		SingleImageMatcher forgiving;
+		SingleImageMatcher strict;
+		SingleImageMatcher quality;
 
 		// Lets get two images
 		BufferedImage img1 = images.get("highQuality");
@@ -64,22 +69,23 @@ public class ChainAlgorithms {
 		// Same as no argument constructor
 		quality = SingleImageMatcher.createDefaultMatcher(Setting.Quality);
 
-		//Will return true
+		// Will return true
 		System.out.println("Quality Matcher: Images are likely "
 				+ (quality.checkSimilarity(img1, img2) ? "duplicates" : "distinct"));
-		
-		//Will return false
+
+		// Will return false
 		System.out.println("Strict Matcher : Images are likely "
 				+ (strict.checkSimilarity(img1, img2) ? "duplicates" : "distinct"));
 	}
 
 	/**
-	 * Demonstrates how to fully configure a SingleImageMatcher. Choose own algorithms
-	 * and thresholds
-	 * @param image1	First image to be matched against 2nd image
-	 * @param image2	Second image to be matched against the first image
+	 * Demonstrates how to fully configure a SingleImageMatcher. Choose own
+	 * algorithms and thresholds
+	 * 
+	 * @param image1 First image to be matched against 2nd image
+	 * @param image2 Second image to be matched against the first image
 	 */
-	public void chainAlgorithms(BufferedImage image1, BufferedImage image2){
+	public void chainAlgorithms(BufferedImage image1, BufferedImage image2) {
 
 		/*
 		 * Create multiple algorithms we want to test the images against
@@ -112,20 +118,20 @@ public class ChainAlgorithms {
 	public static void main(String[] args) {
 		new ChainAlgorithms();
 	}
-	
+
 	public ChainAlgorithms() {
 		loadImages();
-		
+
 		System.out.println("defaultMatcher()");
 		defaultMatcher();
-		
+
 		System.out.println("\nconfiguredDefaultMatcher()");
 		configuredDefaultMatcher();
-		
+
 		System.out.println("\nchainAlgorithms()");
-		chainAlgorithms(images.get("highQuality"),images.get("lowQuality"));
+		chainAlgorithms(images.get("highQuality"), images.get("lowQuality"));
 	}
-	
+
 	private void loadImages() {
 		// Load images
 		try {

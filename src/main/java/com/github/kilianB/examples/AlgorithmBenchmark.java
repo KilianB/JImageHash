@@ -3,7 +3,6 @@ package com.github.kilianB.examples;
 import java.io.File;
 
 import com.github.kilianB.benchmark.AlgorithmBenchmarker;
-import com.github.kilianB.benchmark.AlgorithmBenchmarker.TestData;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
@@ -15,7 +14,8 @@ import com.github.kilianB.hashAlgorithms.experimental.HogHash;
 import com.github.kilianB.hashAlgorithms.experimental.HogHashAngularEncoded;
 import com.github.kilianB.hashAlgorithms.experimental.HogHashDual;
 import com.github.kilianB.hashAlgorithms.filter.Kernel;
-import com.github.kilianB.matcher.SingleImageMatcher;
+import com.github.kilianB.matcher.supervised.LabeledImage;
+import com.github.kilianB.matcher.unsupervised.SingleImageMatcher;
 
 /**
  * 
@@ -193,7 +193,7 @@ public class AlgorithmBenchmark {
 		// Add ballon as contrast
 
 		addRotationalTestImages(db);
-		db.addTestImages(new TestData(4, new File("src/test/resources/ballon.jpg")));
+		db.addTestImages(new LabeledImage(4, new File("src/test/resources/ballon.jpg")));
 
 		db.display();
 		db.toFile();
@@ -247,17 +247,17 @@ public class AlgorithmBenchmark {
 	private static void addDefaultTestImages(AlgorithmBenchmarker benchmarker) {
 
 		// Add the ballon image to the benchmarker with a group label of 0
-		benchmarker.addTestImages(new TestData(0, new File("src/test/resources/ballon.jpg")));
+		benchmarker.addTestImages(new LabeledImage(0, new File("src/test/resources/ballon.jpg")));
 
 		/*
 		 * The following images are distinct to ballon therefore we choose a different
 		 * group id. On the other hand they are all variations of the same image so they
 		 * are labeled with an id of 1.
 		 */
-		benchmarker.addTestImages(new TestData(1, new File("src/test/resources/copyright.jpg")));
-		benchmarker.addTestImages(new TestData(1, new File("src/test/resources/highQuality.jpg")));
-		benchmarker.addTestImages(new TestData(1, new File("src/test/resources/lowQuality.jpg")));
-		benchmarker.addTestImages(new TestData(1, new File("src/test/resources/thumbnail.jpg")));
+		benchmarker.addTestImages(new LabeledImage(1, new File("src/test/resources/copyright.jpg")));
+		benchmarker.addTestImages(new LabeledImage(1, new File("src/test/resources/highQuality.jpg")));
+		benchmarker.addTestImages(new LabeledImage(1, new File("src/test/resources/lowQuality.jpg")));
+		benchmarker.addTestImages(new LabeledImage(1, new File("src/test/resources/thumbnail.jpg")));
 	}
 
 	/**
@@ -265,10 +265,10 @@ public class AlgorithmBenchmark {
 	 * @param benchmarker
 	 */
 	private static void addHueSatTestImages(AlgorithmBenchmarker benchmarker) {
-		benchmarker.addTestImages(new TestData(1, new File("src/test/resources/highQualityBase.png")));
-		benchmarker.addTestImages(new TestData(1, new File("src/test/resources/highQualityBright.png")));
-		benchmarker.addTestImages(new TestData(1, new File("src/test/resources/highQualityDark.png")));
-		benchmarker.addTestImages(new TestData(1, new File("src/test/resources/highQualityHue.png")));
+		benchmarker.addTestImages(new LabeledImage(1, new File("src/test/resources/highQualityBase.png")));
+		benchmarker.addTestImages(new LabeledImage(1, new File("src/test/resources/highQualityBright.png")));
+		benchmarker.addTestImages(new LabeledImage(1, new File("src/test/resources/highQualityDark.png")));
+		benchmarker.addTestImages(new LabeledImage(1, new File("src/test/resources/highQualityHue.png")));
 	}
 
 	/**
@@ -278,10 +278,10 @@ public class AlgorithmBenchmark {
 	 * @param benchmarker to add the images to.
 	 */
 	private static void addRotationalTestImages(AlgorithmBenchmarker benchmarker) {
-		benchmarker.addTestImages(new TestData(3, new File("src/test/resources/Lenna.png")));
-		benchmarker.addTestImages(new TestData(3, new File("src/test/resources/Lenna90.png")));
-		benchmarker.addTestImages(new TestData(3, new File("src/test/resources/Lenna180.png")));
-		benchmarker.addTestImages(new TestData(3, new File("src/test/resources/Lenna270.png")));
+		benchmarker.addTestImages(new LabeledImage(3, new File("src/test/resources/Lenna.png")));
+		benchmarker.addTestImages(new LabeledImage(3, new File("src/test/resources/Lenna90.png")));
+		benchmarker.addTestImages(new LabeledImage(3, new File("src/test/resources/Lenna180.png")));
+		benchmarker.addTestImages(new LabeledImage(3, new File("src/test/resources/Lenna270.png")));
 	}
 
 }

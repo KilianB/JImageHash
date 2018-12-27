@@ -10,8 +10,6 @@ import javax.imageio.ImageIO;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher;
-import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * Convenience class to chain multiple hashing algorithms to check if two images

@@ -242,9 +242,9 @@ public class BinaryTree<T> {
 	 *
 	 */
 	class NodeInfo {
-		Node node;
-		int distance;
-		int depth;
+		protected Node node;
+		protected int distance;
+		protected int depth;
 		
 		/** Current path of the node. Used for debugging*/
 		String curPath;

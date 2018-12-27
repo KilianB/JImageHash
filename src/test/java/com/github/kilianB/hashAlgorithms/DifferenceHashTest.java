@@ -1,6 +1,9 @@
 package com.github.kilianB.hashAlgorithms;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -21,10 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.matcher.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 //TODO  move difference hash to the default test scenarios
 class DifferenceHashTest {
@@ -110,8 +111,8 @@ class DifferenceHashTest {
 	@DisplayName("Serialization")
 	class Serizalization{
 		
-		HashingAlgorithm originalAlgo;
-		HashingAlgorithm deserializedAlgo;
+		private HashingAlgorithm originalAlgo;
+		private HashingAlgorithm deserializedAlgo;
 		
 		@BeforeEach
 		void serializeAlgo() {

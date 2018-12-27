@@ -3,9 +3,6 @@ package com.github.kilianB.hashAlgorithms.filter;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
-
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.github.kilianB.ArrayUtil;
@@ -17,7 +14,6 @@ import com.github.kilianB.ArrayUtil;
 class MaximumKernelTest {
 
 	@Test
-	@Disabled
 	void identity() {
 		double[][] arr = new double[10][10];
 		ArrayUtil.fillArrayMulti(arr, (index) -> {
@@ -37,7 +33,6 @@ class MaximumKernelTest {
 		assertEquals(input[0].length, result[0].length);
 	}
 
-	@Disabled
 	@Test
 	void sameDimension2DSquared() {
 		double[][] input = { { 0, 1, 2 }, { 0, 1, 2 }, { 0, 1, 2 } };
@@ -47,7 +42,6 @@ class MaximumKernelTest {
 		assertEquals(input[0].length, result[0].length);
 	}
 
-	@Disabled
 	@Test
 	void sameDimension2D() {
 		double[][] input = { { 0, 1, 2 }, { 0, 1, 2 }};
@@ -59,7 +53,6 @@ class MaximumKernelTest {
 	}
 
 	@Test
-	@Disabled
 	void noMask1D() {
 		double[][] arr = { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 } };
 		double[][] res = { { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 13 } };
@@ -69,7 +62,6 @@ class MaximumKernelTest {
 	}
 
 	@Test
-	@Disabled
 	void mask1D() {
 		double[][] mask = { { 1, 3, 1 } };
 		double[][] arr = { { 0, 1, 4, 2, 3, 5 } };
