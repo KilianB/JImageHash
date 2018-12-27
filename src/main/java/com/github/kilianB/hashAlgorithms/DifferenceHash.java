@@ -1,12 +1,8 @@
 package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Objects;
-
-import javax.imageio.ImageIO;
 
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
@@ -214,36 +210,6 @@ public class DifferenceHash extends HashingAlgorithm {
 				colorIndex[i] = hashValue.testBit(i) ? 1 : 0;
 			}
 			return toImage(colorIndex, colorArr, blockSize);
-//			
-//			if (precision.equals(Precision.Simple)) {
-//
-//				BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height,
-//						BufferedImage.TYPE_3BYTE_BGR);
-//
-//				FastPixel fp = FastPixel.create(bi);
-//				drawDoublePrecision(fp,width,1,height,0,blockSize,0,0);
-//				return bi;
-//			} else if (precision.equals(Precision.Double)) {
-//
-//				BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height*2,
-//						BufferedImage.TYPE_3BYTE_BGR);
-//
-//				FastPixel fp = FastPixel.create(bi);
-//				drawDoublePrecision(fp,width,1,height,0,blockSize,0,0);
-//				drawDoublePrecision(fp,width,0,height,1,blockSize,hashLength/2,height);
-//				return bi;
-//			}else {
-//				
-//				BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height*3,
-//						BufferedImage.TYPE_3BYTE_BGR);
-//
-//				FastPixel fp = FastPixel.create(bi);
-//				int hashOffset = 0;
-//				hashOffset += drawDoublePrecision(fp,width,1,height,0,blockSize,hashOffset,0);
-//				hashOffset += drawDoublePrecision(fp,width,0,height,1,blockSize,hashOffset,height);
-//				drawDoublePrecision(fp,width,1,height,1,blockSize,hashOffset,2*height);
-//				return bi;
-//			}
 		}
 
 		public BufferedImage toImage(int[] bitColorIndex, Color[] colors, int blockSize) {
@@ -279,31 +245,6 @@ public class DifferenceHash extends HashingAlgorithm {
 				drawDoublePrecision(fp, width, 1, height, 1, blockSize, hashOffset, 2 * height, bitColorIndex, colors);
 				return bi;
 			}
-//
-//			BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height, BufferedImage.TYPE_3BYTE_BGR);
-//
-//			FastPixel fp = FastPixel.create(bi);
-//			
-//			int i = hashLength - 1;
-//			for (int w = 0; w < width * blockSize; w = w + blockSize) {
-//				for (int h = 0; h < height * blockSize; h = h + blockSize) {
-//					Color c = colors[bitColorIndex[i--]];
-//					int red = (int)(c.getRed() * 255);
-//					int green = (int)(c.getGreen() * 255);
-//					int blue = (int)(c.getBlue() * 255);
-//					
-//					for (int m = 0; m < blockSize; m++) {
-//						for (int n = 0; n < blockSize; n++) {
-//							int x = w + m;
-//							int y = h + n;
-//							fp.setRed(x,y,red);
-//							fp.setGreen(x,y,green);
-//							fp.setBlue(x,y,blue);
-//						}
-//					}
-//				}
-//			}
-//			return bi;
 		}
 
 		private int drawDoublePrecision(FastPixel writer, int width, int wOffset, int height, int hOffset,
@@ -311,8 +252,6 @@ public class DifferenceHash extends HashingAlgorithm {
 			int i = hashLength - 1 - offset;
 			for (int w = 0; w < (width - wOffset) * blockSize; w = w + blockSize) {
 				for (int h = 0; h < (height - hOffset) * blockSize; h = h + blockSize) {
-//					// boolean bit = hashValue.testBit(i++);
-//					int gray = hashValue.testBit(i--) ? 0 : 255;
 					Color c = colors[bitColorIndex[i--]];
 					int red = (int) (c.getRed() * 255);
 					int green = (int) (c.getGreen() * 255);
