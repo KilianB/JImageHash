@@ -19,15 +19,15 @@ import com.github.kilianB.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy;
 class KernelTest {
 
 	/** 3x3 Kernel */
-	static Kernel squareKernel;
+	private static Kernel squareKernel;
 	/** 1x3 Kernel */
-	static Kernel widthKernel;
+	private static Kernel widthKernel;
 	/** 3x1 kernel */
-	static Kernel heightKernel;
+	private static Kernel heightKernel;
 
-	static double[][] dummyInputDouble = new double[10][15];
-	static int[][] dummyInputInt = new int[10][15];
-	static byte[][] dummyInputByte = new byte[10][15];
+	private static double[][] dummyInputDouble = new double[10][15];
+	private static int[][] dummyInputInt = new int[10][15];
+	private static byte[][] dummyInputByte = new byte[10][15];
 
 	@BeforeAll
 	static void prepareDefaultKernels() {

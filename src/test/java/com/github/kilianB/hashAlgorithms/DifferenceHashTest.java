@@ -111,8 +111,8 @@ class DifferenceHashTest {
 	@DisplayName("Serialization")
 	class Serizalization{
 		
-		HashingAlgorithm originalAlgo;
-		HashingAlgorithm deserializedAlgo;
+		private HashingAlgorithm originalAlgo;
+		private HashingAlgorithm deserializedAlgo;
 		
 		@BeforeEach
 		void serializeAlgo() {

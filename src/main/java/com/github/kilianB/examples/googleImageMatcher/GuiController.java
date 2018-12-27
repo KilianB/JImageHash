@@ -77,7 +77,7 @@ public class GuiController {
 	private BinaryTree<Image> pBinTree = new BinaryTree<>(true);
 
 	// Choose one of the many hashing algorithms
-	HashingAlgorithm algo = new PerceptiveHash(32);
+	private HashingAlgorithm algo = new PerceptiveHash(32);
 
 	@FXML
 	private void initialize() {

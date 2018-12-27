@@ -11,13 +11,13 @@ import com.github.kilianB.matcher.Hash;
 
 class InnerNode extends TreeNode {
 
-	HashingAlgorithm hasher;
-	double threshold;
+	protected HashingAlgorithm hasher;
+	protected double threshold;
 
 	// Not really entropy in all cases
-	double quality;
-	double qualityLeft;
-	double qualityRight;
+	protected double quality;
+	protected double qualityLeft;
+	protected double qualityRight;
 
 	protected InnerNode() {
 	};
