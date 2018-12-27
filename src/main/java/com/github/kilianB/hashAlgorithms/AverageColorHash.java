@@ -69,7 +69,7 @@ public class AverageColorHash extends HashingAlgorithm {
 	protected BigInteger hash(BufferedImage image, BigInteger hash) {
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
-		int[][] luminocity = fp.getAverageGrayscale();
+		int[][] grayscale = fp.getAverageGrayscale();
 
 		// Calculate the average color of the entire image
 
@@ -77,14 +77,14 @@ public class AverageColorHash extends HashingAlgorithm {
 
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				avgPixelValue += ((double) luminocity[x][y] / pixelCount);
+				avgPixelValue += ((double) grayscale[x][y] / pixelCount);
 			}
 		}
 
 		// Create hash
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				if (luminocity[x][y] < avgPixelValue) {
+				if (grayscale[x][y] < avgPixelValue) {
 					hash = hash.shiftLeft(1);
 				} else {
 					hash = hash.shiftLeft(1).add(BigInteger.ONE);
