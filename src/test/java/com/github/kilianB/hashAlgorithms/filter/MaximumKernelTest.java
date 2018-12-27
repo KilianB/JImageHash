@@ -3,8 +3,6 @@ package com.github.kilianB.hashAlgorithms.filter;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

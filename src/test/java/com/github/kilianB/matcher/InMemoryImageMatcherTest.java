@@ -51,7 +51,7 @@ class InMemoryImageMatcherTest {
 	}
 
 	@Nested
-	class TestDefaultSettings{
+	class TestDefaultSettings {
 		@Test
 		@DisplayName("Default")
 		void defaultMatcher() {
@@ -67,7 +67,6 @@ class InMemoryImageMatcherTest {
 			// We only expect ballon to be returned
 			final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
 
-			
 			assertAll("Ballon", () -> {
 				assertEquals(1, results.size());
 			}, () -> {
@@ -75,14 +74,14 @@ class InMemoryImageMatcherTest {
 			});
 
 			final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
-			
+
 			assertAll("Matches", () -> {
 				assertEquals(4, results1.size());
 			}, () -> {
 				assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
 			});
 		}
-		
+
 		@Test
 		@DisplayName("Forgiving")
 		void forgiving() {
@@ -98,7 +97,6 @@ class InMemoryImageMatcherTest {
 			// We only expect ballon to be returned
 			final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
 
-			
 			assertAll("Ballon", () -> {
 				assertEquals(1, results.size());
 			}, () -> {
@@ -106,14 +104,14 @@ class InMemoryImageMatcherTest {
 			});
 
 			final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
-			
+
 			assertAll("Matches", () -> {
 				assertEquals(4, results1.size());
 			}, () -> {
 				assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
 			});
 		}
-		
+
 		@Test
 		@DisplayName("Fair")
 		void imageMatches() {
@@ -129,7 +127,6 @@ class InMemoryImageMatcherTest {
 			// We only expect ballon to be returned
 			final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
 
-			
 			assertAll("Ballon", () -> {
 				assertEquals(1, results.size());
 			}, () -> {
@@ -137,7 +134,7 @@ class InMemoryImageMatcherTest {
 			});
 
 			final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
-			
+
 			assertAll("Matches", () -> {
 				assertEquals(4, results1.size());
 			}, () -> {
@@ -167,7 +164,7 @@ class InMemoryImageMatcherTest {
 		assertEquals(1, matcher.getAlgorithms().size());
 
 		// Recreated original state of the matcher
-		matcher.addHashingAlgorithm(algos[1], setting.threshold, setting.normalized);
+		matcher.addHashingAlgorithm(algos[1], setting.getThreshold(), setting.isNormalized());
 		assertEquals(2, matcher.getAlgorithms().size());
 
 		// Check if it still performs the same matches
