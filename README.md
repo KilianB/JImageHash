@@ -440,7 +440,6 @@ The MedianHash compares the luminosity value against the median value. This guar
 The difference hash calculates the gradient in the image. As gradients are depended on the direction of the scanning it's a good idea to take additional dimensions into account.
 
 -  DoublePrecision will double the resulting hashSize but additionally accounts for top to bottom gradients
-
 -  TripplePrecision will triple the resulting hashSize but additionally accounts for diagonal gradients 
 
 While additional precision will increase the amount of information a 64 bit simple precision usually performs better than a 32 bit double precision hash.

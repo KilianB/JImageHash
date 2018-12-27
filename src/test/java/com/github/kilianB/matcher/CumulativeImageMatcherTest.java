@@ -32,177 +32,92 @@ import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
  */
 class CumulativeImageMatcherTest {
 
+	void addDefaultTestImages(CumulativeImageMatcher matcher) {
+		matcher.addImage(ballon);
+		matcher.addImage(copyright);
+		matcher.addImage(highQuality);
+		matcher.addImage(lowQuality);
+		matcher.addImage(thumbnail);
+	}
+
+	void assertImageMatches(CumulativeImageMatcher matcher) {
+		// We only expect ballon to be returned
+		final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
+
+		assertAll("Ballon", () -> {
+			assertEquals(1, results.size());
+		}, () -> {
+			assertEquals(ballon, results.peek().value);
+		});
+
+		final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
+
+		assertAll("Matches", () -> {
+			assertEquals(4, results1.size());
+		}, () -> {
+			assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
+		});
+	}
+
 	@Test
 	@DisplayName("Check Similarity")
 	void imageMatches() {
 
 		CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
-
-		matcher.addImage(ballon);
-		matcher.addImage(copyright);
-		matcher.addImage(highQuality);
-		matcher.addImage(lowQuality);
-		matcher.addImage(thumbnail);
-
-		// We only expect ballon to be returned
-		final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
-
-		
-		assertAll("Ballon", () -> {
-			assertEquals(1, results.size());
-		}, () -> {
-			assertEquals(ballon, results.peek().value);
-		});
-
-		final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
-		
-		assertAll("Matches", () -> {
-			assertEquals(4, results1.size());
-		}, () -> {
-			assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
-		});
+		addDefaultTestImages(matcher);
+		assertImageMatches(matcher);
 	}
-	
+
 	@Test
 	@DisplayName("Check Similarity Non Normalized")
 	void imageMatcheNonNormalizedVersion() {
 
-		CumulativeImageMatcher matcher = new CumulativeImageMatcher(20,false);
+		CumulativeImageMatcher matcher = new CumulativeImageMatcher(20, false);
 
 		matcher.addHashingAlgorithm(new AverageHash(64));
-		
-		matcher.addImage(ballon);
-		matcher.addImage(copyright);
-		matcher.addImage(highQuality);
-		matcher.addImage(lowQuality);
-		matcher.addImage(thumbnail);
 
-		// We only expect ballon to be returned
-		final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
-
-		
-		assertAll("Ballon", () -> {
-			assertEquals(1, results.size());
-		}, () -> {
-			assertEquals(ballon, results.peek().value);
-		});
-
-		final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
-		
-		assertAll("Matches", () -> {
-			assertEquals(4, results1.size());
-		}, () -> {
-			assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
-		});
+		addDefaultTestImages(matcher);
+		assertImageMatches(matcher);
 	}
-	
-	
+
 	@Nested
-	class TestDefaultSettings{
+	class TestDefaultSettings {
 		@Test
 		@DisplayName("Default")
 		void defaultMatcher() {
 
 			CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
 
-			matcher.addImage(ballon);
-			matcher.addImage(copyright);
-			matcher.addImage(highQuality);
-			matcher.addImage(lowQuality);
-			matcher.addImage(thumbnail);
-
-			// We only expect ballon to be returned
-			final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
-
-			
-			assertAll("Ballon", () -> {
-				assertEquals(1, results.size());
-			}, () -> {
-				assertEquals(ballon, results.peek().value);
-			});
-
-			final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
-			
-			assertAll("Matches", () -> {
-				assertEquals(4, results1.size());
-			}, () -> {
-				assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
-			});
+			addDefaultTestImages(matcher);
+			assertImageMatches(matcher);
 		}
-		
+
 		@Test
 		@DisplayName("Forgiving")
 		void forgiving() {
 
 			CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher(Setting.Forgiving);
 
-			matcher.addImage(ballon);
-			matcher.addImage(copyright);
-			matcher.addImage(highQuality);
-			matcher.addImage(lowQuality);
-			matcher.addImage(thumbnail);
-
-			// We only expect ballon to be returned
-			final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
-
-			
-			assertAll("Ballon", () -> {
-				assertEquals(1, results.size());
-			}, () -> {
-				assertEquals(ballon, results.peek().value);
-			});
-
-			final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
-			
-			assertAll("Matches", () -> {
-				assertEquals(4, results1.size());
-			}, () -> {
-				assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
-			});
+			addDefaultTestImages(matcher);
+			assertImageMatches(matcher);
 		}
-		
+
 		@Test
 		@DisplayName("Fair")
 		void imageMatches() {
 
 			CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher(Setting.Fair);
 
-			matcher.addImage(ballon);
-			matcher.addImage(copyright);
-			matcher.addImage(highQuality);
-			matcher.addImage(lowQuality);
-			matcher.addImage(thumbnail);
-
-			// We only expect ballon to be returned
-			final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
-
-			
-			assertAll("Ballon", () -> {
-				assertEquals(1, results.size());
-			}, () -> {
-				assertEquals(ballon, results.peek().value);
-			});
-
-			final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
-
-			assertAll("Matches", () -> {
-				assertEquals(4, results1.size());
-			}, () -> {
-				assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
-			});
+			addDefaultTestImages(matcher);
+			assertImageMatches(matcher);
 		}
 	}
-	
 
 	@Test
 	void alterAlgorithmAfterImageHasAlreadyBeenAdded() {
-		InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
+		CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
 
-		matcher.addImage(ballon);
-		matcher.addImage(copyright);
-		matcher.addImage(highQuality);
-		matcher.addImage(lowQuality);
-		matcher.addImage(thumbnail);
+		addDefaultTestImages(matcher);
 
 		// It's a linked hashmap get the last algo
 		Map<HashingAlgorithm, AlgoSettings> algorithm = matcher.getAlgorithms();
@@ -218,23 +133,7 @@ class CumulativeImageMatcherTest {
 		matcher.addHashingAlgorithm(algos[1], setting.getThreshold(), setting.isNormalized());
 		assertEquals(2, matcher.getAlgorithms().size());
 
-		// Check if it still performs the same matches
-		// We only expect ballon to be returned
-		final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
-
-		assertAll("Ballon", () -> {
-			assertEquals(1, results.size());
-		}, () -> {
-			assertEquals(ballon, results.peek().value);
-		});
-
-		final PriorityQueue<Result<BufferedImage>> results1 = matcher.getMatchingImages(highQuality);
-
-		assertAll("Matches", () -> {
-			assertEquals(4, results1.size());
-		}, () -> {
-			assertFalse(results1.stream().anyMatch(result -> result.value.equals(ballon)));
-		});
+		assertImageMatches(matcher);
 
 	}
 
