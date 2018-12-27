@@ -68,7 +68,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * After a hash was created or the id was calculated the object may not be
 	 * altered anymore.
 	 */
-	private boolean immutableState = false;
+	protected boolean immutableState = false;
 
 	private static final String LOCKED_MODIFICATION_EXCEPTION = "Hashing algorithms may only be "
 			+ "modified as long as no hash has been generated or hashcode has been used by this object. This limitation is "
@@ -115,7 +115,6 @@ public abstract class HashingAlgorithm implements Serializable {
 				} else {
 					bi = kernel.filter(bi);
 				}
-
 			}
 		}
 		immutableState = true;
@@ -282,6 +281,25 @@ public abstract class HashingAlgorithm implements Serializable {
 			throw new IllegalStateException(LOCKED_MODIFICATION_EXCEPTION);
 		}
 		return this.preProcessing.remove(filter);
+	}
+
+	/**
+	 * Wraps the values supplied in the argument hash into a hash object as it would
+	 * be produced by this algorithm.
+	 * <p>
+	 * Some algorithms may choose to return an extended hash class to overwrite
+	 * certain behavior, in particular the
+	 * {@link com.github.kilianB.matcher.Hash#toImage(int)} is likely to differ.
+	 * 
+	 * <p> If the algorithm does not utilize a special hash sub class this
+	 * method simply returns the supplied argument.
+	 * 
+	 * @param original
+	 * @return
+	 * @since 3.0.0
+	 */
+	public Hash createAlgorithmSpecificHash(Hash original) {
+		return original;
 	}
 
 	@Override

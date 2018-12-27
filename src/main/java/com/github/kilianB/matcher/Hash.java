@@ -7,6 +7,8 @@ import com.github.kilianB.Require;
 import com.github.kilianB.StringUtil;
 import com.github.kilianB.graphics.FastPixel;
 
+import javafx.scene.paint.Color;
+
 /**
  * A wrapper class combining image hashes and their producing algorithm allowing
  * for meaningful analysis.
@@ -28,7 +30,7 @@ public class Hash {
 	/**
 	 * Unique identifier of the algorithm and settings used to create the hash
 	 */
-	private int algorithmId;
+	protected int algorithmId;
 
 	/**
 	 * Hash value representation
@@ -39,11 +41,14 @@ public class Hash {
 	 * bit at the beginning new BigInteger("011011) new BigInteger("000101) 1xxxxx
 	 * 
 	 */
-	private BigInteger hashValue;
+	protected BigInteger hashValue;
 	// maybe move to bitsets//Mutable inetegers? not efficient for small keys?
 
-	/** How many bits this hash has. 0 bits at the beginning are dropped */
-	private int hashLength;
+	/**
+	 * How many bits does this hash represent. Necessary due to suffix 0 bits beginning
+	 * dropped.
+	 */
+	protected int hashLength;
 
 	/**
 	 * Creates a Hash object with the specified hashValue and algorithmId. To allow
@@ -254,24 +259,41 @@ public class Hash {
 	 *                  during hash creation.
 	 * @return A black and white image representing the individual bits of the hash
 	 */
-	public BufferedImage toImage(int blockSize) {
+	public BufferedImage toImage(int blockSize) {	
+		Color[] colorArr = new Color[] {Color.WHITE,Color.BLACK};
+		int[] colorIndex = new int[hashLength];
+		
+		for(int i = 0; i < hashLength; i++) {
+			colorIndex[i] = hashValue.testBit(i) ? 1 : 0;
+		}
+		return toImage(colorIndex,colorArr,blockSize);
+	}
+	
+	public BufferedImage toImage(int[] bitColorIndex, Color[] colors, int blockSize) {
 		int width = (int) Math.sqrt(hashLength);
 		int height = width;
-
+		
 		BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height, BufferedImage.TYPE_3BYTE_BGR);
 
-		FastPixel fp = FastPixel.create(bi);	
+		FastPixel fp = FastPixel.create(bi);
+		
 		int i = hashLength - 1;
 		for (int w = 0; w < width * blockSize; w = w + blockSize) {
 			for (int h = 0; h < height * blockSize; h = h + blockSize) {
-				//boolean bit = hashValue.testBit(i++);
-				int gray = hashValue.testBit(i--) ? 0 : 255;
+				Color c = colors[bitColorIndex[i--]];
+				int red = (int)(c.getRed() * 255);
+				int green = (int)(c.getGreen() * 255);
+				int blue = (int)(c.getBlue() * 255);
+				
 				for (int m = 0; m < blockSize; m++) {
 					for (int n = 0; n < blockSize; n++) {
 						int x = w + m;
 						int y = h + n;
-						//bi.setRGB(y, x, bit ? black : white);
-						fp.setAverageGrayscale(x,y,gray);
+						// bi.setRGB(y, x, bit ? black : white);
+						//fp.setAverageGrayscale(x, y, gray);
+						fp.setRed(x,y,red);
+						fp.setGreen(x,y,green);
+						fp.setBlue(x,y,blue);
 					}
 				}
 			}
@@ -314,8 +336,8 @@ public class Hash {
 	}
 
 	public String toString() {
-		return "Hash: " + StringUtil.fillStringBeginning("0", hashLength, hashValue.toString(2)) + " [algoId: " + algorithmId
-				+ "]";
+		return "Hash: " + StringUtil.fillStringBeginning("0", hashLength, hashValue.toString(2)) + " [algoId: "
+				+ algorithmId + "]";
 	}
 
 	@Override

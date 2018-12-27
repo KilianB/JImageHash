@@ -1,11 +1,19 @@
 package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Objects;
 
+import javax.imageio.ImageIO;
+
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
+import com.github.kilianB.hashAlgorithms.filter.Filter;
+import com.github.kilianB.matcher.Hash;
+
+import javafx.scene.paint.Color;
 
 /**
  * Calculates a hash based on gradient tracking. This hash is cheap to compute
@@ -17,13 +25,22 @@ import com.github.kilianB.graphics.ImageUtil;
  */
 public class DifferenceHash extends HashingAlgorithm {
 
+	public static void main(String[] args) throws IOException {
+		HashingAlgorithm dHash = new DifferenceHash(20000, Precision.Triple);
+
+		Hash originalHash = dHash.hash(new File("src/test/resources/ballon.jpg"));
+
+		ImageIO.write(originalHash.toImage(20), "png", new File("DHashPng.png"));
+	}
+
 	private static final long serialVersionUID = 7236596241664072005L;
 
 	/**
 	 * Algorithm precision used during calculation.
 	 * 
-	 * <p><b>implnote:</b> Be aware that changing the enum names will alter the algorithm id
-	 *           rendering generated keys unusable
+	 * <p>
+	 * <b>implnote:</b> Be aware that changing the enum names will alter the
+	 * algorithm id rendering generated keys unusable
 	 * 
 	 * @author Kilian
 	 *
@@ -50,12 +67,12 @@ public class DifferenceHash extends HashingAlgorithm {
 	/**
 	 * 
 	 * Create a difference hasher with the given settings. The bit resolution always
-	 * corresponds to the simple precision value and will increase accordingly depending
-	 * on the precision chosen.
+	 * corresponds to the simple precision value and will increase accordingly
+	 * depending on the precision chosen.
 	 * 
 	 * <p>
-	 * Tests have shown that a 64 bit simple precision hash usually performs better than a 
-	 * 32 bit double precision hash.
+	 * Tests have shown that a 64 bit simple precision hash usually performs better
+	 * than a 32 bit double precision hash.
 	 * 
 	 * @param bitResolution The bit resolution specifies the final length of the
 	 *                      generated hash. A higher resolution will increase
@@ -117,6 +134,7 @@ public class DifferenceHash extends HashingAlgorithm {
 				}
 			}
 		}
+
 		// Diagonally hash
 		if (precision.equals(Precision.Triple)) {
 			for (int x = 1; x < width; x++) {
@@ -165,4 +183,166 @@ public class DifferenceHash extends HashingAlgorithm {
 		return Objects.hash(getClass().getName(), height, width, this.precision.name()) * 31 + 1;
 	}
 
+	/*
+	 * Difference hash requires a little bit different handling when converting the
+	 * hash to an image.
+	 */
+	@Override
+	public Hash hash(BufferedImage image) {
+		return new DHash(super.hash(image), this.precision, width, height);
+	}
+
+	@Override
+	public Hash createAlgorithmSpecificHash(Hash original) {
+		return new DHash(original, this.precision, width, height);
+	}
+
+	public static class DHash extends Hash {
+
+		Precision precision;
+		int width;
+		int height;
+
+		public DHash(Hash h, Precision precision, int width, int height) {
+			super(h.getHashValue(), h.getBitResolution(), h.getAlgorithmId());
+			this.precision = precision;
+			this.width = width;
+			this.height = height;
+		}
+
+		public BufferedImage toImage(int blockSize) {
+
+			Color[] colorArr = new Color[] { Color.WHITE, Color.BLACK };
+			int[] colorIndex = new int[hashLength];
+
+			for (int i = 0; i < hashLength; i++) {
+				colorIndex[i] = hashValue.testBit(i) ? 1 : 0;
+			}
+			return toImage(colorIndex, colorArr, blockSize);
+//			
+//			if (precision.equals(Precision.Simple)) {
+//
+//				BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height,
+//						BufferedImage.TYPE_3BYTE_BGR);
+//
+//				FastPixel fp = FastPixel.create(bi);
+//				drawDoublePrecision(fp,width,1,height,0,blockSize,0,0);
+//				return bi;
+//			} else if (precision.equals(Precision.Double)) {
+//
+//				BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height*2,
+//						BufferedImage.TYPE_3BYTE_BGR);
+//
+//				FastPixel fp = FastPixel.create(bi);
+//				drawDoublePrecision(fp,width,1,height,0,blockSize,0,0);
+//				drawDoublePrecision(fp,width,0,height,1,blockSize,hashLength/2,height);
+//				return bi;
+//			}else {
+//				
+//				BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height*3,
+//						BufferedImage.TYPE_3BYTE_BGR);
+//
+//				FastPixel fp = FastPixel.create(bi);
+//				int hashOffset = 0;
+//				hashOffset += drawDoublePrecision(fp,width,1,height,0,blockSize,hashOffset,0);
+//				hashOffset += drawDoublePrecision(fp,width,0,height,1,blockSize,hashOffset,height);
+//				drawDoublePrecision(fp,width,1,height,1,blockSize,hashOffset,2*height);
+//				return bi;
+//			}
+		}
+
+		public BufferedImage toImage(int[] bitColorIndex, Color[] colors, int blockSize) {
+
+			if (precision.equals(Precision.Simple)) {
+
+				BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height,
+						BufferedImage.TYPE_3BYTE_BGR);
+
+				FastPixel fp = FastPixel.create(bi);
+				drawDoublePrecision(fp, width, 1, height, 0, blockSize, 0, 0, bitColorIndex, colors);
+				return bi;
+			} else if (precision.equals(Precision.Double)) {
+
+				BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height * 2,
+						BufferedImage.TYPE_3BYTE_BGR);
+
+				FastPixel fp = FastPixel.create(bi);
+				drawDoublePrecision(fp, width, 1, height, 0, blockSize, 0, 0, bitColorIndex, colors);
+				drawDoublePrecision(fp, width, 0, height, 1, blockSize, hashLength / 2, height, bitColorIndex, colors);
+				return bi;
+			} else {
+
+				BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height * 3,
+						BufferedImage.TYPE_3BYTE_BGR);
+
+				FastPixel fp = FastPixel.create(bi);
+				int hashOffset = 0;
+				hashOffset += drawDoublePrecision(fp, width, 1, height, 0, blockSize, hashOffset, 0, bitColorIndex,
+						colors);
+				hashOffset += drawDoublePrecision(fp, width, 0, height, 1, blockSize, hashOffset, height, bitColorIndex,
+						colors);
+				drawDoublePrecision(fp, width, 1, height, 1, blockSize, hashOffset, 2 * height, bitColorIndex, colors);
+				return bi;
+			}
+//
+//			BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height, BufferedImage.TYPE_3BYTE_BGR);
+//
+//			FastPixel fp = FastPixel.create(bi);
+//			
+//			int i = hashLength - 1;
+//			for (int w = 0; w < width * blockSize; w = w + blockSize) {
+//				for (int h = 0; h < height * blockSize; h = h + blockSize) {
+//					Color c = colors[bitColorIndex[i--]];
+//					int red = (int)(c.getRed() * 255);
+//					int green = (int)(c.getGreen() * 255);
+//					int blue = (int)(c.getBlue() * 255);
+//					
+//					for (int m = 0; m < blockSize; m++) {
+//						for (int n = 0; n < blockSize; n++) {
+//							int x = w + m;
+//							int y = h + n;
+//							fp.setRed(x,y,red);
+//							fp.setGreen(x,y,green);
+//							fp.setBlue(x,y,blue);
+//						}
+//					}
+//				}
+//			}
+//			return bi;
+		}
+
+		private int drawDoublePrecision(FastPixel writer, int width, int wOffset, int height, int hOffset,
+				int blockSize, int offset, int yOffset, int[] bitColorIndex, Color[] colors) {
+			int i = hashLength - 1 - offset;
+			for (int w = 0; w < (width - wOffset) * blockSize; w = w + blockSize) {
+				for (int h = 0; h < (height - hOffset) * blockSize; h = h + blockSize) {
+//					// boolean bit = hashValue.testBit(i++);
+//					int gray = hashValue.testBit(i--) ? 0 : 255;
+					Color c = colors[bitColorIndex[i--]];
+					int red = (int) (c.getRed() * 255);
+					int green = (int) (c.getGreen() * 255);
+					int blue = (int) (c.getBlue() * 255);
+
+					for (int m = 0; m < blockSize; m++) {
+						for (int n = 0; n < blockSize; n++) {
+							int x = w + m;
+							int y = h + n + yOffset * blockSize;
+							// bi.setRGB(y, x, bit ? black : white);
+							writer.setRed(x, y, red);
+							writer.setGreen(x, y, green);
+							writer.setBlue(x, y, blue);
+						}
+					}
+				}
+			}
+			return ((hashLength - 1 - offset) - i);
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	public Precision getPrecision() {
+		return precision;
+	}
 }
