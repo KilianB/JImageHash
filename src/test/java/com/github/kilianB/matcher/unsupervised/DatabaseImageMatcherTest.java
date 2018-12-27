@@ -36,7 +36,6 @@ import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher;
 import com.github.kilianB.matcher.ImageMatcher.Setting;
-import com.github.kilianB.matcher.unsupervised.DatabaseImageMatcher;
 
 /**
  * @author Kilian

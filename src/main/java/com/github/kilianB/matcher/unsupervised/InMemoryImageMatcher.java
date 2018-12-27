@@ -14,8 +14,6 @@ import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher;
-import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
 
 /**
  * Convenience class allowing to chain multiple hashing algorithms to find

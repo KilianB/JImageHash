@@ -22,8 +22,8 @@ import com.github.kilianB.graphics.ColorUtil;
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
+import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher;
 

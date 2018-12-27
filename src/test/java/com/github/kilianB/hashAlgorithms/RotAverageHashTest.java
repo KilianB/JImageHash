@@ -1,7 +1,7 @@
 package com.github.kilianB.hashAlgorithms;
 
-import static com.github.kilianB.TestResources.lenna;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

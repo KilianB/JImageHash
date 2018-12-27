@@ -1,6 +1,7 @@
 package com.github.kilianB.dataStrorage.tree;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigInteger;
 import java.util.PriorityQueue;

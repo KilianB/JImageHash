@@ -10,7 +10,6 @@ import javax.imageio.ImageIO;
 
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.hashAlgorithms.filter.Filter;
 import com.github.kilianB.matcher.Hash;
 
 import javafx.scene.paint.Color;
