@@ -119,9 +119,9 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
-			<!-- 		<excludes>
+					<excludes>
 						<exclude>**/kilianB/examples/**</exclude>
-					</excludes> -->
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
