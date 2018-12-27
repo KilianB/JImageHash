@@ -97,7 +97,9 @@ public abstract class ImageMatcher {
 	/**
 	 * Append a new hashing algorithm which will be executed after all hash
 	 * algorithms passed the test.
-	 * 
+	 * <p>
+	 * The same algorithm may only be added once to an image hasher. Attempts to add
+	 * an identical algorithm will instead update the settings of the old instance.
 	 * <p>
 	 * This method assumes the normalized hamming distance. If the definite distance
 	 * shall be used take a look at
@@ -114,6 +116,10 @@ public abstract class ImageMatcher {
 	/**
 	 * Append a new hashing algorithm which will be executed after all hash
 	 * algorithms passed the test.
+	 * 
+	 * <p>
+	 * The same algorithm may only be added once to an image hasher. Attempts to add
+	 * an identical algorithm will instead update the settings of the old instance.
 	 * 
 	 * @param algo       The algorithms to be added
 	 * @param threshold  the threshold the hamming distance may be in order to pass
@@ -132,6 +138,7 @@ public abstract class ImageMatcher {
 			throw new IllegalArgumentException(
 					"Fatal error adding algorithm. Normalized threshold has to be in the range of [0-1]");
 		}
+
 		steps.put(algo, new AlgoSettings(threshold, normalized));
 	}
 
