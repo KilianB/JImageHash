@@ -29,7 +29,7 @@ class SingleImageMatcherTest {
 	@Nested
 	class CheckDefaultMatcher {
 
-		void assertMatches(SingleImageMatcher matcher) {
+		private void assertMatches(SingleImageMatcher matcher) {
 			// Identical
 			assertAll("Identical images", () -> {
 				assertTrue(matcher.checkSimilarity(ballon, ballon));

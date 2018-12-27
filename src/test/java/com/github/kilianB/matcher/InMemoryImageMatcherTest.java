@@ -49,7 +49,7 @@ class InMemoryImageMatcherTest {
 	@Nested
 	class TestDefaultSettings {
 
-		InMemoryImageMatcher createMatcherAndAddDefaultTestImages(Setting algorithmSettings) {
+		private InMemoryImageMatcher createMatcherAndAddDefaultTestImages(Setting algorithmSettings) {
 
 			InMemoryImageMatcher matcher;
 			if (algorithmSettings == null) {
