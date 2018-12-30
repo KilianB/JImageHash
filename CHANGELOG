@@ -12,8 +12,9 @@
 
 ### Changed
  - Move from float to double precision for algorithm settings.
- - moved TestData class to invidiual class to allow usage in other parts of the program.
+ - moved TestData class to individual class to allow usage in other parts of the program.
  - renamed TestData to LabeledImage
+ - make h2 dependency optional. (extract h2 into a seperate class)
 
 
 ## [2.1.1] 25.12.2018

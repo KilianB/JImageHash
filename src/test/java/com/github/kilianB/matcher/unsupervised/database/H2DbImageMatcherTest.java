@@ -1,16 +1,11 @@
-package com.github.kilianB.matcher.unsupervised;
+package com.github.kilianB.matcher.unsupervised.database;
 
 import static com.github.kilianB.TestResources.ballon;
 import static com.github.kilianB.TestResources.copyright;
 import static com.github.kilianB.TestResources.highQuality;
 import static com.github.kilianB.TestResources.lowQuality;
 import static com.github.kilianB.TestResources.thumbnail;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,19 +36,15 @@ import com.github.kilianB.matcher.ImageMatcher.Setting;
  * @author Kilian
  *
  */
-/*
- * TODO Starting with JUnit 5.4.0 Snapshot @TestMethodOrder reordering methods
- * may allow us to construct more test more meaningful scenarios.
- */
-class DatabaseImageMatcherTest {
+class H2DbImageMatcherTest {
 
 	@Test
 	void deleteDatabase() throws ClassNotFoundException, SQLException {
-		DatabaseImageMatcher matcher;
+		H2DbImageMatcher matcher;
 
 		String dbName = "testDelete";
 		// Getsd closed by deleteDatabse
-		matcher = new DatabaseImageMatcher(dbName, "rootTest", "");
+		matcher = new H2DbImageMatcher(dbName, "rootTest", "");
 		File dbFile = new File(System.getProperty("user.home") + "/" + dbName + ".mv.db");
 		assertTrue(dbFile.exists());
 		matcher.deleteDatabase();
@@ -68,7 +59,7 @@ class DatabaseImageMatcherTest {
 		String password = "";
 		String dbName = "testSerializeNotPresent";
 		try {
-			ImageMatcher deserialized = DatabaseImageMatcher.getFromDatabase(dbName, user, password, 0);
+			ImageMatcher deserialized = H2DbImageMatcher.getFromDatabase(dbName, user, password, 0);
 			assertNull(deserialized);
 		} finally {
 			DeleteDbFiles.execute("~", dbName, true);
@@ -83,9 +74,9 @@ class DatabaseImageMatcherTest {
 		String password = "";
 		String dbName = "testEmpty";
 
-		DatabaseImageMatcher matcher = null;
+		H2DbImageMatcher matcher = null;
 		try {
-			matcher = new DatabaseImageMatcher(dbName, user, password);
+			matcher = new H2DbImageMatcher(dbName, user, password);
 			DatabaseImageMatcher effectiveFinal = matcher;
 			BufferedImage dummyImage = new BufferedImage(1, 1, 0x1);
 			assertThrows(IllegalStateException.class, () -> {
@@ -106,9 +97,9 @@ class DatabaseImageMatcherTest {
 		String password = "";
 		String dbName = "addAndClear";
 
-		DatabaseImageMatcher matcher = null;
+		H2DbImageMatcher matcher = null;
 		try {
-			matcher = new DatabaseImageMatcher(dbName, user, password);
+			matcher = new H2DbImageMatcher(dbName, user, password);
 			assertEquals(0, matcher.getAlgorithms().size());
 			matcher.addHashingAlgorithm(new AverageHash(14), 0.5f, true);
 			assertEquals(1, matcher.getAlgorithms().size());
@@ -125,22 +116,22 @@ class DatabaseImageMatcherTest {
 
 	@Test
 	void serializeAndDeSeriazlize() {
-		DatabaseImageMatcher matcher = null;
+		H2DbImageMatcher matcher = null;
 		try {
 			String user = "rootTest";
 			String password = "";
 			String dbName = "testSerialize";
 			// Getsd closed by deleteDatabse
-			matcher = new DatabaseImageMatcher(dbName, user, password);
+			matcher = new H2DbImageMatcher(dbName, user, password);
 			HashingAlgorithm h = new AverageHash(32);
 			matcher.addHashingAlgorithm(h, 0.3f);
 			matcher.serializeToDatabase(0);
 
-			DatabaseImageMatcher deserialized = DatabaseImageMatcher.getFromDatabase(dbName, user, password, 0);
+			DatabaseImageMatcher deserialized = H2DbImageMatcher.getFromDatabase(dbName, user, password, 0);
 			// Close before assertion to ensure it's called
 			deserialized.close();
 			assertEquals(matcher, deserialized);
-		} catch (SQLException | ClassNotFoundException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
 			try {
@@ -159,9 +150,9 @@ class DatabaseImageMatcherTest {
 			Class.forName("org.h2.Driver");
 			Connection conn = DriverManager.getConnection("jdbc:h2:~/imageHashTest", "sa", "");
 
-			DatabaseImageMatcher matcher = null;
+			H2DbImageMatcher matcher = null;
 			try {
-				matcher = DatabaseImageMatcher.createDefaultMatcher(conn);
+				matcher = H2DbImageMatcher.createDefaultMatcher(conn);
 				matcher.addImage("Ballon", ballon);
 				matcher.addImage("CopyRight", copyright);
 				matcher.addImage("HighQuality", highQuality);
@@ -195,9 +186,9 @@ class DatabaseImageMatcherTest {
 			Class.forName("org.h2.Driver");
 			Connection conn = DriverManager.getConnection("jdbc:h2:~/imageHashTest", "sa", "");
 
-			DatabaseImageMatcher matcher = null;
+			H2DbImageMatcher matcher = null;
 			try {
-				matcher = DatabaseImageMatcher.createDefaultMatcher(Setting.Fair, conn);
+				matcher = H2DbImageMatcher.createDefaultMatcher(Setting.Fair, conn);
 				matcher.addImage("Ballon", ballon);
 				matcher.addImage("CopyRight", copyright);
 				matcher.addImage("HighQuality", highQuality);
@@ -227,12 +218,12 @@ class DatabaseImageMatcherTest {
 		@Test
 		@DisplayName("Check Similarity Forgiving Setting")
 		void imageMatchesForgiving() throws SQLException, ClassNotFoundException {
-			DatabaseImageMatcher matcher = null;
+			H2DbImageMatcher matcher = null;
 			try {
 				Class.forName("org.h2.Driver");
 				Connection conn = DriverManager.getConnection("jdbc:h2:~/imageHashTest", "sa", "");
 
-				matcher = DatabaseImageMatcher.createDefaultMatcher(Setting.Forgiving, conn);
+				matcher = H2DbImageMatcher.createDefaultMatcher(Setting.Forgiving, conn);
 				matcher.addImage("Ballon", ballon);
 				matcher.addImage("CopyRight", copyright);
 				matcher.addImage("HighQuality", highQuality);
@@ -268,10 +259,10 @@ class DatabaseImageMatcherTest {
 		AverageHash aHash = new AverageHash(32);
 		Hash h = aHash.hash(ballon);
 
-		DatabaseImageMatcher dbMatcher = null;
+		H2DbImageMatcher dbMatcher = null;
 
 		try {
-			dbMatcher = new DatabaseImageMatcher("TestReconstruct", "sa", "") {
+			dbMatcher = new H2DbImageMatcher("TestReconstruct", "sa", "") {
 				public byte[] getBytesFromTable() {
 					try (Statement s = conn.createStatement()) {
 						ResultSet rs = s.executeQuery("SELECT hash FROM " + resolveTableName(aHash));
@@ -299,9 +290,9 @@ class DatabaseImageMatcherTest {
 
 	@Test
 	void getAllMatchingImages() throws SQLException, ClassNotFoundException {
-		DatabaseImageMatcher dbMatcher = null;
+		H2DbImageMatcher dbMatcher = null;
 		try {
-			dbMatcher = DatabaseImageMatcher.createDefaultMatcher("TestAllMatching", "sa", "");
+			dbMatcher = H2DbImageMatcher.createDefaultMatcher("TestAllMatching", "sa", "");
 			dbMatcher.addImage("ballon", ballon);
 			dbMatcher.addImage("highQuality", highQuality);
 			dbMatcher.addImage("lowQuality", lowQuality);
@@ -364,9 +355,9 @@ class DatabaseImageMatcherTest {
 		@Test
 		void doesEntryExistEmpty() throws ClassNotFoundException, SQLException {
 
-			DatabaseImageMatcher dbMatcher = null;
+			H2DbImageMatcher dbMatcher = null;
 			try {
-				dbMatcher = new DatabaseImageMatcher("testEntryExist", "sa", "");
+				dbMatcher = new H2DbImageMatcher("testEntryExist", "sa", "");
 				HashingAlgorithm h0 = new PerceptiveHash(64);
 				dbMatcher.addHashingAlgorithm(h0, 0.5f);
 				assertFalse(dbMatcher.doesEntryExist("ballon", h0));
@@ -382,9 +373,9 @@ class DatabaseImageMatcherTest {
 		@Test
 		void doesEntryExistTrue() throws ClassNotFoundException, SQLException {
 
-			DatabaseImageMatcher dbMatcher = null;
+			H2DbImageMatcher dbMatcher = null;
 			try {
-				dbMatcher = new DatabaseImageMatcher("testEntryExist0", "sa", "");
+				dbMatcher = new H2DbImageMatcher("testEntryExist0", "sa", "");
 				HashingAlgorithm h0 = new PerceptiveHash(64);
 				dbMatcher.addHashingAlgorithm(h0, 0.5f);
 				dbMatcher.addImage("ballon", ballon);
@@ -401,9 +392,9 @@ class DatabaseImageMatcherTest {
 		@Test
 		void doesEntryExistAddAlgoLater() throws SQLException, ClassNotFoundException {
 
-			DatabaseImageMatcher dbMatcher = null;
+			H2DbImageMatcher dbMatcher = null;
 			try {
-				dbMatcher = new DatabaseImageMatcher("testEntryExist0", "sa", "");
+				dbMatcher = new H2DbImageMatcher("testEntryExist0", "sa", "");
 				HashingAlgorithm h0 = new PerceptiveHash(64);
 				dbMatcher.addHashingAlgorithm(h0, 0.5f);
 				dbMatcher.addImage("ballon", ballon);

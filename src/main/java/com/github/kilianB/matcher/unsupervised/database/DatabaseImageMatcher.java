@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.unsupervised;
+package com.github.kilianB.matcher.unsupervised.database;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,7 +11,6 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,12 +27,11 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
-import org.h2.tools.DeleteDbFiles;
-
 import com.github.kilianB.dataStrorage.tree.Result;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher;
+import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
 
 /**
  * A naive database based image matcher implementation. Images indexed by this
@@ -47,10 +45,11 @@ import com.github.kilianB.matcher.ImageMatcher;
  * tree quickly.
  * 
  * <p>
- * Opposed to the {@link InMemoryImageMatcher} this matcher stores a reference
- * to the image data itself but just keeps track of the hash and the url of the
- * image file. Additionally if the hashing algorithms are added after images
- * have been hashed the images will not be found without reindexing.
+ * Opposed to the {@link InMemoryImageMatcher} this matcher does not stores a
+ * reference to the image data itself but just keeps track of the hash and the
+ * url of the image file. Additionally if hashing algorithms are added after
+ * images have been hashed the images will not be found without reindexing the
+ * image in question..
  * 
  * <p>
  * Multiple database image matchers may use the same database in which case
@@ -99,6 +98,8 @@ import com.github.kilianB.matcher.ImageMatcher;
  * level and only retrieve the later hashes from the database.
  * 
  * @author Kilian
+ * @since 2.0.2 added
+ * @since 3.0.0 extract h2 database image matcher into it's own class
  *
  */
 public class DatabaseImageMatcher extends ImageMatcher implements Serializable, AutoCloseable {
@@ -109,35 +110,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 
 	/** Database connection. Maybe use connection pooling? */
 	protected transient Connection conn;
-
-	/**
-	 * Attempts to establish a connection to the given database URL using the h2
-	 * database driver. If the database does not yet exist an empty db will be
-	 * initialized.
-	 * 
-	 * @param subname  the database file name. By default the file looks at the base
-	 *                 directory of the user.
-	 *                 <p>
-	 *                 <code>"jdbc:h2:~/" + subname</code>
-	 * 
-	 * @param user     the database user on whose behalf the connection is being
-	 *                 made
-	 * @param password the user's password. May be empty
-	 * @exception SQLException if a database access error occurs or the url is
-	 *                         {@code null}
-	 * @throws SQLTimeoutException    when the driver has determined that the
-	 *                                timeout value specified by the
-	 *                                {@code setLoginTimeout} method has been
-	 *                                exceeded and has at least tried to cancel the
-	 *                                current database connection attempt
-	 * @throws ClassNotFoundException if the h2 driver can not be located
-	 */
-	public DatabaseImageMatcher(String subname, String user, String password)
-			throws SQLException, ClassNotFoundException {
-		Class.forName("org.h2.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:h2:~/" + subname, user, password);
-		initialize(conn);
-	}
 
 	/**
 	 * Attempts to establish a connection to the given database using the supplied
@@ -179,7 +151,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 					e.printStackTrace();
 				}
 			}
-		} catch (org.h2.jdbc.JdbcSQLException exception) {
+		} catch (Exception exception) {
 			if (exception.getMessage().contains("Table \"IMAGEHASHER\" not found")) {
 				LOG.warning("Tried to retrieve matcher from not compatible database");
 			} else {
@@ -193,53 +165,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	}
 
 	/**
-	 * Get a database image matcher which previously got serialized by calling
-	 * {@link #serializeToDatabase(int)} on the object.
-	 * 
-	 * @param subname  the database file name. By default the file looks at the base
-	 *                 directory of the user.
-	 *                 <p>
-	 *                 <code>"jdbc:h2:~/" + subname</code>
-	 * 
-	 * @param user     the database user on whose behalf the connection is being
-	 *                 made.
-	 * @param password the user's password. May be empty
-	 * @param id       the id supplied to the serializeDatabase call
-	 * @return the image matcher found in the database or null if not present
-	 * @throws SQLException           if an SQL exception occurs
-	 * @throws ClassNotFoundException if the h2 driver can not be found
-	 */
-	public static DatabaseImageMatcher getFromDatabase(String subname, String user, String password, int id)
-			throws SQLException, ClassNotFoundException {
-		Class.forName("org.h2.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:h2:~/" + subname, user, password);
-		return getFromDatabase(conn, id);
-	}
-
-	/**
-	 * Create a preconfigured image matcher backed by the supplied SQL Database. If
-	 * the database does not yet exist an empty db will be initialized.
-	 * 
-	 * @param subname  the database file name. By default the file looks at the base
-	 *                 directory of the user.
-	 *                 <p>
-	 *                 <code>"jdbc:h2:~/" + subname</code>
-	 * 
-	 * @param user     the database user on whose behalf the connection is being
-	 *                 made.
-	 * @param password the user's password. May be empty
-	 * @return The matcher used to check if images are similar
-	 * @throws SQLException           if an error occurs while connecting to the
-	 *                                database
-	 * @throws ClassNotFoundException if the h2 driver can not be found
-	 * @since 2.0.2
-	 */
-	public static DatabaseImageMatcher createDefaultMatcher(String subname, String user, String password)
-			throws SQLException, ClassNotFoundException {
-		return createDefaultMatcher(Setting.Quality, subname, user, password);
-	}
-
-	/**
 	 * A preconfigured image matcher backed by the supplied SQL Database
 	 * 
 	 * @param dbConnection Connection object pointing to a database. If the database
@@ -249,46 +174,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 	 */
 	public static DatabaseImageMatcher createDefaultMatcher(Connection dbConnection) throws SQLException {
 		return createDefaultMatcher(Setting.Quality, dbConnection);
-	}
-
-	/**
-	 * Create a preconfigured image matcher backed by the supplied SQL Database. If
-	 * the database does not yet exist an empty db will be initialized.
-	 * 
-	 * @param algorithmSetting
-	 *                         <p>
-	 *                         How aggressive the algorithm advances while comparing
-	 *                         images
-	 *                         </p>
-	 *                         <ul>
-	 *                         <li><b>Forgiving:</b> Matches a bigger range of
-	 *                         images</li>
-	 *                         <li><b>Fair:</b> Matches all sample images</li>
-	 *                         <li><b>Quality:</b> Recommended: Does not initially
-	 *                         filter as aggressively as Fair but returns usable
-	 *                         results</li>
-	 *                         <li><b>Strict:</b> Only matches images which are
-	 *                         closely related to each other</li>
-	 *                         </ul>
-	 * @param subname          the database file name. By default the file looks at
-	 *                         the base directory of the user.
-	 *                         <p>
-	 *                         <code>"jdbc:h2:~/" + subname</code>
-	 * 
-	 * @param user             the database user on whose behalf the connection is
-	 *                         being made.
-	 * @param password         the user's password. May be empty
-	 * @return The matcher used to check if images are similar
-	 * @throws SQLException           if an error occurs while connecting to the
-	 *                                database
-	 * @throws ClassNotFoundException if the h2 driver can not be found
-	 * @since 2.0.2
-	 */
-	public static DatabaseImageMatcher createDefaultMatcher(Setting algorithmSetting, String subname, String user,
-			String password) throws SQLException, ClassNotFoundException {
-		Class.forName("org.h2.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:h2:~/" + subname, user, password);
-		return createDefaultMatcher(algorithmSetting, conn);
 	}
 
 	/**
@@ -327,15 +212,14 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 		return matcher;
 	}
 
-	private void initialize(Connection conn) throws SQLException {
+	/**
+	 * Create the default tables used if they do not yet exist.
+	 * @param conn The database connection
+	 * @throws SQLException if an sql error occurs
+	 */
+	protected void initialize(Connection conn) throws SQLException {
 		this.conn = conn;
-		// Setup. register alias
 		try (Statement stmt = conn.createStatement()) {
-//			stmt.execute(
-//					"CREATE ALIAS IF NOT EXISTS HAMMINGDIST FOR \"com.github.kilianB.dataStrorage.database.DatabaseManager.hammingtonDistance\" ");
-//			stmt.execute(
-//					"CREATE ALIAS IF NOT EXISTS HAMMINGDISTS FOR \"com.github.kilianB.dataStrorage.database.DatabaseManager.hammingtonDistanceSearch\" ");
-
 			if (!doesTableExist("ImageHasher")) {
 				stmt.execute("CREATE TABLE ImageHasher (Id INTEGER PRIMARY KEY, SerializeData BLOB)");
 			}
@@ -768,7 +652,7 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			HashingAlgorithm algo = entries[i].getKey();
 			Hash targetHash = algo.hash(image);
 
-			int threshold = (int)Math.round(normalizedDistance[i] * targetHash.getBitResolution());
+			int threshold = (int) Math.round(normalizedDistance[i] * targetHash.getBitResolution());
 
 			PriorityQueue<Result<String>> temp = new PriorityQueue<Result<String>>(
 					getSimilarImages(targetHash, threshold, algo));
@@ -842,37 +726,6 @@ public class DatabaseImageMatcher extends ImageMatcher implements Serializable, 
 			}
 		}
 		return returnValues;
-	}
-
-	/**
-	 * Drop all data in the tables and delete the database files. This method
-	 * currently only supports h2 databases. After this method terminates
-	 * successfully all further method calls of this object will throw an
-	 * SQLException if applicable.
-	 * 
-	 * <p>
-	 * Calling this method will close() all database connections. Therefore calling
-	 * close() on this object is not necessary.
-	 * 
-	 * @throws SQLException if an SQL error occurs
-	 */
-	public void deleteDatabase() throws SQLException {
-
-		try (Statement stm = conn.createStatement()) {
-			String url = conn.getMetaData().getURL();
-			String needle = "jdbc:h2:";
-			if (url.startsWith(needle)) {
-				int dbNameIndex = url.lastIndexOf("/");
-				String path = url.substring(needle.length(), dbNameIndex);
-				String dbName = url.substring(dbNameIndex + 1);
-				close();
-				DeleteDbFiles.execute(path, dbName, true);
-			} else {
-				String msg = "deleteDatabase currently not supported for non h2 drivers.";
-				LOG.severe(msg);
-				throw new UnsupportedOperationException(msg);
-			}
-		}
 	}
 
 	/**

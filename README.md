@@ -30,6 +30,13 @@ The project is hosted on bintray and jcenter. <b>Please be aware that hashes cre
 	<artifactId>JImageHash</artifactId>
 	<version>2.1.0</version>
 </dependency>
+
+<!-- If you want to use the database image matcher you need to add h2 as well -->
+<dependency>
+	<groupId>com.h2database</groupId>
+	<artifactId>h2</artifactId>
+	<version>1.4.197</version>
+</dependency>
 ````
 
 ## Examples

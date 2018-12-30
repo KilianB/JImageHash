@@ -62,6 +62,7 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>1.4.197</version>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- Google image downloading dependency -->
