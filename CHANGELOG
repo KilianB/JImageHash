@@ -14,7 +14,12 @@
  - Move from float to double precision for algorithm settings.
  - moved TestData class to individual class to allow usage in other parts of the program.
  - renamed TestData to LabeledImage
- - make h2 dependency optional. (extract h2 into a seperate class)
+ - make h2 dependency optional. (extract h2 into a separate class)
+ - AColorHash AKernelHash and Median hash now inherit from AverageHash reducing duplicate code
+ 
+ ### Fixed
+ - AverageKernelHash now correctly computes it's hash based on the filtered luminocity compare to the average value instead 
+ of the filtered value compared to the unfiltered value. Now it works more closely in line with aHash
 
 
 ## [2.1.1] 25.12.2018

@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
+import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
 
@@ -21,7 +22,7 @@ public class AverageHash extends HashingAlgorithm {
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
-	private int height, width;
+	protected int height, width;
 
 	/**
 	 * The number of pixels present in the input image
@@ -73,19 +74,29 @@ public class AverageHash extends HashingAlgorithm {
 		int[][] luminocity = fp.getLuma();
 
 		// Calculate the average color of the entire image
-
-		double avgPixelValue = 0;
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				avgPixelValue += ((double) luminocity[x][y] / pixelCount);
-			}
-		}
+		double avgPixelValue = ArrayUtil.average(luminocity);
 
 		// Create hash
+		return computeHash(hash, luminocity, avgPixelValue);
+	}
+
+	protected BigInteger computeHash(BigInteger hash, double[][] pixelValue, double compareAgainst) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				if (luminocity[x][y] < avgPixelValue) {
+				if (pixelValue[x][y] < compareAgainst) {
+					hash = hash.shiftLeft(1);
+				} else {
+					hash = hash.shiftLeft(1).add(BigInteger.ONE);
+				}
+			}
+		}
+		return hash;
+	}
+	
+	protected BigInteger computeHash(BigInteger hash, int[][] pixelValue, double compareAgainst) {
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				if (pixelValue[x][y] < compareAgainst) {
 					hash = hash.shiftLeft(1);
 				} else {
 					hash = hash.shiftLeft(1).add(BigInteger.ONE);
@@ -96,8 +107,8 @@ public class AverageHash extends HashingAlgorithm {
 	}
 
 	/**
-	 * Compute the dimension for the resize operation. We want to get to close to a quadratic images 
-	 * as possible to counteract scaling bias. 
+	 * Compute the dimension for the resize operation. We want to get to close to a
+	 * quadratic images as possible to counteract scaling bias.
 	 * 
 	 * @param bitResolution the desired resolution
 	 */
