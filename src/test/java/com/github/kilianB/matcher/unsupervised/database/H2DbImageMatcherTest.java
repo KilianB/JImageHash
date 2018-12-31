@@ -5,7 +5,12 @@ import static com.github.kilianB.TestResources.copyright;
 import static com.github.kilianB.TestResources.highQuality;
 import static com.github.kilianB.TestResources.lowQuality;
 import static com.github.kilianB.TestResources.thumbnail;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -153,11 +158,7 @@ class H2DbImageMatcherTest {
 			H2DbImageMatcher matcher = null;
 			try {
 				matcher = H2DbImageMatcher.createDefaultMatcher(conn);
-				matcher.addImage("Ballon", ballon);
-				matcher.addImage("CopyRight", copyright);
-				matcher.addImage("HighQuality", highQuality);
-				matcher.addImage("LowQuality", lowQuality);
-				matcher.addImage("Thumbnail", thumbnail);
+				addDefaultImages(matcher);
 
 				// We only expect ballon to be returned
 				PriorityQueue<Result<String>> results = matcher.getMatchingImages(ballon);
@@ -189,11 +190,7 @@ class H2DbImageMatcherTest {
 			H2DbImageMatcher matcher = null;
 			try {
 				matcher = H2DbImageMatcher.createDefaultMatcher(Setting.Fair, conn);
-				matcher.addImage("Ballon", ballon);
-				matcher.addImage("CopyRight", copyright);
-				matcher.addImage("HighQuality", highQuality);
-				matcher.addImage("LowQuality", lowQuality);
-				matcher.addImage("Thumbnail", thumbnail);
+				addDefaultImages(matcher);
 
 				// We only expect ballon to be returned
 				PriorityQueue<Result<String>> results = matcher.getMatchingImages(ballon);
@@ -224,11 +221,8 @@ class H2DbImageMatcherTest {
 				Connection conn = DriverManager.getConnection("jdbc:h2:~/imageHashTest", "sa", "");
 
 				matcher = H2DbImageMatcher.createDefaultMatcher(Setting.Forgiving, conn);
-				matcher.addImage("Ballon", ballon);
-				matcher.addImage("CopyRight", copyright);
-				matcher.addImage("HighQuality", highQuality);
-				matcher.addImage("LowQuality", lowQuality);
-				matcher.addImage("Thumbnail", thumbnail);
+
+				addDefaultImages(matcher);
 
 				// We only expect ballon to be returned
 				PriorityQueue<Result<String>> results = matcher.getMatchingImages(ballon);
@@ -263,11 +257,16 @@ class H2DbImageMatcherTest {
 
 		try {
 			dbMatcher = new H2DbImageMatcher("TestReconstruct", "sa", "") {
+				private static final long serialVersionUID = 1L;
+				@SuppressWarnings("unused")
 				public byte[] getBytesFromTable() {
 					try (Statement s = conn.createStatement()) {
 						ResultSet rs = s.executeQuery("SELECT hash FROM " + resolveTableName(aHash));
-						rs.next();
-						return rs.getBytes(1);
+						if (rs.next()) {
+							return rs.getBytes(1);
+						} else {
+							throw new IllegalStateException("No result found");
+						}
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -417,4 +416,12 @@ class H2DbImageMatcherTest {
 		}
 	}
 
+	private static void addDefaultImages(DatabaseImageMatcher matcher) throws SQLException {
+		matcher.addImage("Ballon", ballon);
+		matcher.addImage("CopyRight", copyright);
+		matcher.addImage("HighQuality", highQuality);
+		matcher.addImage("LowQuality", lowQuality);
+		matcher.addImage("Thumbnail", thumbnail);
+	}
+	
 }
