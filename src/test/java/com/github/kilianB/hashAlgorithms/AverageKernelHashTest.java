@@ -41,14 +41,14 @@ class AverageKernelHashTest{
 	 * Adding a kernel produces a different hash
 	 */
 	@Test
-	void addKernel() {
+	public void addKernel() {
 		HashingAlgorithm h0 = new AverageKernelHash(32);
 		HashingAlgorithm h1 = new AverageKernelHash(32,Kernel.gaussianFilter(3,3,2));
 		assertNotEquals(h0.algorithmId(),h1.algorithmId());
 	}
 	
 	@Test
-	void addMultipleKernel() {
+	public void addMultipleKernel() {
 		HashingAlgorithm h0 = new AverageKernelHash(32);
 		HashingAlgorithm h1 = new AverageKernelHash(32,Kernel.gaussianFilter(3,3,2));
 		HashingAlgorithm h2 = new AverageKernelHash(32,Kernel.gaussianFilter(3,3,2),Kernel.boxFilterNormalized(3,3));

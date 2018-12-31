@@ -40,7 +40,7 @@ class HogHashAngularEncodedTest {
 	}
 
 	@Test
-	void illegalConstructor() {
+	public void illegalConstructor() {
 		assertThrows(IllegalArgumentException.class, () -> {
 			new HogHashAngularEncoded(2);
 		});

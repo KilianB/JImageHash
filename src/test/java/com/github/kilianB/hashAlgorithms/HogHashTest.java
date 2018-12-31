@@ -39,7 +39,7 @@ class HogHashTest {
 	}
 
 	@Test
-	void illegalConstructor() {
+	public void illegalConstructor() {
 		assertThrows(IllegalArgumentException.class, () -> {
 			new HogHash(2);
 		});

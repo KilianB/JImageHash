@@ -18,12 +18,12 @@ class BinaryTreeTest {
 	private BinaryTree binTree;
 
 	@BeforeEach
-	void createTree() {
+	public void createTree() {
 		binTree = new BinaryTree(true);
 	}
 
 	@Test
-	void searchExactItem() {
+	public void searchExactItem() {
 		Hash hash = createHash("101010100011",0);
 
 		binTree.addHash(hash, 1);
@@ -35,7 +35,7 @@ class BinaryTreeTest {
 	}
 	
 	@Test
-	void searchExactItemZero() {
+	public void searchExactItemZero() {
 		//Doesn't fail
 		String bits  = "00001010";
 		Hash hash = createHash(bits,0);
@@ -45,7 +45,7 @@ class BinaryTreeTest {
 	}
 	
 	@Test
-	void searchDistantItemZero() {
+	public void searchDistantItemZero() {
 		//Doesn't fail
 		String bits   = "00001010";
 		String bits1  = "10001010";
@@ -59,7 +59,7 @@ class BinaryTreeTest {
 	
 
 	@Test
-	void searchDistantItem() {
+	public void searchDistantItem() {
 		Hash hash = createHash("101010100011", 0);
 		Hash needle = createHash("101010101111", 0);
 
@@ -72,7 +72,7 @@ class BinaryTreeTest {
 	}
 
 	@Test
-	void searchDistantItemFail() {
+	public void searchDistantItemFail() {
 		Hash hash = createHash("101010100011", 0);
 		Hash needle = createHash("101010101111", 0);
 
@@ -83,7 +83,7 @@ class BinaryTreeTest {
 	}
 
 	@Test
-	void searchDistanceExact() {
+	public void searchDistanceExact() {
 		Hash hash = createHash("101010100011", 0);
 		Hash needle = createHash("101010101111", 0);
 
@@ -94,7 +94,7 @@ class BinaryTreeTest {
 	}
 
 	@Test
-	void searchItemMultipleValues() {
+	public void searchItemMultipleValues() {
 		Hash hash = createHash("101010100011",0);
 
 		binTree.addHash(hash, 1);
@@ -107,7 +107,7 @@ class BinaryTreeTest {
 	}
 
 	@Test
-	void searchItemMultipleValuesExact() {
+	public void searchItemMultipleValuesExact() {
 		Hash hash = createHash("101010100011", 0);
 		Hash hash1 = createHash("101010100010", 0);
 
@@ -124,7 +124,7 @@ class BinaryTreeTest {
 	}
 
 	@Test
-	void searchItemMultipleValues2() {
+	public void searchItemMultipleValues2() {
 		Hash hash = createHash("101010100011", 0);
 		Hash hash1 = createHash("101010100010", 0);
 
@@ -141,7 +141,7 @@ class BinaryTreeTest {
 	}
 
 	@Test
-	void ensureHashConsistencyAdd() {
+	public void ensureHashConsistencyAdd() {
 
 		Hash hash = createHash("101010100011", 250);
 		Hash hash1 = createHash("101010100010", 251);
@@ -153,7 +153,7 @@ class BinaryTreeTest {
 	}
 
 	@Test
-	void ensureHashConsistencySearch() {
+	public void ensureHashConsistencySearch() {
 		Hash hash = createHash("101010100011", 250);
 		Hash hash1 = createHash("101010100010", 251);
 
@@ -165,7 +165,7 @@ class BinaryTreeTest {
 
 	
 	@Test 
-	void addedHashCount() {
+	public void addedHashCount() {
 		assertEquals(0,binTree.getHashCount());
 		
 		Hash hash = createHash("101010100011", 250);

@@ -23,7 +23,7 @@ public abstract class RotationalTestBase extends HashTestBase{
 
 	@ParameterizedTest
 	@MethodSource(value = "com.github.kilianB.hashAlgorithms.RotationalTestBase#bitResolution")
-	void rotatedImages(Integer bitResolution) {
+	public void rotatedImages(Integer bitResolution) {
 
 		HashingAlgorithm h = getInstance(bitResolution+this.offsetBitResolution());
 		Hash rot0 = h.hash(lenna);

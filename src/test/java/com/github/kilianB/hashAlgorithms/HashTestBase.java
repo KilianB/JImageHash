@@ -84,7 +84,7 @@ public abstract class HashTestBase {
 	class BitResolution {
 
 		@Test
-		void consistentKeyLength() {
+		public void consistentKeyLength() {
 			// To get comparable hashes the key length has to be consistent for all
 			// resolution of images
 			HashingAlgorithm d1 = getInstance(32);
@@ -108,7 +108,7 @@ public abstract class HashTestBase {
 
 		@ParameterizedTest
 		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolutionBroad")
-		void algorithmKeyLengthConsitent(Integer bitResolution) {
+		public void algorithmKeyLengthConsitent(Integer bitResolution) {
 			HashingAlgorithm d1 = getInstance(bitResolution);
 			Hash ballonHash = d1.hash(ballon);
 			assertEquals(d1.getKeyResolution(), ballonHash.getBitResolution());
@@ -121,13 +121,13 @@ public abstract class HashTestBase {
 		 */
 		@ParameterizedTest
 		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolutionBroad")
-		void keyLengthMinimumBits(Integer bitResolution) {
+		public void keyLengthMinimumBits(Integer bitResolution) {
 			HashingAlgorithm hasher = getInstance(bitResolution + offsetBitResolution());
 			assertTrue(hasher.hash(ballon).getBitResolution() >= hasher.bitResolution);
 		}
 
 		@Test
-		void illegalConstructor() {
+		public void illegalConstructor() {
 			assertThrows(IllegalArgumentException.class, () -> {
 				getInstance(0);
 			});
@@ -142,7 +142,7 @@ public abstract class HashTestBase {
 		HashingAlgorithm deserializedAlgo;
 
 		@BeforeEach
-		void serializeAlgo() {
+		public void serializeAlgo() {
 			originalAlgo = getInstance(32);
 
 			File serFile = new File(originalAlgo.getClass().getName() + ".ser");
@@ -168,12 +168,12 @@ public abstract class HashTestBase {
 		}
 
 		@Test
-		void consistentId() {
+		public void consistentId() {
 			assertEquals(originalAlgo.algorithmId(), deserializedAlgo.algorithmId());
 		}
 
 		@Test
-		void consistentHash() {
+		public void consistentHash() {
 			// Algorithm id is checked in the method beforehand
 			assertEquals(originalAlgo.hash(ballon).getHashValue(), deserializedAlgo.hash(ballon).getHashValue());
 		}
@@ -192,7 +192,7 @@ public abstract class HashTestBase {
 		 */
 		@ParameterizedTest
 		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
-		void consitent(Integer bitRes) {
+		public void consitent(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(h.hash(ballon).getHashValue(), h.hash(ballon).getHashValue());
 		}
@@ -204,7 +204,7 @@ public abstract class HashTestBase {
 		 */
 		@ParameterizedTest
 		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
-		void equalImage(Integer bitRes) {
+		public void equalImage(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(0, h.hash(ballon).hammingDistance(h.hash(ballon)));
 		}
@@ -216,7 +216,7 @@ public abstract class HashTestBase {
 		 */
 		@ParameterizedTest
 		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
-		void equalImageNormalized(Integer bitRes) {
+		public void equalImageNormalized(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(0, h.hash(ballon).hammingDistanceFast(h.hash(ballon)));
 		}
@@ -229,7 +229,7 @@ public abstract class HashTestBase {
 		 */
 		@ParameterizedTest
 		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
-		void unequalImage(Integer bitRes) {
+		public void unequalImage(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			Hash lowQualityHash = h.hash(lowQuality);
 			Hash highQualityHash = h.hash(highQuality);
@@ -252,7 +252,7 @@ public abstract class HashTestBase {
 		 */
 		@ParameterizedTest
 		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
-		void unequalImageNormalized(Integer bitRes) {
+		public void unequalImageNormalized(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			Hash lowQualityHash = h.hash(lowQuality);
 			Hash highQualityHash = h.hash(highQuality);
@@ -275,7 +275,7 @@ public abstract class HashTestBase {
 		 * May not add filter after id has been calculated
 		 */
 		@Test
-		void filterAddInvalid() {
+		public void filterAddInvalid() {
 			HashingAlgorithm hasher = getInstance(16);
 			hasher.algorithmId();
 			Kernel k = Kernel.identityFilter();
@@ -288,7 +288,7 @@ public abstract class HashTestBase {
 		 * May not add filter after hashing operation
 		 */
 		@Test
-		void filterAddInvalidHash() {
+		public void filterAddInvalidHash() {
 			HashingAlgorithm hasher = getInstance(16);
 			hasher.hash(new BufferedImage(1, 1, 0x1));
 			Kernel k = Kernel.identityFilter();
@@ -301,7 +301,7 @@ public abstract class HashTestBase {
 		 * May not remove filter after id has been calculated
 		 */
 		@Test
-		void filterRemoveInvalid() {
+		public void filterRemoveInvalid() {
 			HashingAlgorithm hasher = getInstance(16);
 			hasher.algorithmId();
 			Kernel k = Kernel.identityFilter();
@@ -314,7 +314,7 @@ public abstract class HashTestBase {
 		 * May not remove filter after hashing operation
 		 */
 		@Test
-		void filterRemoveInvalidHash() {
+		public void filterRemoveInvalidHash() {
 			HashingAlgorithm hasher = getInstance(16);
 			hasher.hash(new BufferedImage(1, 1, 0x1));
 			Kernel k = Kernel.identityFilter();
@@ -324,7 +324,7 @@ public abstract class HashTestBase {
 		}
 
 		@Test
-		void addFilterDistinctAlgorithmIds() {
+		public void addFilterDistinctAlgorithmIds() {
 			HashingAlgorithm hasher = getInstance(16);
 			Kernel k = Kernel.identityFilter();
 			hasher.addFilter(k);
@@ -333,7 +333,7 @@ public abstract class HashTestBase {
 		}
 
 		@Test
-		void addRemoveFilterSameIds() {
+		public void addRemoveFilterSameIds() {
 			HashingAlgorithm hasher = getInstance(16);
 			Kernel k = Kernel.identityFilter();
 			hasher.addFilter(k);
