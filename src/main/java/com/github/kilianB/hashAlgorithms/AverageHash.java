@@ -25,11 +25,6 @@ public class AverageHash extends HashingAlgorithm {
 	protected int height, width;
 
 	/**
-	 * The number of pixels present in the input image
-	 */
-	private final int pixelCount;
-
-	/**
 	 * @param bitResolution The bit resolution specifies the final length of the
 	 *                      generated hash. A higher resolution will increase
 	 *                      computation time and space requirement while being able
@@ -62,9 +57,6 @@ public class AverageHash extends HashingAlgorithm {
 		 * to not introduce bias via stretching or shrinking the image asymmetrically.
 		 */
 		computeDimension(bitResolution);
-
-		// Get the smallest key difference which is equal or bigger!
-		this.pixelCount = width * height;
 	}
 
 	@Override
