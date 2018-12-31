@@ -759,19 +759,19 @@ public class Kernel implements Serializable, Filter {
 		// TODO Kernel crop
 
 		/**
-		 * 
+		 * Function accepting the pixelIndex and the width or height of the pixel and
+		 * returning the index of the pixel used to compute the value
+		 */
+		private BiFunction<Integer, Integer, Integer> compute;
+
+		/**
 		 * @param func
 		 */
 		private EdgeHandlingStrategy(BiFunction<Integer, Integer, Integer> func) {
 			this.compute = func;
 		}
 
-		/**
-		 * Function accepting the pixelIndex and the width or height of the pixel and
-		 * returning the index of the pixel used to compute the value
-		 */
-		private BiFunction<Integer, Integer, Integer> compute;
-
+	
 		/**
 		 * Return the array index to compute the kernel value
 		 * 

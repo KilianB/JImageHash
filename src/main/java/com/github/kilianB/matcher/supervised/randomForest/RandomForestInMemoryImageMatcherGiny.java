@@ -46,6 +46,9 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 	 */
 	protected Map<Integer, List<BufferedImage>> labeledImages = new HashMap<>();
 
+	
+	private Map<HashingAlgorithm, Map<String, Hash>> preComputedHashes;
+	
 	/**
 	 * Add test images to this image matcher which will be used to construct the
 	 * random forest.
@@ -111,8 +114,6 @@ public class RandomForestInMemoryImageMatcherGiny extends SingleImageMatcher {
 	public void clearTestImages() {
 		labeledImages.clear();
 	}
-
-	private Map<HashingAlgorithm, Map<String, Hash>> preComputedHashes;
 
 	// TODO
 	// Map<HashingAlgorithm, Map<BufferedImage, Double>> preComputedMinDistances;

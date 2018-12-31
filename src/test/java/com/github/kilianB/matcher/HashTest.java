@@ -19,7 +19,7 @@ class HashTest {
 	@Nested 
 	class IncompatibleAlgorithms{
 		@Test
-		void normalizedHammingDistance() {
+		public void normalizedHammingDistance() {
 			int algoId = new AverageHash(14).algorithmId();
 			int algoId1 = new AverageHash(500).algorithmId();
 			Hash hash0 = new Hash(BigInteger.ONE, 1, algoId);
@@ -30,7 +30,7 @@ class HashTest {
 		}
 		
 		@Test
-		void hammingDistance() {
+		public void hammingDistance() {
 			int algoId = new AverageHash(14).algorithmId();
 			int algoId1 = new AverageHash(500).algorithmId();
 			Hash hash0 = new Hash(BigInteger.ONE, 1, algoId);
@@ -46,13 +46,13 @@ class HashTest {
 	class Equality {
 
 		@Test
-		void sameObject() {
+		public void sameObject() {
 			Hash hash0 = new Hash(new BigInteger("010101000", 2), 0, 0);
 			assertEquals(hash0, hash0);
 		}
 
 		@Test
-		void equalContent() {
+		public void equalContent() {
 			Hash hash0 = new Hash(new BigInteger("1010101000", 2), 0, 0);
 			Hash hash1 = new Hash(new BigInteger("1010101000", 2), 0, 0);
 			assertEquals(hash0, hash1);
@@ -64,7 +64,7 @@ class HashTest {
 	class HammingDistance {
 		@Test
 		@DisplayName("Identical Hash")
-		void identical() {
+		public void identical() {
 			String bits = "10101010";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertEquals(0, hash0.hammingDistance(hash0));
@@ -72,7 +72,7 @@ class HashTest {
 
 		@Test
 		@DisplayName("Identical Hash Fast")
-		void identicalFast() {
+		public void identicalFast() {
 			String bits = "10101010";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertEquals(0, hash0.hammingDistanceFast(hash0));
@@ -80,7 +80,7 @@ class HashTest {
 
 		@Test
 		@DisplayName("Difference Padded")
-		void distanceThree() {
+		public void distanceThree() {
 			String bits = "10001100";
 			String bits1 = "11111100";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
@@ -90,7 +90,7 @@ class HashTest {
 
 		@Test
 		@DisplayName("Difference Padded Fast")
-		void distanceThreeFast() {
+		public void distanceThreeFast() {
 			String bits = "10001100";
 			String bits1 = "11111100";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
@@ -103,7 +103,7 @@ class HashTest {
 	class NormalizedHammingDistance {
 		@Test
 		@DisplayName("Identical Hash")
-		void identical() {
+		public void identical() {
 			String bits = "10101010";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertEquals(0, hash0.normalizedHammingDistance(hash0));
@@ -111,7 +111,7 @@ class HashTest {
 
 		@Test
 		@DisplayName("Identical Hash Fast")
-		void identicalFast() {
+		public void identicalFast() {
 			String bits = "10101010";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertEquals(0, hash0.normalizedHammingDistanceFast(hash0));
@@ -119,7 +119,7 @@ class HashTest {
 
 		@Test
 		@DisplayName("Difference Padded")
-		void dstanceThree() {
+		public void dstanceThree() {
 			String bits = "10001100";
 			String bits1 = "11111100";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
@@ -129,7 +129,7 @@ class HashTest {
 
 		@Test
 		@DisplayName("Difference Padded Fast")
-		void distanceThreeFast() {
+		public void distanceThreeFast() {
 			String bits = "10001100";
 			String bits1 = "11111100";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
@@ -139,7 +139,7 @@ class HashTest {
 
 		@Test
 		@DisplayName("Difference Leading zero")
-		void dstanceThreeLeading() {
+		public void dstanceThreeLeading() {
 			String bits = "01001100";
 			String bits1 = "11111100";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
@@ -153,7 +153,7 @@ class HashTest {
 	class TestBit {
 
 		@Test
-		void negativeOutOfBounds() {
+		public void negativeOutOfBounds() {
 			String bits = "10101010";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertThrows(IllegalArgumentException.class, () -> {
@@ -162,7 +162,7 @@ class HashTest {
 		}
 		
 		@Test
-		void positiveOutOfBounds() {
+		public void positiveOutOfBounds() {
 			String bits = "10101010";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertThrows(IllegalArgumentException.class, () -> {
@@ -171,21 +171,21 @@ class HashTest {
 		}
 		
 		@Test
-		void trueBit() {
+		public void trueBit() {
 			String bits = "10101010";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertTrue(hash0.getBit(1));
 		}
 		
 		@Test
-		void falseBit() {
+		public void falseBit() {
 			String bits = "10101010";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertFalse(hash0.getBit(0));
 		}
 		
 		@Test
-		void falseBitOutOfBounds() {
+		public void falseBitOutOfBounds() {
 			String bits = "10101010";
 			Hash hash0 = new Hash(new BigInteger(bits, 2), bits.length(), 0);
 			assertFalse(hash0.getBitUnsafe(100));
@@ -196,7 +196,7 @@ class HashTest {
 	class ToString{
 		
 		@Test
-		void displayAllBits() {
+		public void displayAllBits() {
 			String bits = "10101010";
 			String toString = new Hash(new BigInteger(bits, 2), bits.length(), 0).toString();
 			
