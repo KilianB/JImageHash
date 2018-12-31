@@ -61,7 +61,7 @@ class CumulativeImageMatcherTest {
 
 	@Test
 	@DisplayName("Check Similarity")
-	void imageMatches() {
+	public void imageMatches() {
 		CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
 		addDefaultTestImages(matcher);
 		assertImageMatches(matcher);
@@ -69,7 +69,7 @@ class CumulativeImageMatcherTest {
 
 	@Test
 	@DisplayName("Check Similarity Non Normalized")
-	void imageMatcheNonNormalizedVersion() {
+	public void imageMatcheNonNormalizedVersion() {
 
 		CumulativeImageMatcher matcher = new CumulativeImageMatcher(20, false);
 
@@ -83,7 +83,7 @@ class CumulativeImageMatcherTest {
 	class TestDefaultSettings {
 		@Test
 		@DisplayName("Default")
-		void defaultMatcher() {
+		public void defaultMatcher() {
 
 			CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
 
@@ -93,7 +93,7 @@ class CumulativeImageMatcherTest {
 
 		@Test
 		@DisplayName("Forgiving")
-		void forgiving() {
+		public void forgiving() {
 
 			CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher(Setting.Forgiving);
 
@@ -103,7 +103,7 @@ class CumulativeImageMatcherTest {
 
 		@Test
 		@DisplayName("Fair")
-		void imageMatches() {
+		public void imageMatches() {
 
 			CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher(Setting.Fair);
 
@@ -113,7 +113,7 @@ class CumulativeImageMatcherTest {
 	}
 
 	@Test
-	void alterAlgorithmAfterImageHasAlreadyBeenAdded() {
+	public void alterAlgorithmAfterImageHasAlreadyBeenAdded() {
 		CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
 
 		addDefaultTestImages(matcher);
@@ -138,7 +138,7 @@ class CumulativeImageMatcherTest {
 
 	@Test
 	@DisplayName("Empty Matcher")
-	void noAlgorithm() {
+	public void noAlgorithm() {
 		InMemoryImageMatcher matcher = new InMemoryImageMatcher();
 		BufferedImage dummyImage = new BufferedImage(1, 1, 0x1);
 		assertThrows(IllegalStateException.class, () -> {
@@ -147,7 +147,7 @@ class CumulativeImageMatcherTest {
 	}
 
 	@Test
-	void addAndClearAlgorithms() {
+	public void addAndClearAlgorithms() {
 		InMemoryImageMatcher matcher = new InMemoryImageMatcher();
 
 		assertEquals(0, matcher.getAlgorithms().size());

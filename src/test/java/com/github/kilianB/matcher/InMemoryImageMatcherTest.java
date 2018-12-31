@@ -69,14 +69,14 @@ class InMemoryImageMatcherTest {
 
 		@Test
 		@DisplayName("Default")
-		void defaultMatcher() {
+		public void defaultMatcher() {
 			InMemoryImageMatcher matcher = createMatcherAndAddDefaultTestImages(null);
 			assertMatches(matcher);
 		}
 
 		@Test
 		@DisplayName("Forgiving")
-		void forgiving() {
+		public void forgiving() {
 
 			InMemoryImageMatcher matcher = createMatcherAndAddDefaultTestImages(Setting.Forgiving);
 			assertMatches(matcher);
@@ -84,7 +84,7 @@ class InMemoryImageMatcherTest {
 
 		@Test
 		@DisplayName("Fair")
-		void imageMatches() {
+		public void imageMatches() {
 
 			InMemoryImageMatcher matcher = createMatcherAndAddDefaultTestImages(Setting.Fair);
 			assertMatches(matcher);
@@ -92,7 +92,7 @@ class InMemoryImageMatcherTest {
 	}
 
 	@Test
-	void alterAlgorithmAfterImageHasAlreadyBeenAdded() {
+	public void alterAlgorithmAfterImageHasAlreadyBeenAdded() {
 		InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
 
 		matcher.addImage(ballon);
@@ -121,7 +121,7 @@ class InMemoryImageMatcherTest {
 
 	@Test
 	@DisplayName("Empty Matcher")
-	void noAlgorithm() {
+	public void noAlgorithm() {
 		InMemoryImageMatcher matcher = new InMemoryImageMatcher();
 		BufferedImage dummyImage = new BufferedImage(1, 1, 0x1);
 		assertThrows(IllegalStateException.class, () -> {
@@ -130,7 +130,7 @@ class InMemoryImageMatcherTest {
 	}
 
 	@Test
-	void addAndClearAlgorithms() {
+	public void addAndClearAlgorithms() {
 		InMemoryImageMatcher matcher = new InMemoryImageMatcher();
 
 		assertEquals(0, matcher.getAlgorithms().size());

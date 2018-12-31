@@ -46,7 +46,7 @@ public class TestResources {
 	};
 
 	@Test
-	void allResourcesLoaded() {
+	public void allResourcesLoaded() {
 
 		assertAll(() -> {
 			assertTrue(ballon.getWidth() > 0);

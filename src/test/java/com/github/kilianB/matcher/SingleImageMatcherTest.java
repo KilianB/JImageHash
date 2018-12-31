@@ -72,7 +72,7 @@ class SingleImageMatcherTest {
 
 		@Test
 		@DisplayName("Check Similarity Default")
-		void imageMatches() {
+		public void imageMatches() {
 
 			SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher();
 			assertMatches(matcher);
@@ -80,14 +80,14 @@ class SingleImageMatcherTest {
 
 		@Test
 		@DisplayName("Check Similarity Forgiving")
-		void imageMatchesForgiving() {
+		public void imageMatchesForgiving() {
 			SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher(Setting.Forgiving);
 			assertMatches(matcher);
 		}
 
 		@Test
 		@DisplayName("Check Similarity Fair")
-		void imageMatchesFair() {
+		public void imageMatchesFair() {
 			SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher(Setting.Fair);
 			assertMatches(matcher);
 		}
@@ -95,7 +95,7 @@ class SingleImageMatcherTest {
 
 	@Test
 	@DisplayName("Empty Matcher")
-	void noAlgorithm() {
+	public void noAlgorithm() {
 		SingleImageMatcher matcher = new SingleImageMatcher();
 		BufferedImage dummyImage = new BufferedImage(1, 1, 0x1);
 		assertThrows(IllegalStateException.class, () -> {
@@ -104,7 +104,7 @@ class SingleImageMatcherTest {
 	}
 
 	@Test
-	void addAndClearAlgorithms() {
+	public void addAndClearAlgorithms() {
 		SingleImageMatcher matcher = new SingleImageMatcher();
 		Map<HashingAlgorithm, AlgoSettings> algos = matcher.getAlgorithms();
 
