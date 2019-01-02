@@ -84,11 +84,11 @@ import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
  * @since 3.0.0 extract h2 database image matcher into it's own class
  *
  */
-public class H2DbImageMatcher extends DatabaseImageMatcher {
+public class H2DatabaseImageMatcher extends DatabaseImageMatcher {
 
 	private static final long serialVersionUID = 5629316725655117532L;
 
-	private static final Logger LOG = Logger.getLogger(H2DbImageMatcher.class.getName());
+	private static final Logger LOG = Logger.getLogger(H2DatabaseImageMatcher.class.getName());
 
 	private static final String CLASS_NOT_FOUND_ERROR = "In order to use the default database image "
 			+ "matcher please make sure to add a h2 dependency to the class path. (Last tested version: 1.4.197).";
@@ -125,7 +125,7 @@ public class H2DbImageMatcher extends DatabaseImageMatcher {
 	 *                      the h2 driver could not be found in the classpath
 	 * @since 3.0.0
 	 */
-	public static H2DbImageMatcher createDefaultMatcher(Setting algorithmSetting, String subname, String user,
+	public static H2DatabaseImageMatcher createDefaultMatcher(Setting algorithmSetting, String subname, String user,
 			String password) throws SQLException {
 		return createDefaultMatcher(algorithmSetting, getConnection(subname, user, password));
 	}
@@ -162,9 +162,9 @@ public class H2DbImageMatcher extends DatabaseImageMatcher {
 	 * @throws IllegalArgumentException if the connection is not a h2 db connection
 	 * @since 3.0.0
 	 */
-	public static H2DbImageMatcher createDefaultMatcher(Setting algorithmSetting, Connection dbConnection)
+	public static H2DatabaseImageMatcher createDefaultMatcher(Setting algorithmSetting, Connection dbConnection)
 			throws SQLException {
-		H2DbImageMatcher matcher = new H2DbImageMatcher(checkConnection(dbConnection));
+		H2DatabaseImageMatcher matcher = new H2DatabaseImageMatcher(checkConnection(dbConnection));
 		matcher.addDefaultHashingAlgorithms(matcher, algorithmSetting);
 		return matcher;
 	}
@@ -180,7 +180,7 @@ public class H2DbImageMatcher extends DatabaseImageMatcher {
 	 * @throws IllegalArgumentException if the connection is not a h2 db connection
 	 * @since 3.0.0
 	 */
-	public static H2DbImageMatcher createDefaultMatcher(Connection dbConnection) throws SQLException {
+	public static H2DatabaseImageMatcher createDefaultMatcher(Connection dbConnection) throws SQLException {
 		return createDefaultMatcher(Setting.Quality, checkConnection(dbConnection));
 	}
 
@@ -202,9 +202,9 @@ public class H2DbImageMatcher extends DatabaseImageMatcher {
 	 *                      the h2 driver could not be found in the classpath
 	 * @since 3.0.0
 	 */
-	public static H2DbImageMatcher getFromDatabase(String subname, String user, String password, int id)
+	public static H2DatabaseImageMatcher getFromDatabase(String subname, String user, String password, int id)
 			throws SQLException {
-		return (H2DbImageMatcher) getFromDatabase(getConnection(subname, user, password), id);
+		return (H2DatabaseImageMatcher) getFromDatabase(getConnection(subname, user, password), id);
 	}
 
 	/**
@@ -228,7 +228,7 @@ public class H2DbImageMatcher extends DatabaseImageMatcher {
 	 *                             to cancel the current database connection attempt
 	 * @since 3.0.0
 	 */
-	public H2DbImageMatcher(String subname, String user, String password) throws SQLException {
+	public H2DatabaseImageMatcher(String subname, String user, String password) throws SQLException {
 		this(getConnection(subname, user, password));
 	}
 
@@ -248,7 +248,7 @@ public class H2DbImageMatcher extends DatabaseImageMatcher {
 	 * @throws IllegalArgumentException if the supplied dbConnection is not an h2
 	 *                                  connection object
 	 */
-	public H2DbImageMatcher(Connection dbConnection) throws SQLException {
+	public H2DatabaseImageMatcher(Connection dbConnection) throws SQLException {
 		super(checkConnection(dbConnection));
 	}
 
@@ -269,7 +269,7 @@ public class H2DbImageMatcher extends DatabaseImageMatcher {
 	 *                      the h2 driver could not be found in the classpath
 	 * @since 3.0.0
 	 */
-	public static H2DbImageMatcher createDefaultMatcher(String subname, String user, String password)
+	public static H2DatabaseImageMatcher createDefaultMatcher(String subname, String user, String password)
 			throws SQLException {
 		return createDefaultMatcher(Setting.Quality, subname, user, password);
 	}

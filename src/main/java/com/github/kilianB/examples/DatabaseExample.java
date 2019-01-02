@@ -12,7 +12,7 @@ import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.matcher.unsupervised.database.DatabaseImageMatcher;
-import com.github.kilianB.matcher.unsupervised.database.H2DbImageMatcher;
+import com.github.kilianB.matcher.unsupervised.database.H2DatabaseImageMatcher;
 
 /**
  * @author Kilian
@@ -73,7 +73,7 @@ public class DatabaseExample {
 		String password = "";
 
 		// Wrap in try with block or call close at the end!
-		try (H2DbImageMatcher db = new H2DbImageMatcher(dbName, userName, password)) {
+		try (H2DatabaseImageMatcher db = new H2DatabaseImageMatcher(dbName, userName, password)) {
 			// Proceed as normal
 			db.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 20);
 			db.addHashingAlgorithm(new PerceptiveHash(32), 15);
