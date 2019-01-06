@@ -117,7 +117,8 @@ public abstract class HashingAlgorithm implements Serializable {
 			}
 		}
 		immutableState = true;
-		return new Hash(hash(bi, BigInteger.ZERO), getKeyResolution(), algorithmId());
+
+		return new Hash(hash(bi, new StringBuilder(getKeyResolution())), getKeyResolution(), algorithmId());
 	}
 
 	/**
@@ -151,10 +152,10 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * distance requires the potential length of the key to be known.
 	 * 
 	 * @param image Image whose hash will be calculated
-	 * @param hash  the big integer used to store the hash value
+	 * @param hashBuilder a stringBuilder used to construct the hash
 	 * @return the hash encoded as a big integer
 	 */
-	protected abstract BigInteger hash(BufferedImage image, BigInteger hash);
+	protected abstract BigInteger hash(BufferedImage image, StringBuilder hashBuilder);
 
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the
@@ -223,8 +224,9 @@ public abstract class HashingAlgorithm implements Serializable {
 		// return value
 		if (keyResolution < 0) {
 			BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
-			// By preceding a ONE bit we don't fall victim to the 0 bit truncation.
-			keyResolution = this.hash(bi, BigInteger.ONE).bitLength() - 1;
+			StringBuilder sb = new StringBuilder(this.bitResolution);
+			this.hash(bi, sb);
+			keyResolution = sb.length();
 		}
 		return keyResolution;
 	}
@@ -290,11 +292,12 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * certain behavior, in particular the
 	 * {@link com.github.kilianB.matcher.Hash#toImage(int)} is likely to differ.
 	 * 
-	 * <p> If the algorithm does not utilize a special hash sub class this
-	 * method simply returns the supplied argument.
+	 * <p>
+	 * If the algorithm does not utilize a special hash sub class this method
+	 * returns the supplied argument.
 	 * 
-	 * @param original
-	 * @return
+	 * @param original the hash to transform
+	 * @return a hash as it would be created by this algorithm.
 	 * @since 3.0.0
 	 */
 	public Hash createAlgorithmSpecificHash(Hash original) {

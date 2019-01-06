@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import com.github.kilianB.Require;
 import com.github.kilianB.StringUtil;
 import com.github.kilianB.graphics.FastPixel;
+import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 import javafx.scene.paint.Color;
 
@@ -45,8 +46,8 @@ public class Hash {
 	// maybe move to bitsets//Mutable inetegers? not efficient for small keys?
 
 	/**
-	 * How many bits does this hash represent. Necessary due to suffix 0 bits beginning
-	 * dropped.
+	 * How many bits does this hash represent. Necessary due to suffix 0 bits
+	 * beginning dropped.
 	 */
 	protected int hashLength;
 
@@ -122,7 +123,7 @@ public class Hash {
 	 * @see #hammingDistance(Hash)
 	 */
 	public int hammingDistanceFast(Hash h) {
-		return this.hashValue.xor(h.hashValue).bitCount();
+		return this.hashValue.xor(h.getHashValue()).bitCount();
 	}
 
 	/**
@@ -205,7 +206,7 @@ public class Hash {
 	}
 
 	/**
-	 * Check if the bit at the given position is set
+	 * Check if the bit at the given position is set.
 	 * 
 	 * @param position of the bit. An index of 0 points to the lowest (rightmost
 	 *                 bit)
@@ -253,47 +254,84 @@ public class Hash {
 
 	/**
 	 * Creates a visual representation of the hash mapping the hash values to the
-	 * section of the rescaled image used to generate the hash.
+	 * section of the rescaled image used to generate the hash assuming default bit
+	 * encoding.
 	 * 
-	 * @param blockSize Stretch factor.Due to rescaling the image was shrunk down
-	 *                  during hash creation.
+	 * <p>
+	 * Some hash algorithms may chose to construct their hashes in a non default
+	 * manner (e.g. {@link com.github.kilianB.hashAlgorithms.DifferenceHash}). In
+	 * this case {@link #toImage(int, HashingAlgorithm)} may help to resolve the
+	 * issue;
+	 * 
+	 * @param blockSize scaling factor of each pixel in the has. each bit of the
+	 *                  hash will be represented to blockSize*blockSize pixels
+	 * 
 	 * @return A black and white image representing the individual bits of the hash
 	 */
-	public BufferedImage toImage(int blockSize) {	
-		Color[] colorArr = new Color[] {Color.WHITE,Color.BLACK};
+	public BufferedImage toImage(int blockSize) {
+		Color[] colorArr = new Color[] { Color.WHITE, Color.BLACK };
 		int[] colorIndex = new int[hashLength];
-		
-		for(int i = 0; i < hashLength; i++) {
+
+		for (int i = 0; i < hashLength; i++) {
 			colorIndex[i] = hashValue.testBit(i) ? 1 : 0;
 		}
-		return toImage(colorIndex,colorArr,blockSize);
+		return toImage(colorIndex, colorArr, blockSize);
 	}
-	
+
+	/**
+	 * Creates a visual representation of the hash mapping the hash values to the
+	 * section of the rescaled image used to generate the hash.
+	 * 
+	 * <p>
+	 * Some hash algorithms may chose to construct their hashes in a non default
+	 * manner (e.g. {@link com.github.kilianB.hashAlgorithms.DifferenceHash}).
+	 * 
+	 * @param blockSize scaling factor of each pixel in the has. each bit of the
+	 *                  hash will be represented to blockSize*blockSize pixels
+	 * @param hasher    HashAlgorithm which created this hash.
+	 * @return A black and white image representing the individual bits of the hash
+	 * @since 3.0.0
+	 */
+	public BufferedImage toImage(int blockSize, HashingAlgorithm hasher) {
+		return hasher.createAlgorithmSpecificHash(this).toImage(blockSize);
+	}
+
+	/**
+	 * Creates a visual representation of the hash mapping the hash values to the
+	 * section of the rescaled image used to generate the hash.
+	 * 
+	 * @param bitColorIndex array mapping each bit of the hash to a color of the
+	 *                      color array
+	 * @param colors        array to colorize the pixels
+	 * @param blockSize     scaling factor of each pixel in the has. each bit of the
+	 *                      hash will be represented to blockSize*blockSize pixels
+	 * @return A colorized image representing the individual bits of the hash
+	 */
 	public BufferedImage toImage(int[] bitColorIndex, Color[] colors, int blockSize) {
 		int width = (int) Math.sqrt(hashLength);
 		int height = width;
-		
+
 		BufferedImage bi = new BufferedImage(blockSize * width, blockSize * height, BufferedImage.TYPE_3BYTE_BGR);
 
 		FastPixel fp = FastPixel.create(bi);
-		
+
 		int i = hashLength - 1;
 		for (int w = 0; w < width * blockSize; w = w + blockSize) {
 			for (int h = 0; h < height * blockSize; h = h + blockSize) {
 				Color c = colors[bitColorIndex[i--]];
-				int red = (int)(c.getRed() * 255);
-				int green = (int)(c.getGreen() * 255);
-				int blue = (int)(c.getBlue() * 255);
-				
+				int red = (int) (c.getRed() * 255);
+				int green = (int) (c.getGreen() * 255);
+				int blue = (int) (c.getBlue() * 255);
+
 				for (int m = 0; m < blockSize; m++) {
 					for (int n = 0; n < blockSize; n++) {
 						int x = w + m;
 						int y = h + n;
 						// bi.setRGB(y, x, bit ? black : white);
-						//fp.setAverageGrayscale(x, y, gray);
-						fp.setRed(x,y,red);
-						fp.setGreen(x,y,green);
-						fp.setBlue(x,y,blue);
+						// fp.setAverageGrayscale(x, y, gray);
+						fp.setRed(x, y, red);
+						fp.setGreen(x, y, green);
+						fp.setBlue(x, y, blue);
 					}
 				}
 			}
@@ -358,12 +396,12 @@ public class Hash {
 		if (getClass() != obj.getClass())
 			return false;
 		Hash other = (Hash) obj;
-		if (algorithmId != other.algorithmId)
+		if (algorithmId != other.getAlgorithmId())
 			return false;
 		if (hashValue == null) {
 			if (other.hashValue != null)
 				return false;
-		} else if (!hashValue.equals(other.hashValue))
+		} else if (!hashValue.equals(other.getHashValue()))
 			return false;
 		return true;
 	}

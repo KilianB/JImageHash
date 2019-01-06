@@ -37,7 +37,7 @@ class RotPHashTest {
 
 	/**
 	 * RotPHash has a setting specifying that the key length is truly the one
-	 * speicfied
+	 * specified
 	 */
 	@Test
 	void keyLengthExact() {

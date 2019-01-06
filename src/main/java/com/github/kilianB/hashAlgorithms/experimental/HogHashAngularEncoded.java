@@ -54,7 +54,7 @@ public class HogHashAngularEncoded extends HogHash {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, BigInteger hash) {
+	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
 
 		BufferedImage bi = ImageUtil.getScaledInstance(image, width, height);
 		FastPixel fp = FastPixel.create(bi);
@@ -84,15 +84,15 @@ public class HogHashAngularEncoded extends HogHash {
 			for (int yCell = 0; yCell < yCells; yCell++) {
 				for (int bin = 0; bin < numBins; bin++) {
 					if (hog[xCell][yCell][bin] > binAverage[bin]) {
-						hash = hash.shiftLeft(1);
+						hash.append("0");
 					} else {
-						hash = hash.shiftLeft(1).add(BigInteger.ONE);
+						hash.append("1");
 					}
 				}
 			}
 		}
 
-		return hash;
+		return new BigInteger(hash.toString(),2);
 	}
 
 }

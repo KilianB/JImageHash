@@ -83,7 +83,7 @@ public class RotAverageHash extends HashingAlgorithm {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, BigInteger hash) {
+	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
 
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
@@ -127,13 +127,13 @@ public class RotAverageHash extends HashingAlgorithm {
 		// 0 bucket does not contain any value.
 		for (int i = 2; i < hashArr.length; i++) {
 			if (hashArr[i] >= hashArr[i - 1]) {
-				hash = hash.shiftLeft(1);
+				hash.append("0");
 			} else {
-				hash = hash.shiftLeft(1).add(BigInteger.ONE);
+				hash.append("1");
 			}
 		}
 
-		return hash;
+		return new BigInteger(hash.toString(),2);
 	}
 
 	/**

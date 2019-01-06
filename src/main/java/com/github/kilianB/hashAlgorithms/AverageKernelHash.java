@@ -96,7 +96,7 @@ public class AverageKernelHash extends AverageHash implements Serializable {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, BigInteger hash) {
+	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
 
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
@@ -105,7 +105,6 @@ public class AverageKernelHash extends AverageHash implements Serializable {
 		// Calculate the average color of the entire image
 
 		// Kernel filter
-
 		double[][] filtered = null;
 
 		for (Kernel kernel : filters) {

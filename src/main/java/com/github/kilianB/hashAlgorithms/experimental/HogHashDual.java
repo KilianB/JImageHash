@@ -64,7 +64,7 @@ public class HogHashDual extends HogHash {
 	}
 	
 	@Override
-	protected BigInteger hash(BufferedImage image, BigInteger hash) {
+	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
 
 		
 		BufferedImage bi = ImageUtil.getScaledInstance(image, width, height);
@@ -96,18 +96,18 @@ public class HogHashDual extends HogHash {
 				boolean caryOver = false;
 				for (int bin = 0; bin < numBins; bin++) {
 					if (bin == maxIndex) {
-						hash = hash.shiftLeft(1);
+						hash.append("0");
 						caryOver = true;
 					} else if (caryOver || secondMax == bin) {
-						hash = hash.shiftLeft(1);
+						hash.append("0");
 						caryOver = false;
 					} else {
-						hash = hash.shiftLeft(1).add(BigInteger.ONE);
+						hash.append("1");
 					}
 				}
 			}
 		}
 
-		return hash;
+		return new BigInteger(hash.toString(),2);
 	}
 }

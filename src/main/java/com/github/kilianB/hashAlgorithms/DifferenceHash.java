@@ -93,7 +93,7 @@ public class DifferenceHash extends HashingAlgorithm {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, BigInteger hash) {
+	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 		// Use data buffer for faster access
 
@@ -103,9 +103,9 @@ public class DifferenceHash extends HashingAlgorithm {
 		for (int x = 1; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (lum[x][y] >= lum[x - 1][y]) {
-					hash = hash.shiftLeft(1);
+					hash.append("0");
 				} else {
-					hash = hash.shiftLeft(1).add(BigInteger.ONE);
+					hash.append("1");
 				}
 			}
 		}
@@ -118,9 +118,9 @@ public class DifferenceHash extends HashingAlgorithm {
 			for (int x = 0; x < width; x++) {
 				for (int y = 1; y < height; y++) {
 					if (lum[x][y] < lum[x][y - 1]) {
-						hash = hash.shiftLeft(1);
+						hash.append("0");
 					} else {
-						hash = hash.shiftLeft(1).add(BigInteger.ONE);
+						hash.append("1");
 					}
 				}
 			}
@@ -131,14 +131,14 @@ public class DifferenceHash extends HashingAlgorithm {
 			for (int x = 1; x < width; x++) {
 				for (int y = 1; y < height; y++) {
 					if (lum[x][y] < lum[x - 1][y - 1]) {
-						hash = hash.shiftLeft(1);
+						hash.append("0");
 					} else {
-						hash = hash.shiftLeft(1).add(BigInteger.ONE);
+						hash.append("1");
 					}
 				}
 			}
 		}
-		return hash;
+		return new BigInteger(hash.toString(),2);
 	}
 
 	/**
@@ -188,6 +188,11 @@ public class DifferenceHash extends HashingAlgorithm {
 		return new DHash(original, this.precision, width, height);
 	}
 
+	/**
+	 * An extended hash class allowing dhashes to be visually represented.
+	 * @author Kilian
+	 * @since 3.0.0
+	 */
 	public static class DHash extends Hash {
 
 		private Precision precision;
@@ -273,9 +278,6 @@ public class DifferenceHash extends HashingAlgorithm {
 		}
 	}
 
-	/**
-	 * @return
-	 */
 	public Precision getPrecision() {
 		return precision;
 	}
