@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 
-import com.github.kilianB.dataStrorage.tree.BinaryTree;
-import com.github.kilianB.dataStrorage.tree.Result;
+import com.github.kilianB.datastructures.tree.Result;
+import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
 import com.github.kilianB.examples.util.GoogleImageDownloaderMinimal;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
@@ -157,7 +157,7 @@ public class GuiController {
 				(int) hammingDistance.getValue());
 
 		for (Result<Image> result : results) {
-			Image javaFxImage = result.getValue();
+			Image javaFxImage = result.value;
 			ImageView view = new ImageView(javaFxImage);
 			// view.setFitWidth(100);
 			// view.setFitHeight(100);

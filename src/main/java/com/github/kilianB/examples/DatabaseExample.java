@@ -7,12 +7,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.PriorityQueue;
 
-import com.github.kilianB.dataStrorage.tree.Result;
+import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.unsupervised.database.DatabaseImageMatcher;
-import com.github.kilianB.matcher.unsupervised.database.H2DatabaseImageMatcher;
+import com.github.kilianB.matcher.persistent.database.DatabaseImageMatcher;
+import com.github.kilianB.matcher.persistent.database.H2DatabaseImageMatcher;
 
 /**
  * @author Kilian

@@ -6,12 +6,12 @@ import java.util.PriorityQueue;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.dataStrorage.tree.BinaryTree;
-import com.github.kilianB.dataStrorage.tree.Result;
+import com.github.kilianB.datastructures.tree.Result;
+import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
+import com.github.kilianB.matcher.cached.InMemoryImageMatcher;
 
 /**
  * This example shows how a greater number of images can be compared to each

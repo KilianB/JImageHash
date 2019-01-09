@@ -20,8 +20,8 @@ import com.github.kilianB.MathUtil;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
+import com.github.kilianB.matcher.pairwise.SingleImageMatcher;
 import com.github.kilianB.matcher.supervised.LabeledImage;
-import com.github.kilianB.matcher.unsupervised.SingleImageMatcher;
 
 import javafx.application.Application;
 import javafx.application.Platform;

@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.unsupervised;
+package com.github.kilianB.matcher.pairwise;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

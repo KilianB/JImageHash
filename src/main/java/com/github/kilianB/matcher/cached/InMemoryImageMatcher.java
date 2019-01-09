@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.unsupervised;
+package com.github.kilianB.matcher.cached;
 
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -9,15 +9,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 
-import com.github.kilianB.dataStrorage.tree.BinaryTree;
-import com.github.kilianB.dataStrorage.tree.Result;
+import com.github.kilianB.datastructures.tree.Result;
+import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.Hash;
 import com.github.kilianB.matcher.ImageMatcher;
 
 /**
  * Convenience class allowing to chain multiple hashing algorithms to find
- * similar images. The InMemoryImageMatcher keeps the hashes and buffered images
+ * similar images. The ConsecutiveImageMatcher keeps the hashes and buffered images
  * in cache.
  * 
  * @author Kilian

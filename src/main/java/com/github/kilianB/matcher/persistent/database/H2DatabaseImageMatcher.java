@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.unsupervised.database;
+package com.github.kilianB.matcher.persistent.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 import org.h2.tools.DeleteDbFiles;
 
-import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
+import com.github.kilianB.matcher.persistent.ConsecutiveImageMatcher;
 
 /**
  * A naive database based image matcher implementation. Images indexed by this
@@ -27,7 +27,7 @@ import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
  * tree quickly.
  * 
  * <p>
- * Opposed to the {@link InMemoryImageMatcher} this matcher does not stores a
+ * Opposed to the {@link ConsecutiveImageMatcher} this matcher does not stores a
  * reference to the image data itself but just keeps track of the hash and the
  * url of the image file. Additionally if hashing algorithms are added after
  * images have been hashed the images will not be found without reindexing the
@@ -75,7 +75,7 @@ import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
  * <p>
  * For each and every match the hashes have to be read from the database. This
  * allows to persistently stores hashes but might not be as efficient as the
- * {@link InMemoryImageMatcher}. Optimizations may include to store 0 or 1 level
+ * {@link ConsecutiveImageMatcher}. Optimizations may include to store 0 or 1 level
  * hashes (hashes created by the first invoked hashing algorithms at a memory
  * level and only retrieve the later hashes from the database.
  * 
@@ -237,7 +237,7 @@ public class H2DatabaseImageMatcher extends DatabaseImageMatcher {
 	 * connection object. If the database does not yet exist an empty db will be
 	 * initialized.
 	 * 
-	 * @param connection the database connection
+	 * @param dbConnection the database connection
 	 * @throws SQLException             if a database access error occurs
 	 *                                  {@code null}
 	 * @throws SQLTimeoutException      when the driver has determined that the

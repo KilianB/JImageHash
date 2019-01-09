@@ -12,17 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
-import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.github.kilianB.hashAlgorithms.AverageHash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
 import com.github.kilianB.matcher.ImageMatcher.Setting;
-import com.github.kilianB.matcher.unsupervised.SingleImageMatcher;
+import com.github.kilianB.matcher.pairwise.SingleImageMatcher;
 
 class SingleImageMatcherTest {
 
@@ -106,13 +103,11 @@ class SingleImageMatcherTest {
 	@Test
 	public void addAndClearAlgorithms() {
 		SingleImageMatcher matcher = new SingleImageMatcher();
-		Map<HashingAlgorithm, AlgoSettings> algos = matcher.getAlgorithms();
-
-		assertEquals(0, algos.size());
+		assertEquals(0,matcher.getAlgorithms().size());
 		matcher.addHashingAlgorithm(new AverageHash(14), 0.5, true);
-		assertEquals(1, algos.size());
+		assertEquals(1,matcher.getAlgorithms().size());
 		matcher.clearHashingAlgorithms();
-		assertEquals(0, algos.size());
+		assertEquals(0,matcher.getAlgorithms().size());
 	}
 
 }

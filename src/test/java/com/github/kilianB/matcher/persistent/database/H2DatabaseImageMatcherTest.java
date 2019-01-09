@@ -1,4 +1,5 @@
-package com.github.kilianB.matcher.unsupervised.database;
+package com.github.kilianB.matcher.persistent.database;
+
 
 import static com.github.kilianB.TestResources.ballon;
 import static com.github.kilianB.TestResources.copyright;
@@ -31,7 +32,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.github.kilianB.dataStrorage.tree.Result;
+import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
@@ -152,7 +153,7 @@ class H2DatabaseImageMatcherTest {
 	@Nested
 	class TestDefaultSettings {
 		@ParameterizedTest
-		@MethodSource("com.github.kilianB.matcher.unsupervised.database.H2DatabaseImageMatcherTest#createDefaultMatcher")
+		@MethodSource("com.github.kilianB.matcher.persistent.database.H2DatabaseImageMatcherTest#createDefaultMatcher")
 		public void imageMatches(H2DatabaseImageMatcher matcher) throws SQLException {
 			try {
 				matcher.addImage("Ballon", ballon);

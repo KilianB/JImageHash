@@ -18,12 +18,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.dataStrorage.tree.Result;
+import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
 import com.github.kilianB.matcher.ImageMatcher.Setting;
-import com.github.kilianB.matcher.unsupervised.InMemoryImageMatcher;
+import com.github.kilianB.matcher.cached.InMemoryImageMatcher;
 
 class InMemoryImageMatcherTest {
 

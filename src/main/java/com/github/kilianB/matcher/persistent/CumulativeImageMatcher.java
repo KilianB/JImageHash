@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.pairwise;
+package com.github.kilianB.matcher.persistent;
 
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
@@ -17,7 +17,6 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.hashAlgorithms.RotPHash;
 import com.github.kilianB.matcher.Hash;
-import com.github.kilianB.matcher.cached.InMemoryImageMatcher;
 
 /**
  * Instead of early aborting if one algorithm fails like the
@@ -48,8 +47,9 @@ import com.github.kilianB.matcher.cached.InMemoryImageMatcher;
  * @author Kilian
  * @since 2.0.0
  */
-public class CumulativeImageMatcher extends InMemoryImageMatcher {
+public class CumulativeImageMatcher extends PersitentBinaryTreeMatcher {
 
+	private static final long serialVersionUID = 4124905869048848068L;
 	/**
 	 * Settings of the in memory matcher
 	 */
@@ -219,7 +219,7 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 	}
 
 	@Override
-	public PriorityQueue<Result<BufferedImage>> getMatchingImages(BufferedImage image) {
+	public PriorityQueue<Result<String>> getMatchingImages(BufferedImage image) {
 
 		if (steps.isEmpty())
 			throw new IllegalStateException(
@@ -230,7 +230,7 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 		double maxDistanceUntilTermination = overallSetting.getThreshold();
 
 		// [Result,Summed distance of the image]
-		HashMap<Result<BufferedImage>, Double> distanceMap = new HashMap<>();
+		HashMap<Result<String>, Double> distanceMap = new HashMap<>();
 
 		// During first iteration we need to do some extra hoops
 		boolean first = true;
@@ -242,9 +242,9 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 		for (Entry<HashingAlgorithm, AlgoSettings> entry : steps.entrySet()) {
 			HashingAlgorithm algo = entry.getKey();
 
-			HashMap<Result<BufferedImage>, Double> temporaryMap;
+			HashMap<Result<String>, Double> temporaryMap;
 
-			BinaryTree<BufferedImage> binTree = binTreeMap.get(algo);
+			BinaryTree<String> binTree = binTreeMap.get(algo);
 
 			// Init temporary hashmap
 			int optimalCapacity = (int) (Math
@@ -264,14 +264,14 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 				threshold = (int) maxDistanceUntilTermination;
 			}
 
-			PriorityQueue<Result<BufferedImage>> temp = binTree.getElementsWithinHammingDistance(needleHash, threshold);
+			PriorityQueue<Result<String>> temp = binTree.getElementsWithinHammingDistance(needleHash, threshold);
 
 			// Find the min total distance for the next generation to specify our cutoff
 			// parameter
 			double minDistance = Double.MAX_VALUE;
 
 			// filter manually
-			for (Result<BufferedImage> res : temp) {
+			for (Result<String> res : temp) {
 
 				double normalDistance = entry.getValue().getThreshold() * (res.distance / (double) bitRes);
 
@@ -304,7 +304,6 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 						}
 					}
 				}
-
 				// Cumulative distance already supplied
 			}
 
@@ -322,20 +321,26 @@ public class CumulativeImageMatcher extends InMemoryImageMatcher {
 		}
 
 		// TODO note that we used the normalized distance here
-		PriorityQueue<Result<BufferedImage>> returnValues = new PriorityQueue<>(
-				new Comparator<Result<BufferedImage>>() {
+		PriorityQueue<Result<String>> returnValues = new PriorityQueue<>(
+				new Comparator<Result<String>>() {
 					@Override
-					public int compare(Result<BufferedImage> o1, Result<BufferedImage> o2) {
+					public int compare(Result<String> o1, Result<String> o2) {
 						return Double.compare(o1.normalizedHammingDistance, o2.normalizedHammingDistance);
 					}
 				});
 
-		for (Entry<Result<BufferedImage>, Double> e : distanceMap.entrySet()) {
-			Result<BufferedImage> matchedImage = e.getKey();
+		for (Entry<Result<String>, Double> e : distanceMap.entrySet()) {
+			Result<String> matchedImage = e.getKey();
 			matchedImage.normalizedHammingDistance = e.getValue();
 			returnValues.add(matchedImage);
 		}
 		return returnValues;
+	}
+
+	@Override
+	public PriorityQueue<Result<String>> getMatchingImages(BufferedImage image, double maxiumDistance) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

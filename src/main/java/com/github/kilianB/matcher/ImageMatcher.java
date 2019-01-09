@@ -1,6 +1,7 @@
 package com.github.kilianB.matcher;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -11,8 +12,17 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.hashAlgorithms.RotPHash;
 
+/**
+ * Image matchers are a collection of classes which bundle the hashing operation of one or
+ * multiple {@link com.github.kilianB.hashAlgorithms.HashingAlgorithm
+ * HashingAlgorithms} and expose functionalities to compare multiple images with
+ * each other.
+ * 
+ * @author Kilian
+ *
+ */
 public abstract class ImageMatcher {
-	
+
 	/**
 	 * Configuration level for the default matcher
 	 * 
@@ -49,7 +59,7 @@ public abstract class ImageMatcher {
 		Speed
 
 	}
-	
+
 	/**
 	 * Contains multiple hashing algorithms applied in the order they were added to
 	 * the image matcher
@@ -161,14 +171,14 @@ public abstract class ImageMatcher {
 	}
 
 	/**
-	 * Return a strong reference to the algorithm hashmap. Altering this map
-	 * directly affects the image matcher. Be aware that this instance is not thread
-	 * safe.
+	 * Return an immutable map copy of the algorithms currently used in the matcher.
+	 * This map is a hard copy of the hashmap and does not updated if the underlying
+	 * collection gets altered
 	 * 
 	 * @return A map containing all algorithms used in this matcher
 	 */
 	public Map<HashingAlgorithm, AlgoSettings> getAlgorithms() {
-		return steps;
+		return Collections.unmodifiableMap(new LinkedHashMap<HashingAlgorithm, AlgoSettings>(steps));
 	}
 
 	@Override
