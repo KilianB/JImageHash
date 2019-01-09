@@ -684,7 +684,7 @@ public class Kernel implements Serializable, Filter {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((edgeHandling == null) ? 0 : MiscUtil.consitentHashCode(edgeHandling));
+		result = prime * result + ((edgeHandling == null) ? 0 : MiscUtil.consistentHashCode(edgeHandling));
 		result = prime * result + Arrays.deepHashCode(mask);
 		return result;
 	}
