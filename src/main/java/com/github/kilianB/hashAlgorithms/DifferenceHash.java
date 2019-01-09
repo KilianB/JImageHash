@@ -93,7 +93,7 @@ public class DifferenceHash extends HashingAlgorithm {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 		// Use data buffer for faster access
 
@@ -103,9 +103,9 @@ public class DifferenceHash extends HashingAlgorithm {
 		for (int x = 1; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (lum[x][y] >= lum[x - 1][y]) {
-					hash.append("0");
+					hash.prependZero();
 				} else {
-					hash.append("1");
+					hash.prependOne();
 				}
 			}
 		}
@@ -118,9 +118,9 @@ public class DifferenceHash extends HashingAlgorithm {
 			for (int x = 0; x < width; x++) {
 				for (int y = 1; y < height; y++) {
 					if (lum[x][y] < lum[x][y - 1]) {
-						hash.append("0");
+						hash.prependZero();
 					} else {
-						hash.append("1");
+						hash.prependOne();
 					}
 				}
 			}
@@ -131,14 +131,14 @@ public class DifferenceHash extends HashingAlgorithm {
 			for (int x = 1; x < width; x++) {
 				for (int y = 1; y < height; y++) {
 					if (lum[x][y] < lum[x - 1][y - 1]) {
-						hash.append("0");
+						hash.prependZero();
 					} else {
-						hash.append("1");
+						hash.prependOne();
 					}
 				}
 			}
 		}
-		return new BigInteger(hash.toString(),2);
+		return hash.toBigInteger();
 	}
 
 	/**
@@ -190,6 +190,7 @@ public class DifferenceHash extends HashingAlgorithm {
 
 	/**
 	 * An extended hash class allowing dhashes to be visually represented.
+	 * 
 	 * @author Kilian
 	 * @since 3.0.0
 	 */
@@ -254,10 +255,10 @@ public class DifferenceHash extends HashingAlgorithm {
 
 		private int drawDoublePrecision(FastPixel writer, int width, int wOffset, int height, int hOffset,
 				int blockSize, int offset, int yOffset, int[] bitColorIndex, Color[] colors) {
-			int i = hashLength - 1 - offset;
+			int i = offset;
 			for (int w = 0; w < (width - wOffset) * blockSize; w = w + blockSize) {
 				for (int h = 0; h < (height - hOffset) * blockSize; h = h + blockSize) {
-					Color c = colors[bitColorIndex[i--]];
+					Color c = colors[bitColorIndex[i++]];
 					int red = (int) (c.getRed() * 255);
 					int green = (int) (c.getGreen() * 255);
 					int blue = (int) (c.getBlue() * 255);
@@ -274,7 +275,7 @@ public class DifferenceHash extends HashingAlgorithm {
 					}
 				}
 			}
-			return ((hashLength - 1 - offset) - i);
+			return i-offset;
 		}
 	}
 
