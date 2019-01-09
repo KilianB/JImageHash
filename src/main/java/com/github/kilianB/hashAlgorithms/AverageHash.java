@@ -60,7 +60,7 @@ public class AverageHash extends HashingAlgorithm {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
 		int[][] luminocity = fp.getLuma();
@@ -72,30 +72,30 @@ public class AverageHash extends HashingAlgorithm {
 		return computeHash(hash, luminocity, avgPixelValue);
 	}
 
-	protected BigInteger computeHash(StringBuilder hash, double[][] pixelValue, double compareAgainst) {
+	protected BigInteger computeHash(HashBuilder hash, double[][] pixelValue, double compareAgainst) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (pixelValue[x][y] < compareAgainst) {
-					hash.append("0");
+					hash.prependZero();
 				} else {
-					hash.append("1");
+					hash.prependOne();
 				}
 			}
 		}
-		return new BigInteger(hash.toString(),2);
+		return hash.toBigInteger();
 	}
 	
-	protected BigInteger computeHash(StringBuilder hash, int[][] pixelValue, double compareAgainst) {
+	protected BigInteger computeHash(HashBuilder hash, int[][] pixelValue, double compareAgainst) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (pixelValue[x][y] < compareAgainst) {
-					hash.append("0");
+					hash.prependZero();
 				} else {
-					hash.append("1");
+					hash.prependOne();
 				}
 			}
 		}
-		return new BigInteger(hash.toString(),2);
+		return hash.toBigInteger();
 	}
 
 	/**
@@ -130,5 +130,4 @@ public class AverageHash extends HashingAlgorithm {
 		 */
 		return Objects.hash(getClass().getName(), height, width);
 	}
-
 }

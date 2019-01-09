@@ -118,7 +118,16 @@ public abstract class HashingAlgorithm implements Serializable {
 		}
 		immutableState = true;
 
-		return new Hash(hash(bi, new StringBuilder(getKeyResolution())), getKeyResolution(), algorithmId());
+		BigInteger hashValue;
+
+		if (keyResolution < 0) {
+			HashBuilder hb = new HashBuilder(this.bitResolution);
+			hashValue = hash(bi, hb);
+			keyResolution = hb.length;
+		} else {
+			hashValue = hash(bi, new HashBuilder(getKeyResolution()));
+		}
+		return new Hash(hashValue, getKeyResolution(), algorithmId());
 	}
 
 	/**
@@ -151,11 +160,11 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * distance can be calculated due to xoring without issue the normalized
 	 * distance requires the potential length of the key to be known.
 	 * 
-	 * @param image Image whose hash will be calculated
-	 * @param hashBuilder a stringBuilder used to construct the hash
+	 * @param image       Image whose hash will be calculated
+	 * @param hashBuilder a hash builder used to construct the hash
 	 * @return the hash encoded as a big integer
 	 */
-	protected abstract BigInteger hash(BufferedImage image, StringBuilder hashBuilder);
+	protected abstract BigInteger hash(BufferedImage image, HashBuilder hashBuilder);
 
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the
@@ -172,7 +181,9 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	public final int algorithmId() {
 		if (algorithmId == 0) {
-			algorithmId = 31 * precomputeAlgoId() + preProcessing.hashCode();
+			algorithmId = 31 * precomputeAlgoId();
+			//Make sure the algo id doesn't collide with version 2.0.0 id's
+			algorithmId = 31 * algorithmId + 5  + preProcessing.hashCode();
 			immutableState = true;
 		}
 		return algorithmId;
@@ -224,9 +235,9 @@ public abstract class HashingAlgorithm implements Serializable {
 		// return value
 		if (keyResolution < 0) {
 			BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
-			StringBuilder sb = new StringBuilder(this.bitResolution);
+			HashBuilder sb = new HashBuilder(this.bitResolution);
 			this.hash(bi, sb);
-			keyResolution = sb.length();
+			keyResolution = sb.length;
 		}
 		return keyResolution;
 	}

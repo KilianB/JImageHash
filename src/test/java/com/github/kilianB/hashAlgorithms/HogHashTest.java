@@ -2,12 +2,14 @@ package com.github.kilianB.hashAlgorithms;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.experimental.HogHash;
 
 /**
@@ -31,9 +33,19 @@ class HogHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-1105481375, new AverageHash(14).algorithmId());
+				assertEquals(-1909360295, new HogHash(14).algorithmId());
 			}, () -> {
-				assertEquals(-1105480383, new AverageHash(25).algorithmId());
+				assertEquals(-1850254951, new HogHash(25).algorithmId());
+			});
+		}
+		
+		@Test
+		@DisplayName("Consistent AlgorithmIds v 2.0.0 collision")
+		public void notVersionTwo() {
+			assertAll(() -> {
+				assertNotEquals(769691726, new HogHash(14).algorithmId());
+			}, () -> {
+				assertNotEquals(771598350, new HogHash(25).algorithmId());
 			});
 		}
 	}
@@ -58,6 +70,16 @@ class HogHashTest {
 		@Override
 		protected int offsetBitResolution() {
 			return 10;
+		}
+		
+		@Override
+		protected double differenceBallonHqHash() {
+			return 50;
+		}
+
+		@Override
+		protected double normDifferenceBallonHqHash() {
+			return 50 / 144d;
 		}
 	}
 

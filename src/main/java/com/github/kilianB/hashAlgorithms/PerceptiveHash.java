@@ -40,7 +40,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
 		int[][] lum = fp.getLuma();
@@ -82,13 +82,13 @@ public class PerceptiveHash extends HashingAlgorithm {
 			for (int j = 1; j < subHeight + 1; j++) {
 
 				if (lumAsDouble[i][j] < avg) {
-					hash.append("0");
+					hash.prependZero();
 				} else {
-					hash.append("1");
+					hash.prependOne();
 				}
 			}
 		}
-		return new BigInteger(hash.toString(),2);
+		return hash.toBigInteger();
 	}
 
 	/**

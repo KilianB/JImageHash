@@ -315,10 +315,10 @@ public class Hash {
 
 		FastPixel fp = FastPixel.create(bi);
 
-		int i = hashLength - 1;
+		int i = 0;
 		for (int w = 0; w < width * blockSize; w = w + blockSize) {
 			for (int h = 0; h < height * blockSize; h = h + blockSize) {
-				Color c = colors[bitColorIndex[i--]];
+				Color c = colors[bitColorIndex[i++]];
 				int red = (int) (c.getRed() * 255);
 				int green = (int) (c.getGreen() * 255);
 				int blue = (int) (c.getBlue() * 255);

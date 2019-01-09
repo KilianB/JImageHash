@@ -5,6 +5,7 @@ import java.math.BigInteger;
 
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
+import com.github.kilianB.hashAlgorithms.HashBuilder;
 
 /**
  * @author Kilian
@@ -54,7 +55,7 @@ public class HogHashAngularEncoded extends HogHash {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 
 		BufferedImage bi = ImageUtil.getScaledInstance(image, width, height);
 		FastPixel fp = FastPixel.create(bi);
@@ -84,15 +85,15 @@ public class HogHashAngularEncoded extends HogHash {
 			for (int yCell = 0; yCell < yCells; yCell++) {
 				for (int bin = 0; bin < numBins; bin++) {
 					if (hog[xCell][yCell][bin] > binAverage[bin]) {
-						hash.append("0");
+						hash.prependZero();
 					} else {
-						hash.append("1");
+						hash.prependOne();
 					}
 				}
 			}
 		}
 
-		return new BigInteger(hash.toString(),2);
+		return hash.toBigInteger();
 	}
 
 }

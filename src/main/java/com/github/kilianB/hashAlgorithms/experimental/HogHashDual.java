@@ -5,6 +5,7 @@ import java.math.BigInteger;
 
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
+import com.github.kilianB.hashAlgorithms.HashBuilder;
 
 /**
  * Image Hash on HOG feature descriptor. Not ready yet. Most likely use a very
@@ -64,7 +65,7 @@ public class HogHashDual extends HogHash {
 	}
 	
 	@Override
-	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 
 		
 		BufferedImage bi = ImageUtil.getScaledInstance(image, width, height);
@@ -96,18 +97,18 @@ public class HogHashDual extends HogHash {
 				boolean caryOver = false;
 				for (int bin = 0; bin < numBins; bin++) {
 					if (bin == maxIndex) {
-						hash.append("0");
+						hash.prependZero();
 						caryOver = true;
 					} else if (caryOver || secondMax == bin) {
-						hash.append("0");
+						hash.prependZero();
 						caryOver = false;
 					} else {
-						hash.append("1");
+						hash.prependOne();
 					}
 				}
 			}
 		}
 
-		return new BigInteger(hash.toString(),2);
+		return hash.toBigInteger();
 	}
 }

@@ -49,7 +49,7 @@ public class MedianHash extends AverageHash {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
 		int[] lum = fp.getLuma1D();

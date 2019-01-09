@@ -96,7 +96,7 @@ public class RotPHash extends HashingAlgorithm {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 
 		// 0. Preprocessing. Extract Luminosity
 		BufferedImage transformed = ImageUtil.getScaledInstance(image, width, height);
@@ -160,14 +160,14 @@ public class RotPHash extends HashingAlgorithm {
 					break;
 
 				if (arr[j] >= avg) {
-					hash.append("0");
+					hash.prependZero();
 				} else {
-					hash.append("1");
+					hash.prependOne();
 				}
 				length++;
 			}
 		}
-		return new BigInteger(hash.toString(),2);
+		return hash.toBigInteger();
 	}
 
 	/**

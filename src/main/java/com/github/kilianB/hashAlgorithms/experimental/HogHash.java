@@ -12,11 +12,13 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 import com.github.kilianB.ArrayUtil;
+import com.github.kilianB.Experimental;
 import com.github.kilianB.MathUtil;
 import com.github.kilianB.Require;
 import com.github.kilianB.graphics.ColorUtil;
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
+import com.github.kilianB.hashAlgorithms.HashBuilder;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 /**
@@ -29,6 +31,7 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
  * @author Kilian
  * @since 2.0.0
  */
+@Experimental(description = "")
 public class HogHash extends HashingAlgorithm {
 
 	/*
@@ -157,7 +160,7 @@ public class HogHash extends HashingAlgorithm {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 
 		BufferedImage bi = ImageUtil.getScaledInstance(image, width, height);
 		FastPixel fp = FastPixel.create(bi);
@@ -191,14 +194,14 @@ public class HogHash extends HashingAlgorithm {
 				}
 				for (int bin = 0; bin < numBins; bin++) {
 					if (bin == maxIndex) {
-						hash.append("0");
+						hash.prependZero();
 					} else {
-						hash.append("1");
+						hash.prependOne();
 					}
 				}
 			}
 		}
-		return new BigInteger(hash.toString(),2);
+		return hash.toBigInteger();
 	}
 
 	protected int[][][] computeHogFeatures(int[][] lum) {
