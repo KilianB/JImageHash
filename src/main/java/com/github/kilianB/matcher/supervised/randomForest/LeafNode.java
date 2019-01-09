@@ -1,12 +1,8 @@
 package com.github.kilianB.matcher.supervised.randomForest;
 
 import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.Map;
 
 import com.github.kilianB.StringUtil;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * A leaf node is a terminating . Reaching this point will r
@@ -19,15 +15,15 @@ import com.github.kilianB.matcher.Hash;
 class LeafNode extends TreeNode {
 
 	/** indicate if this node indicates a match or mismatch leaf node */
-	protected boolean match;
+	protected int category;
 
 	/**
 	 * Create a leaf node.
 	 * 
 	 * @param match
 	 */
-	public LeafNode(boolean match) {
-		this.match = match;
+	public LeafNode(int category) {
+		this.category = category;
 	}
 
 	@Override
@@ -36,17 +32,11 @@ class LeafNode extends TreeNode {
 	}
 
 	@Override
-	public boolean predictAgainstAll(BufferedImage bi,Map<HashingAlgorithm,List<Hash>> precomputedHashes) {
-		return match;
-	}
-
-	@Override
-	public boolean predictAgainstAllExcludingSelf(BufferedImage bi,
-			Map<HashingAlgorithm, Map<BufferedImage, Hash>> precomputedHashes) {
-		return match;
+	public int predictAgainstAll(BufferedImage bi) {
+		return category;
 	}
 	
 	public String toString() {
-		return "LeafNode " + this.hashCode() + " [Match:" + match + "] ";
+		return "LeafNode " + this.hashCode() + " [Category:" + category + "] ";
 	}
 }
