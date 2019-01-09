@@ -46,7 +46,7 @@ public abstract class RotationalTestBase extends HashTestBase{
 		});
 	}
 	
-	static Stream<Integer> bitResolution() {
+	public static Stream<Integer> bitResolution() {
 		Integer[] ints = new Integer[10];
 		ArrayUtil.fillArray(ints, (index) -> {
 			return index*2+20;

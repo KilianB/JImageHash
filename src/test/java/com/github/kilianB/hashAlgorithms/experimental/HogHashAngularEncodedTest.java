@@ -2,6 +2,7 @@ package com.github.kilianB.hashAlgorithms.experimental;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +22,7 @@ class HogHashAngularEncodedTest {
 	@Nested
 	@DisplayName("Algorithm Id")
 	class AlgorithmId {
-
+		
 		/**
 		 * The algorithms id shall stay consistent throughout different instances of the
 		 * jvm. While simple hashcodes do not guarantee this behavior hash codes created
@@ -30,13 +31,24 @@ class HogHashAngularEncodedTest {
 		@Test
 		@DisplayName("Consistent AlgorithmIds")
 		public void consistency() {
-
 			assertAll(() -> {
-				assertEquals(-1105481375, new AverageHash(14).algorithmId());
+				assertEquals(431747525, new HogHashAngularEncoded(14).algorithmId());
 			}, () -> {
-				assertEquals(-1105480383, new AverageHash(25).algorithmId());
+				assertEquals(490852869, new HogHashAngularEncoded(25).algorithmId());
 			});
 		}
+		
+		@Test
+		@DisplayName("Consistent AlgorithmIds v 2.0.0 collision")
+		public void notVersionTwo() {
+			assertAll(() -> {
+				assertNotEquals(1815042658, new HogHashAngularEncoded(14).algorithmId());
+			}, () -> {
+				assertNotEquals(1816949282, new HogHashAngularEncoded(14).algorithmId());
+			});
+		}
+		
+		
 	}
 
 	@Test
@@ -53,6 +65,16 @@ class HogHashAngularEncodedTest {
 		@Override
 		protected HashingAlgorithm getInstance(int bitResolution) {
 			return new HogHashAngularEncoded(bitResolution);
+		}
+		
+		@Override
+		protected double differenceBallonHqHash() {
+			return 71;
+		}
+
+		@Override
+		protected double normDifferenceBallonHqHash() {
+			return 71 / 144d;
 		}
 	}
 

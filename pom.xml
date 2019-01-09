@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>com.github.kilianB</groupId>
 			<artifactId>UtilityCode</artifactId>
-			<version>1.5.5</version>
+			<version>1.5.6</version>
 		</dependency>
 
 		<dependency>
@@ -166,7 +166,8 @@
 					<excludes>
 						<exclude>**/kilianB/examples/**</exclude>
 					</excludes>
-					<additionalOptions>-html5</additionalOptions>
+					<!-- Only supported once moved to java 9  -->
+					<!-- <additionalOptions>-html5</additionalOptions> -->
 				</configuration>
 				<executions>
 					<execution>

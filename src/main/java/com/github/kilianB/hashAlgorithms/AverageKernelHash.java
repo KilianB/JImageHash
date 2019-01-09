@@ -96,7 +96,7 @@ public class AverageKernelHash extends AverageHash implements Serializable {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, StringBuilder hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
@@ -122,7 +122,8 @@ public class AverageKernelHash extends AverageHash implements Serializable {
 
 	@Override
 	protected int precomputeAlgoId() {
-		return Objects.hash(getClass().getName(), height, width, filters);
+		//*31 to create a distinct id compare to v 2.0.0 bugfix
+		return Objects.hash(getClass().getName(), height, width, filters) *31;
 	}
 
 	@Override

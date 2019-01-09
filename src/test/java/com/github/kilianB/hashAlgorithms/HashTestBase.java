@@ -28,6 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.ArrayUtil;
+import com.github.kilianB.TestResources;
 import com.github.kilianB.hashAlgorithms.filter.Kernel;
 import com.github.kilianB.matcher.Hash;
 
@@ -220,7 +221,7 @@ public abstract class HashTestBase {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(0, h.hash(ballon).hammingDistanceFast(h.hash(ballon)));
 		}
-		
+
 		/**
 		 * The hamming distance of similar images shall be lower than the distance of
 		 * vastly different pictures
@@ -243,10 +244,10 @@ public abstract class HashTestBase {
 						highQualityHash.hammingDistance(lowQualityHash) < highQualityHash.hammingDistance(ballonHash));
 			});
 		}
-		
+
 		/**
-		 * The normalized hamming distance of similar images shall be lower than the distance of
-		 * vastly different pictures
+		 * The normalized hamming distance of similar images shall be lower than the
+		 * distance of vastly different pictures
 		 * 
 		 * @param bitRes the bit resolution of the algorithm
 		 */
@@ -259,11 +260,11 @@ public abstract class HashTestBase {
 			Hash ballonHash = h.hash(ballon);
 
 			assertAll(() -> {
-				assertTrue(
-						lowQualityHash.normalizedHammingDistance(highQualityHash) < lowQualityHash.normalizedHammingDistance(ballonHash));
+				assertTrue(lowQualityHash.normalizedHammingDistance(highQualityHash) < lowQualityHash
+						.normalizedHammingDistance(ballonHash));
 			}, () -> {
-				assertTrue(
-						highQualityHash.normalizedHammingDistance(lowQualityHash) < highQualityHash.normalizedHammingDistance(ballonHash));
+				assertTrue(highQualityHash.normalizedHammingDistance(lowQualityHash) < highQualityHash
+						.normalizedHammingDistance(ballonHash));
 			});
 		}
 	}
@@ -342,7 +343,24 @@ public abstract class HashTestBase {
 		}
 	}
 
-	static Stream<Integer> bitResolutionBroad() {
+	@Nested
+	class LegacyCorectness {
+		@Test
+		void consistency() {
+			HashingAlgorithm hasher = getInstance(128);
+			Hash bHash = hasher.hash(TestResources.ballon);
+			Hash hqHash = hasher.hash(TestResources.highQuality);
+
+			assertAll(() -> {
+				assertEquals(differenceBallonHqHash(), bHash.hammingDistance(hqHash));
+			}, () -> {
+				assertEquals(normDifferenceBallonHqHash(), bHash.normalizedHammingDistance(hqHash));
+			});
+
+		}
+	}
+
+	public static Stream<Integer> bitResolutionBroad() {
 		Integer[] ints = new Integer[100];
 		ArrayUtil.fillArray(ints, (index) -> {
 			return index + 10;
@@ -350,7 +368,7 @@ public abstract class HashTestBase {
 		return Stream.of(ints);
 	}
 
-	static Stream<Integer> bitResolution() {
+	public static Stream<Integer> bitResolution() {
 		Integer[] ints = new Integer[10];
 		ArrayUtil.fillArray(ints, (index) -> {
 			return index + 10;
@@ -359,7 +377,7 @@ public abstract class HashTestBase {
 	}
 
 	/**
-	 * Some hashing algorthms need a greater or lower key resolution. Allow
+	 * Some hashing algorithms need a greater or lower key resolution. Allow
 	 * individual test to override this.
 	 * 
 	 * @return
@@ -369,5 +387,25 @@ public abstract class HashTestBase {
 	}
 
 	protected abstract HashingAlgorithm getInstance(int bitResolution);
+
+	/**
+	 * The internal structure of hashing algorithms may change once in a while, but
+	 * the hamming distance and normalized hamming distance should be unaffected.
+	 * This method returns the expected 128 bit hamming distance for a ballon and
+	 * hqHash
+	 *
+	 * @return the 128 bit hamming distance between ballon and hq
+	 */
+	protected abstract double differenceBallonHqHash();
+
+	/**
+	 * The internal structure of hashing algorithms may change once in a while, but
+	 * the hamming distance and normalized hamming distance should be unaffected.
+	 * This method returns the expected 128 bit normalized hamming distance for a
+	 * ballon and hqHash
+	 *
+	 * @return the 128 bit normalized hamming distance between ballon and hq
+	 */
+	protected abstract double normDifferenceBallonHqHash();
 
 }

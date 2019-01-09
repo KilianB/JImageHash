@@ -2,6 +2,7 @@ package com.github.kilianB.hashAlgorithms.experimental;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
@@ -32,11 +33,22 @@ class HogHashDualTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-1105481375, new AverageHash(14).algorithmId());
+				assertEquals(-1320953867, new HogHashDual(14).algorithmId());
 			}, () -> {
-				assertEquals(-1105480383, new AverageHash(25).algorithmId());
+				assertEquals(-1261848523, new HogHashDual(25).algorithmId());
 			});
 		}
+		
+		@Test
+		@DisplayName("Consistent AlgorithmIds v 2.0.0 collision")
+		public void notVersionTwo() {
+			assertAll(() -> {
+				assertNotEquals(234483250, new HogHashDual(14).algorithmId());
+			}, () -> {
+				assertNotEquals(236389874, new HogHashDual(14).algorithmId());
+			});
+		}
+		
 	}
 
 	@SuppressWarnings("deprecation")
@@ -54,6 +66,16 @@ class HogHashDualTest {
 		@Override
 		protected HashingAlgorithm getInstance(int bitResolution) {
 			return new HogHashDual(bitResolution);
+		}
+		
+		@Override
+		protected double differenceBallonHqHash() {
+			return 66;
+		}
+
+		@Override
+		protected double normDifferenceBallonHqHash() {
+			return 66 / 144d;
 		}
 	}
 

@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.github.kilianB.TestResources;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.matcher.Hash;
 
@@ -45,20 +47,38 @@ class DifferenceHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-115572257, new DifferenceHash(14, Precision.Simple).algorithmId());
+				assertEquals(712227304, new DifferenceHash(14, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(-114589154, new DifferenceHash(25, Precision.Simple).algorithmId());
+				assertEquals(742703497, new DifferenceHash(25, Precision.Simple).algorithmId());
 			}, () -> {
-				assertEquals(758235198, new DifferenceHash(14, Precision.Double).algorithmId());
+				assertEquals(2030454633, new DifferenceHash(14, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(759218301, new DifferenceHash(25, Precision.Double).algorithmId());
+				assertEquals(2060930826, new DifferenceHash(25, Precision.Double).algorithmId());
 			}, () -> {
-				assertEquals(910320011, new DifferenceHash(14, Precision.Triple).algorithmId());
+				assertEquals(-1844850756, new DifferenceHash(14, Precision.Triple).algorithmId());
 			}, () -> {
-				assertEquals(911303114, new DifferenceHash(25, Precision.Triple).algorithmId());
+				assertEquals(-1814374563, new DifferenceHash(25, Precision.Triple).algorithmId());
 			});
 		}
 
+		@Test
+		@DisplayName("Consistent AlgorithmIds v 2.0.0 collision")
+		public void notVersionTwo() {
+			assertAll(() -> {
+				assertNotEquals(-115572257, new DifferenceHash(14, Precision.Simple).algorithmId());
+			}, () -> {
+				assertNotEquals(-114589154, new DifferenceHash(25, Precision.Simple).algorithmId());
+			}, () -> {
+				assertNotEquals(758235198, new DifferenceHash(14, Precision.Double).algorithmId());
+			}, () -> {
+				assertNotEquals(759218301, new DifferenceHash(25, Precision.Double).algorithmId());
+			}, () -> {
+				assertNotEquals(910320011, new DifferenceHash(14, Precision.Triple).algorithmId());
+			}, () -> {
+				assertNotEquals(911303114, new DifferenceHash(25, Precision.Triple).algorithmId());
+			});
+		}
+		
 		@Test
 		@DisplayName("Unique AlgorithmsIds")
 		public void uniquely() {
@@ -83,7 +103,26 @@ class DifferenceHashTest {
 			});
 
 		}
+	}
 
+	/**
+	 * The difference hash has the interesting property that it's hashes image
+	 * representation if hashed is somewhat the opposite of the original hash
+	 * <p>
+	 * This only works if the hashes are perfectly aligned. With this test we can
+	 * make sure that bits are not shifted.
+	 * <p>
+	 * For difference hash this only works for single precision since the image
+	 * changes a lot if we cramp the other precisions into the image as well.
+	 */
+	@Test
+	void toImageTest() {
+		HashingAlgorithm hasher = new DifferenceHash(128, Precision.Simple);
+
+		Hash ballonHash = hasher.hash(TestResources.ballon);
+		BufferedImage imageOfHash = ballonHash.toImage(10);
+		Hash hashedImage = hasher.hash(imageOfHash);
+		assertTrue(ballonHash.normalizedHammingDistance(hashedImage) > 0.8d);
 	}
 
 	@Nested

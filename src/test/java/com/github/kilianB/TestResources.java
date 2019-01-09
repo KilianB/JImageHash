@@ -5,10 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.math.BigInteger;
 
 import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.Test;
+
+import com.github.kilianB.matcher.Hash;
 
 /**
  * @author Kilian
@@ -67,6 +70,17 @@ public class TestResources {
 		},() -> {
 			assertTrue(lenna270.getWidth() > 0);
 		});
+	}
+
+	/**
+	 * Create a dummy hash
+	 * 
+	 * @param bits
+	 * @param algoId
+	 * @return
+	 */
+	public static Hash createHash(String bits, int algoId) {
+		return new Hash(new BigInteger(bits, 2), bits.length(), algoId);
 	}
 
 }
