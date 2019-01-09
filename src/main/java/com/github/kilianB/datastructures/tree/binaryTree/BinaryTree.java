@@ -1,9 +1,15 @@
-package com.github.kilianB.dataStrorage.tree;
+package com.github.kilianB.datastructures.tree.binaryTree;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.PriorityQueue;
 
+import com.github.kilianB.datastructures.tree.AbstractBinaryTree;
+import com.github.kilianB.datastructures.tree.NodeInfo;
+import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.matcher.Hash;
 
 /**
@@ -48,26 +54,9 @@ import com.github.kilianB.matcher.Hash;
  * 
  * @author Kilian
  */
-public class BinaryTree<T> {
+public class BinaryTree<T> extends AbstractBinaryTree<T> implements Serializable {
 
-	/**
-	 * The root node of the tree.
-	 */
-	private Node root;
-
-	/**
-	 * Keep track of how many hashes were added to the tree
-	 */
-	private int hashCount;
-
-	/**
-	 * Flag indicating if hashes origin should be checked
-	 */
-	private boolean ensureHashConsistency;
-	/**
-	 * The algorithm id all hashes have to match if they want to perform an action
-	 */
-	private int algoId;
+	private static final long serialVersionUID = 4193396415197848158L;
 
 	/**
 	 * 
@@ -77,82 +66,16 @@ public class BinaryTree<T> {
 	 * 
 	 */
 	public BinaryTree(boolean ensureHashConsistency) {
-		root = new Node();
-		this.ensureHashConsistency = ensureHashConsistency;
+		super(ensureHashConsistency);
 	}
 
-	/**
-	 * Insert a value associated with the supplied hash in the binary tree (similar
-	 * to a map). Saved values can be found by invoking
-	 * {@link #getElementsWithinHammingDistance}.
-	 * <p>
-	 * 
-	 * Nodes which do not exist will be created. Please be aware that similar to
-	 * comparing different hashes for images only hashes produced by the same
-	 * algorithms will return useable results.
-	 * <p>
-	 * 
-	 * If the tree is configured to ensureHashConsistency this function will throw
-	 * an unchecked IlleglStateException if the added hash does not comply with the
-	 * first hash added to the tree.
-	 * 
-	 * @param hash  The hash used to save the value in the tree
-	 * @param value The value which will be returned if the hash . Common values
-	 *              point to the image used to create the hash or an id in a SQL
-	 *              table
-	 * 
-	 */
-	@SuppressWarnings("unchecked")
+	protected BinaryTree() {
+		
+	}
+	
 	public void addHash(Hash hash, T value) {
-
-		if (ensureHashConsistency) {
-			if (algoId == 0) {
-				algoId = hash.getAlgorithmId();
-			} else {
-
-				if (algoId != hash.getAlgorithmId())
-					throw new IllegalStateException("Tried to add an incompatible hash to the binary tree");
-			}
-		}
-
-		BigInteger hashValue = hash.getHashValue();
-		int depth = hash.getBitResolution();
-		int ommitedBits = depth - hash.getHashValue().bitLength();
-
-		Node currentNode = root;
-
-		// The hash values does not store preceeding 0 values. Skip those in the tree
-		for (int i = 0; i < ommitedBits; i++) {
-			Node tempNode = currentNode.getChild(false);
-			if (tempNode == null) {
-				currentNode = currentNode.createChild(false);
-			} else {
-				currentNode = tempNode;
-			}
-		}
-
-		// Compute outstanding bits
-		for (int i = depth - 1 - ommitedBits; i > 0; i--) {
-			boolean bit = hashValue.testBit(i);
-			Node tempNode = currentNode.getChild(bit);
-			if (tempNode == null) {
-				currentNode = currentNode.createChild(bit);
-			} else {
-				currentNode = tempNode;
-			}
-		}
-
-		// We reached the end
-		boolean bit = hashValue.testBit(0);
-		Node leafNode = currentNode.getChild(bit);
-		Leaf<T> leaf;
-		if (leafNode != null) {
-			leaf = (Leaf<T>) leafNode;
-		} else {
-			leaf = (Leaf<T>) currentNode.setChild(bit, new Leaf<T>());
-		}
-		leaf.addData(value);
-		hashCount++;
+		// Expose method
+		super.addHash(hash, value);
 	}
 
 	/**
@@ -173,6 +96,7 @@ public class BinaryTree<T> {
 	 *         criteria. The results returned are ordered to return the closest
 	 *         match first.
 	 */
+	@Override
 	public PriorityQueue<Result<T>> getElementsWithinHammingDistance(Hash hash, int maxDistance) {
 
 		if (ensureHashConsistency && algoId != hash.getAlgorithmId()) {
@@ -187,23 +111,23 @@ public class BinaryTree<T> {
 		BigInteger hashValue = hash.getHashValue();
 		int treeDepth = hash.getBitResolution();
 
-		ArrayDeque<NodeInfo> queue = new ArrayDeque<>();
+		ArrayDeque<NodeInfo<T>> queue = new ArrayDeque<>();
 
 		// Breadth first search
 
 		// Begin search at the root
-		queue.add(new NodeInfo(root, 0, treeDepth, ""));
+		queue.add(new NodeInfo<T>(root, 0, treeDepth));
 
 		while (!queue.isEmpty()) {
 
-			NodeInfo info = queue.poll();
+			NodeInfo<T> info = queue.poll();
 
 			// We reached a leaf
 			if (info.depth == 0) {
 				@SuppressWarnings("unchecked")
 				Leaf<T> leaf = (Leaf<T>) info.node;
 				for (T o : leaf.getData()) {
-					result.add(new Result<T>(o, info.distance,info.distance/(double)treeDepth));
+					result.add(new Result<T>(o, info.distance, info.distance / (double) treeDepth));
 				}
 				continue;
 			}
@@ -219,16 +143,14 @@ public class BinaryTree<T> {
 
 			Node correctChild = info.node.getChild(bit);
 			if (correctChild != null) {
-				queue.add(
-						new NodeInfo(correctChild, info.distance, info.depth - 1, (info.curPath + (bit ? "1" : "0"))));
+				queue.add(new NodeInfo<T>(correctChild, info.distance, info.depth - 1));
 			}
 
 			if (info.distance + 1 <= maxDistance) {
 				Node failedChild = info.node.getChild(!bit);
 				// Maybe the child does not exist
 				if (failedChild != null) {
-					queue.add(new NodeInfo(failedChild, info.distance + 1, info.depth - 1,
-							(info.curPath + (!bit ? "1" : "0"))));
+					queue.add(new NodeInfo<T>(failedChild, info.distance + 1, info.depth - 1));
 				}
 			}
 		}
@@ -236,67 +158,81 @@ public class BinaryTree<T> {
 	}
 
 	/**
-	 * Helper class to iteratively search the tree {
+	 * Retrieve the hash that is the most similar to the queried hash. The closest
+	 * hash is the hash with the smallest distance.
 	 * 
-	 * @author Kilian
-	 *
+	 * @param hash to search the neighbor for.
+	 * @return the closest hash saved in this tree.
+	 * @since 3.0.0
 	 */
-	class NodeInfo {
-		private Node node;
-		private int distance;
-		private int depth;
-		
-		/** Current path of the node. Used for debugging*/
-		private String curPath;
+	@Override
+	public List<Result<T>> getNearestNeighbour(Hash hash) {
 
-		public NodeInfo(Node node, int distance, int depth, String curPath) {
-			this.node = node;
-			this.distance = distance;
-			this.depth = depth;
-			this.curPath = curPath;
+		if (ensureHashConsistency && algoId != hash.getAlgorithmId()) {
+			throw new IllegalStateException("Tried to add an incompatible hash to the binary tree");
 		}
-	}
 
-	/**
-	 * @return the root of the binary tree
-	 */
-	public Node getRoot() {
-		return root;
-	}
+		BigInteger hashValue = hash.getHashValue();
+		int treeDepth = hash.getBitResolution();
 
-	/**
-	 * @return how many hashes were added to the tree
-	 */
-	public int getHashCount() {
-		return hashCount;
-	}
+		ArrayDeque<NodeInfo<T>> queue = new ArrayDeque<>();
 
-	/**
-	 * Traverse the tree and output all key = hashes and values found.
-	 */
-	public void printTree() {
-		printTree(root, "");
-	}
+		List<Result<T>> result = new ArrayList<>();
 
-	/**
-	 * Recursively traverse the tree and print all hashes found
-	 * 
-	 * @param n         The current node whose children will be looked at
-	 * @param curString The current hash this node represents
-	 */
-	@SuppressWarnings("unchecked")
-	private void printTree(Node n, String curString) {
+		double curBestDistance = Double.MAX_VALUE;
 
-		if (n instanceof Leaf) {
-			System.out.println("Leaf found: " + curString + " " + ((Leaf<T>) n).getData());
-		} else {
+		// Depth first search with aggressive pruning
 
-			if (n.leftChild != null) {
-				printTree(n.leftChild, curString + "1");
+		// Begin search at the root
+		queue.add(new NodeInfo<T>(root, 0, treeDepth));
+
+		while (!queue.isEmpty()) {
+
+			NodeInfo<T> info = queue.removeLast();
+
+			// If we found a better result ignore it.
+			if (info.distance > curBestDistance) {
+				continue;
 			}
-			if (n.rightChild != null) {
-				printTree(n.rightChild, curString + "0");
+
+			// We reached a leaf
+			if (info.depth == 0) {
+
+				if (curBestDistance > info.distance) {
+					result.clear();
+					curBestDistance = info.distance;
+				}
+				@SuppressWarnings("unchecked")
+				Leaf<T> leaf = (Leaf<T>) info.node;
+				for (T o : leaf.getData()) {
+					result.add(new Result<T>(o, info.distance, info.distance / (double) treeDepth));
+				}
+				continue;
 			}
+
+			// TODO das ist keine tiefensuche!
+
+			// Next bit
+			boolean bit = hashValue.testBit(info.depth - 1);
+			// Are children of the current
+
+			if (info.distance + 1 <= curBestDistance) {
+				Node failedChild = info.node.getChild(!bit);
+				// Maybe the child does not exist
+				if (failedChild != null) {
+					queue.add(new NodeInfo<T>(failedChild, info.distance + 1, info.depth - 1));
+				}
+			}
+
+			Node correctChild = info.node.getChild(bit);
+			if (correctChild != null) {
+				queue.add(new NodeInfo<T>(correctChild, info.distance, info.depth - 1));
+			}
+
 		}
+		return result;
 	}
+	
+	
+
 }

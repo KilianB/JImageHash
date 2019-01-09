@@ -1,4 +1,4 @@
-package com.github.kilianB.dataStrorage.tree;
+package com.github.kilianB.datastructures.tree.binaryTree;
 
 import java.util.ArrayList;
 
@@ -28,6 +28,36 @@ public class Leaf<T> extends Node{
 	 */
 	public ArrayList<T>getData(){
 		return data;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((data == null) ? 0 : data.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof Leaf)) {
+			return false;
+		}
+		Leaf other = (Leaf) obj;
+		if (data == null) {
+			if (other.data != null) {
+				return false;
+			}
+		} else if (!data.equals(other.data)) {
+			return false;
+		}
+		return true;
 	}
 	
 }
