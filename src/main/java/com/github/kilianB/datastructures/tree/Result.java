@@ -1,4 +1,4 @@
-package com.github.kilianB.dataStrorage.tree;
+package com.github.kilianB.datastructures.tree;
 
 /**
  * Search result returned when querying the tree
@@ -14,25 +14,17 @@ public class Result<T> implements Comparable<Result<T>> {
 	/**
 	 * The hamming distance to the actual hash supplied during the search
 	 */
-	public int distance;
+	public double distance;
 	
 	/**
 	 * The normalized hamming distance to the actual hash supplied during the search
 	 */
 	public double normalizedHammingDistance;
 
-	public Result(T value, int distance, double normalizedDistance) {
+	public Result(T value, double distance, double normalizedDistance) {
 		this.value = value;
 		this.distance = distance;
 		this.normalizedHammingDistance = normalizedDistance;
-	}
-
-	public T getValue() {
-		return value;
-	}
-
-	public int getDistance() {
-		return distance;
 	}
 
 	@Override
@@ -68,7 +60,7 @@ public class Result<T> implements Comparable<Result<T>> {
 
 	@Override
 	public String toString() {
-		return String.format("Result Distance:%3d Normalized Distance %.3f, Value:%s", distance, normalizedHammingDistance, value);
+		return String.format("Result Distance:%.3f Normalized Distance %.3f, Value:%s", distance, normalizedHammingDistance, value);
 	}
 
 }
