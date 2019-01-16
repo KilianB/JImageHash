@@ -5,7 +5,7 @@
 [![Travis](https://travis-ci.org/KilianB/JImageHash.svg?branch=master)](https://travis-ci.org/KilianB/JImageHash)
 [![GitHub license](https://img.shields.io/github/license/KilianB/JImageHash.svg)](https://github.com/KilianB/JImageHash/blob/master/LICENSE)
 [![Download](https://api.bintray.com/packages/kilianb/maven/JImageHash/images/download.svg)](https://bintray.com/kilianb/maven/JImageHash/_latestVersion)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/abddaa1a0190440487ca955b088859c9)](https://www.codacy.com/app/KilianB/JImageHash?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KilianB/JImageHash&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3c7db745b9ff4dd9b89484a6aa46ad2f)](https://www.codacy.com/app/KilianB/JImageHash?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KilianB/JImageHash&amp;utm_campaign=Badge_Grade)
 
 JImageHash is a performant perceptual image fingerprinting library entirely written in Java. The library returns a similarity score aiming to identify entities which are likely modifications of the original source while being robust variouse attack vectors ie. color, rotation and scale transformation.
 
