@@ -79,60 +79,13 @@ and optimize individual algorithms on your own.
 	</tbody>
 </table>
 
-### Hello World: Check if two images are likely duplicates of each other
-
-````java
-public static void main(String[] args){
-
-  //Load images
-  BufferedImage img1 = ImageIO.read(new File("image1.jpg"));
-  BufferedImage img2 = ImageIO.read(new File("image2.jpg"));
-  
-  SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher();
-	
-  if(matcher.checkSimilarity(img1, img2)){
-    //likely duplicate found
-  }
-}
-````
-
-### Check batch of images
-
-````java
-public void matchMultipleImagesInMemory() {
-
-	InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
-
-	//Add all images of interest to the matcher and precalculate hashes
-	matcher.addImages(ballon,copyright,highQuality,lowQuality,thumbnail);
-		
-	//Find all images which are similar to highQuality
-	PriorityQueue<Result<BufferedImage>> similarImages = matcher.getMatchingImages(highQuality);
-		
-	//Print out results
-	similarImages.forEach(result ->{
-		System.out.printf("Distance: %3d Image: %s%n",result.distance,result.value);
-	});
-}
-````
-
-
-Multiple types image matchers are available for each situation
+## Multiple types image matchers are available for each situation
 
 The `persistent` package allows hashes and matchers to be saved to disk. In turn the images are not kept in memory and are only referenced by file path allowing to handle a great deal of images
 at the same time.
 The `cached` version keeps the BufferedImage image objects in memory allowing to change hashing algorithms on the fly and a direct retrieval of the buffered image objects of matching images.
 The `categorize` package contains image clustering matchers. KMeans and Categorical as well as weighted matchers.
-The `ecotic` package 
-
-
-<table>
-	<tr> <th>Image Matcher Class</th> <th>Feature</th> </tr>
-	<tr> <td>SingleImageMatcher</td> <td>Compare if two images are similar with multiple chained hashing algorithms. An allowed distance is defined for each algorithm. To consider images a match every filter has to be passed independently.</td> </tr>
-	<tr>	<td>InMemoryMatcher</td> <td>Keep precomputed hashes in memory and quickly tell apart batches of images. An allowed distance is defined for each algorithm. To consider images a match every filter has to be passed independently.</td></tr>
-	<tr>	<td>CumulativeInMemoryMatcher</td> <td>Keep precomputed hashes in memory and quickly tell apart batches of images. An overall distance threshold is defined which is checked against the sum of the distances produced by all filters</td></tr>
-	<tr>	<td>DatabaseImageMatcher</td> <td>Store computed hashes in a SQL database to tell apart batches of images while still keeping the hashes around even after a restart of the JVM. Conceptually this class behaves identical to the InMemoryMatcher. Performance penalties may incur due to binary tree's not being used.</td></tr>
-</table>
+The `exotic` package features BloomFilter, and the SingleImageMatcher used to match 2 images without any fancy additions.
 
 <table>
 <tr> <th>Image</th>  <th></th> <th>High</th> <th>Low</th> <th>Copyright</th> <th>Thumbnail</th> <th>Ballon</th> </tr>
@@ -201,12 +154,14 @@ Image matchers can be configured using different algorithm. Each comes with indi
 
 ### Version 3.0.0 Image clustering
 
-Image clustering with fuzzy hashes.
+Image clustering with fuzzy hashes allowing to represent hashes with probability bits instead of simple 0's and 1's
 
 ![1_fxpw79yoon8xo3slqsvmta](https://user-images.githubusercontent.com/9025925/51272388-439d9600-19ca-11e9-8220-fe3539ed6061.png)
 
 
 ### Algorithm benchmarking 
+
+See the wiki page on how to test differet hashing algorithms with your set of images
 
 <img src="https://user-images.githubusercontent.com/9025925/49185669-c14a0b80-f362-11e8-92fa-d51a20476937.jpg" />
 
