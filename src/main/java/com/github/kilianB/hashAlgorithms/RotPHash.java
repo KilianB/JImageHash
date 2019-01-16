@@ -96,7 +96,7 @@ public class RotPHash extends HashingAlgorithm {
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, BigInteger hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 
 		// 0. Preprocessing. Extract Luminosity
 		BufferedImage transformed = ImageUtil.getScaledInstance(image, width, height);
@@ -156,18 +156,18 @@ public class RotPHash extends HashingAlgorithm {
 
 				// We discard parts of the information of the last layer if we need a specific
 				// length key
-				if (this.truncateKey && length == bitResolution - 1)
+				if (this.truncateKey && length == bitResolution)
 					break;
 
 				if (arr[j] >= avg) {
-					hash = hash.shiftLeft(1);
+					hash.prependZero();
 				} else {
-					hash = hash.shiftLeft(1).add(BigInteger.ONE);
+					hash.prependOne();
 				}
 				length++;
 			}
 		}
-		return hash;
+		return hash.toBigInteger();
 	}
 
 	/**
@@ -185,21 +185,21 @@ public class RotPHash extends HashingAlgorithm {
 		return (int) (distance / widthPerSection);
 	}
 
-	@Override
-	public int getKeyResolution() {
-		// We can compute this more quickly than the super class. so we might as well do
-		// it
-		if (keyResolution < 0) {
-			if (truncateKey) {
-				keyResolution = this.bitResolution;
-			} else {
-				BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
-				keyResolution = this.hash(bi, BigInteger.ONE).bitLength() - 1;
-			}
-
-		}
-		return keyResolution;
-	}
+//	@Override
+//	public int getKeyResolution() {
+//		// We can compute this more quickly than the super class. so we might as well do
+//		// it
+//		if (keyResolution < 0) {
+//			if (truncateKey) {
+//				keyResolution = this.bitResolution;
+//			} else {
+//				BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
+//				keyResolution = this.hash(bi, BigInteger.ONE).bitLength() - 1;
+//			}
+//
+//		}
+//		return keyResolution;
+//	}
 
 	@Override
 	protected int precomputeAlgoId() {

@@ -1,6 +1,8 @@
 package com.github.kilianB.hashAlgorithms;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,9 +27,19 @@ class MedianHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-442972544, new MedianHash(14).algorithmId());
+				assertEquals(-847247001, new MedianHash(14).algorithmId());
 			}, () -> {
-				assertEquals(-442971552, new MedianHash(25).algorithmId());
+				assertEquals(-847216249, new MedianHash(25).algorithmId());
+			});
+		}
+		
+		@Test
+		@DisplayName("Consistent AlgorithmIds v 2.0.0 collision")
+		public void notVersionTwo() {
+			assertAll(() -> {
+				assertNotEquals(-442972544, new MedianHash(14).algorithmId());
+			}, () -> {
+				assertNotEquals(-442971552, new MedianHash(25).algorithmId());
 			});
 		}
 	}
@@ -39,6 +51,16 @@ class MedianHashTest {
 		@Override
 		protected HashingAlgorithm getInstance(int bitResolution) {
 			return new MedianHash(bitResolution);
+		}
+		
+		@Override
+		protected double differenceBallonHqHash() {
+			return 78;
+		}
+
+		@Override
+		protected double normDifferenceBallonHqHash() {
+			return 78 / 132d;
 		}
 		
 	}

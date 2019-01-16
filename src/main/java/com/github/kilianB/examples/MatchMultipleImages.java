@@ -6,12 +6,12 @@ import java.util.PriorityQueue;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.dataStrorage.tree.BinaryTree;
-import com.github.kilianB.dataStrorage.tree.Result;
+import com.github.kilianB.datastructures.tree.Result;
+import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.InMemoryImageMatcher;
+import com.github.kilianB.matcher.cached.ConsecutiveMatcher;
 
 /**
  * This example shows how a greater number of images can be compared to each
@@ -41,12 +41,15 @@ public class MatchMultipleImages {
 		matchMultipleImagesInMemoryManually(ballon,copyright,highQuality,lowQuality,thumbnail);
 	}
 
-	public void matchMultipleImagesInMemory() {
+	private void matchMultipleImagesInMemory() {
 
 		System.out.println("MatchMultipleImagesInMemory():");
 		
-		InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
-
+		ConsecutiveMatcher matcher = new ConsecutiveMatcher();
+		matcher.addHashingAlgorithm(new AverageHash(64),.4);
+		matcher.addHashingAlgorithm(new PerceptiveHash(32),.3);
+		
+		
 		//Add all images of interest to the matcher and precalculate hashes
 		matcher.addImages(ballon,copyright,highQuality,lowQuality,thumbnail);
 		
@@ -57,12 +60,12 @@ public class MatchMultipleImages {
 		
 		//Print out results
 		similarImages.forEach(result ->{
-			System.out.printf("Distance: %3d Image: %s%n",result.distance,result.value);
+			System.out.printf("Distance: %.3f Image: @%s%n",result.distance,System.identityHashCode(result.value));
 		});
 		
 	}
 
-	public void matchMultipleImagesInMemoryManually(BufferedImage... images) {
+	private void matchMultipleImagesInMemoryManually(BufferedImage... images) {
 		
 		System.out.println("\nMatchMultipleImagesInMemoryManually():");
 		
@@ -122,12 +125,7 @@ public class MatchMultipleImages {
 		pCandidates.forEach(result -> System.out.println(result));
 	}
 
-	
-	public static void main(String[] args) {
-		new MatchMultipleImages();
-	}
-	
-	void loadImages() {
+	private void loadImages() {
 		try {
 			ballon = ImageIO.read(getClass().getResourceAsStream("images/ballon.jpg"));
 			copyright = ImageIO.read(getClass().getResourceAsStream("images/copyright.jpg"));
@@ -138,6 +136,11 @@ public class MatchMultipleImages {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+	}
+	
+	public static void main(String[] args) {
+		new MatchMultipleImages();
 	}
 
 }

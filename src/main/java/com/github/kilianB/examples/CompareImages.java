@@ -7,9 +7,9 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * An example demonstrating how two images can be compared at a time using a single algorithm
@@ -57,7 +57,7 @@ public class CompareImages {
 		// Ranges between 0 - 1. The lower the more similar the images are.
 		double similarityScore = hash1.normalizedHammingDistance(hash2);
 
-		return similarityScore < 0.3d;
+		return similarityScore < 0.4d;
 	}
 	
 	/**
@@ -76,7 +76,7 @@ public class CompareImages {
 		// Ranges between [0 - keyLength]. The lower the more similar the images are.
 		int similarityScore = hash1.hammingDistance(hash2);
 
-		return similarityScore < 20;
+		return similarityScore < 41;
 	}
 
 	

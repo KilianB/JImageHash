@@ -41,6 +41,25 @@ public class Kernel implements Serializable, Filter {
 
 	private static final long serialVersionUID = -3490082941059458531L;
 
+	/** Kernel mask applied to the pixels */
+	protected double[][] mask;
+
+	/**
+	 * Seperable convolution to speed up masking if applicable for custom kernels
+	 */
+	// https://en.wikipedia.org/wiki/Singular_value_decomposition for custom kernels
+	// https://blogs.mathworks.com/steve/2006/11/28/separable-convolution-part-2/
+	// private double[] seperableMaskX;
+	// private double[] seperableMaskY;
+
+	/** How are edged of the images handled */
+	protected EdgeHandlingStrategy edgeHandling;
+
+	// TODO we could compute a pixel mapping map before convolution reducing method
+	// calls and maybe increase performance instead of on the fly calculation of
+	// those values?
+	// int[][] pixelAccessMap
+	
 	/**
 	 * Return an identity kernel. This kernel is a 1x1 kernel and copies the
 	 * original value to the new array
@@ -331,26 +350,7 @@ public class Kernel implements Serializable, Filter {
 
 	// Many many more sobel laplacian etc ...
 	// https://web.eecs.umich.edu/~jjcorso/t/598F14/files/lecture_0924_filtering.pdf
-
-	/** Kernel mask applied to the pixels */
-	protected double[][] mask;
-
-	/**
-	 * Seperable convolution to speed up masking if applicable for custom kernels
-	 */
-	// https://en.wikipedia.org/wiki/Singular_value_decomposition for custom kernels
-	// https://blogs.mathworks.com/steve/2006/11/28/separable-convolution-part-2/
-	// private double[] seperableMaskX;
-	// private double[] seperableMaskY;
-
-	/** How are edged of the images handled */
-	protected EdgeHandlingStrategy edgeHandling;
-
-	// TODO we could compute a pixel mapping map before convolution reducing method
-	// calls and maybe increase performance instead of on the fly calculation of
-	// those values?
-	// int[][] pixelAccessMap
-
+	
 	/**
 	 * Create a clone of the supplied kernel
 	 * 
@@ -684,7 +684,7 @@ public class Kernel implements Serializable, Filter {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((edgeHandling == null) ? 0 : MiscUtil.consitentHashCode(edgeHandling));
+		result = prime * result + ((edgeHandling == null) ? 0 : MiscUtil.consistentHashCode(edgeHandling));
 		result = prime * result + Arrays.deepHashCode(mask);
 		return result;
 	}
@@ -759,19 +759,19 @@ public class Kernel implements Serializable, Filter {
 		// TODO Kernel crop
 
 		/**
-		 * 
+		 * Function accepting the pixelIndex and the width or height of the pixel and
+		 * returning the index of the pixel used to compute the value
+		 */
+		private BiFunction<Integer, Integer, Integer> compute;
+
+		/**
 		 * @param func
 		 */
 		private EdgeHandlingStrategy(BiFunction<Integer, Integer, Integer> func) {
 			this.compute = func;
 		}
 
-		/**
-		 * Function accepting the pixelIndex and the width or height of the pixel and
-		 * returning the index of the pixel used to compute the value
-		 */
-		private BiFunction<Integer, Integer, Integer> compute;
-
+	
 		/**
 		 * Return the array index to compute the kernel value
 		 * 

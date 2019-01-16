@@ -12,8 +12,8 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 import com.github.kilianB.Require;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.filter.Filter;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * Base class for hashing algorithms returning perceptual hashes for supplied
@@ -68,7 +68,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * After a hash was created or the id was calculated the object may not be
 	 * altered anymore.
 	 */
-	private boolean immutableState = false;
+	protected boolean immutableState = false;
 
 	private static final String LOCKED_MODIFICATION_EXCEPTION = "Hashing algorithms may only be "
 			+ "modified as long as no hash has been generated or hashcode has been used by this object. This limitation is "
@@ -78,7 +78,7 @@ public abstract class HashingAlgorithm implements Serializable {
 			+ "and therefore invalidate further modification requests";
 
 	/**
-	 * Promises a key with approximately bit resolution (+ 1 padding bit). Due to
+	 * Promises a key with approximately bit resolution. Due to
 	 * geometric requirements the key might be marginally larger or smaller than
 	 * specified. Hashing algorithms shall try to at least provide the number of
 	 * bits specified
@@ -87,11 +87,52 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	public HashingAlgorithm(int bitResolution) {
 
-		bitResolution = Require.positiveValue(bitResolution,
+		this.bitResolution = Require.positiveValue(bitResolution,
 				"The bit resolution for hashing algorithms has to be positive");
-		this.bitResolution = bitResolution;
 	}
 
+	/**
+	 * Calculate hashes for the given images. Invoking the hash function on the same
+	 * image has to return the same hash value. A comparison of the hashes relates
+	 * to the similarity of the images. The lower the value the more similar the
+	 * images are. Equal images will produce a similarity of 0.
+	 * 
+	 * @param images whose hash will be calculated
+	 * @return The hash representing the image
+	 * @see Hash
+	 * @since 3.0.0
+	 */
+	public Hash[] hash(BufferedImage... images) {
+		Hash[] returnValue = new Hash[images.length];
+		
+		for(int i = 0; i < images.length; i++) {
+			returnValue[i] = this.hash(images[i]);
+		}
+		return returnValue;
+	}
+	
+	/**
+	 * Calculate hashes for the given images. Invoking the hash function on the same
+	 * image has to return the same hash value. A comparison of the hashes relates
+	 * to the similarity of the images. The lower the value the more similar the
+	 * images are. Equal images will produce a similarity of 0.
+	 * 
+	 * @param imageFiles pointing to the images
+	 * @return The hash representing the images
+	 * @throws IOException if an error occurs during loading the image
+	 * @see Hash
+	 * @since 3.0.0
+	 */
+	public Hash[] hash(File... imageFiles) throws IOException {
+		Hash[] returnValue = new Hash[imageFiles.length];
+		
+		for(int i = 0; i < imageFiles.length; i++) {
+			returnValue[i] = this.hash(imageFiles[i]);
+		}
+		return returnValue;
+	}
+	
+	
 	/**
 	 * Calculate a hash for the given image. Invoking the hash function on the same
 	 * image has to return the same hash value. A comparison of the hashes relates
@@ -115,11 +156,20 @@ public abstract class HashingAlgorithm implements Serializable {
 				} else {
 					bi = kernel.filter(bi);
 				}
-
 			}
 		}
 		immutableState = true;
-		return new Hash(hash(bi, BigInteger.ZERO), getKeyResolution(), algorithmId());
+
+		BigInteger hashValue;
+
+		if (keyResolution < 0) {
+			HashBuilder hb = new HashBuilder(this.bitResolution);
+			hashValue = hash(bi, hb);
+			keyResolution = hb.length;
+		} else {
+			hashValue = hash(bi, new HashBuilder(getKeyResolution()));
+		}
+		return new Hash(hashValue, getKeyResolution(), algorithmId());
 	}
 
 	/**
@@ -152,11 +202,11 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * distance can be calculated due to xoring without issue the normalized
 	 * distance requires the potential length of the key to be known.
 	 * 
-	 * @param image Image whose hash will be calculated
-	 * @param hash  the big integer used to store the hash value
+	 * @param image       Image whose hash will be calculated
+	 * @param hashBuilder a hash builder used to construct the hash
 	 * @return the hash encoded as a big integer
 	 */
-	protected abstract BigInteger hash(BufferedImage image, BigInteger hash);
+	protected abstract BigInteger hash(BufferedImage image, HashBuilder hashBuilder);
 
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the
@@ -173,7 +223,9 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	public final int algorithmId() {
 		if (algorithmId == 0) {
-			algorithmId = 31 * precomputeAlgoId() + preProcessing.hashCode();
+			algorithmId = 31 * precomputeAlgoId();
+			//Make sure the algo id doesn't collide with version 2.0.0 id's
+			algorithmId = 31 * algorithmId + 5  + preProcessing.hashCode();
 			immutableState = true;
 		}
 		return algorithmId;
@@ -225,8 +277,9 @@ public abstract class HashingAlgorithm implements Serializable {
 		// return value
 		if (keyResolution < 0) {
 			BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
-			// By preceding a ONE bit we don't fall victim to the 0 bit truncation.
-			keyResolution = this.hash(bi, BigInteger.ONE).bitLength() - 1;
+			HashBuilder sb = new HashBuilder(this.bitResolution);
+			this.hash(bi, sb);
+			keyResolution = sb.length;
 		}
 		return keyResolution;
 	}
@@ -281,8 +334,27 @@ public abstract class HashingAlgorithm implements Serializable {
 		if (immutableState) {
 			throw new IllegalStateException(LOCKED_MODIFICATION_EXCEPTION);
 		}
-
 		return this.preProcessing.remove(filter);
+	}
+
+	/**
+	 * Wraps the values supplied in the argument hash into a hash object as it would
+	 * be produced by this algorithm.
+	 * <p>
+	 * Some algorithms may choose to return an extended hash class to overwrite
+	 * certain behavior, in particular the
+	 * {@link com.github.kilianB.hash.Hash#toImage(int)} is likely to differ.
+	 * 
+	 * <p>
+	 * If the algorithm does not utilize a special hash sub class this method
+	 * returns the supplied argument.
+	 * 
+	 * @param original the hash to transform
+	 * @return a hash as it would be created by this algorithm.
+	 * @since 3.0.0
+	 */
+	public Hash createAlgorithmSpecificHash(Hash original) {
+		return original;
 	}
 
 	@Override

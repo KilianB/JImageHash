@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
+import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
 
@@ -21,12 +22,7 @@ public class AverageHash extends HashingAlgorithm {
 	/**
 	 * The height and width of the scaled instance used to compute the hash
 	 */
-	private int height, width;
-
-	/**
-	 * The number of pixels present in the input image
-	 */
-	private final int pixelCount;
+	protected int height, width;
 
 	/**
 	 * @param bitResolution The bit resolution specifies the final length of the
@@ -61,43 +57,50 @@ public class AverageHash extends HashingAlgorithm {
 		 * to not introduce bias via stretching or shrinking the image asymmetrically.
 		 */
 		computeDimension(bitResolution);
-
-		// Get the smallest key difference which is equal or bigger!
-		this.pixelCount = width * height;
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, BigInteger hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
 		int[][] luminocity = fp.getLuma();
 
 		// Calculate the average color of the entire image
-
-		double avgPixelValue = 0;
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				avgPixelValue += ((double) luminocity[x][y] / pixelCount);
-			}
-		}
+		double avgPixelValue = ArrayUtil.average(luminocity);
 
 		// Create hash
+		return computeHash(hash, luminocity, avgPixelValue);
+	}
+
+	protected BigInteger computeHash(HashBuilder hash, double[][] pixelValue, double compareAgainst) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				if (luminocity[x][y] < avgPixelValue) {
-					hash = hash.shiftLeft(1);
+				if (pixelValue[x][y] < compareAgainst) {
+					hash.prependZero();
 				} else {
-					hash = hash.shiftLeft(1).add(BigInteger.ONE);
+					hash.prependOne();
 				}
 			}
 		}
-		return hash;
+		return hash.toBigInteger();
+	}
+	
+	protected BigInteger computeHash(HashBuilder hash, int[][] pixelValue, double compareAgainst) {
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				if (pixelValue[x][y] < compareAgainst) {
+					hash.prependZero();
+				} else {
+					hash.prependOne();
+				}
+			}
+		}
+		return hash.toBigInteger();
 	}
 
 	/**
-	 * Compute the dimension for the resize operation. We want to get to close to a quadratic images 
-	 * as possible to counteract scaling bias. 
+	 * Compute the dimension for the resize operation. We want to get to close to a
+	 * quadratic images as possible to counteract scaling bias.
 	 * 
 	 * @param bitResolution the desired resolution
 	 */
@@ -127,5 +130,4 @@ public class AverageHash extends HashingAlgorithm {
 		 */
 		return Objects.hash(getClass().getName(), height, width);
 	}
-
 }

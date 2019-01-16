@@ -7,17 +7,25 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.PriorityQueue;
 
-import com.github.kilianB.dataStrorage.tree.Result;
+import com.github.kilianB.datastructures.tree.Result;
+import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.DatabaseImageMatcher;
+import com.github.kilianB.matcher.persistent.database.DatabaseImageMatcher;
+import com.github.kilianB.matcher.persistent.database.H2DatabaseImageMatcher;
 
 /**
  * @author Kilian
  *
  */
 public class DatabaseExample {
+
+	/*
+	 * Make sure that your project also defines the h2 dependency <dependency>
+	 * <groupId>com.h2database</groupId> <artifactId>h2</artifactId>
+	 * <version>1.4.197</version> </dependency>
+	 */
 
 	public static void main(String[] args) throws Exception {
 
@@ -28,8 +36,8 @@ public class DatabaseExample {
 
 		/*
 		 * 1. Connect via a connection object. We already added the images in the
-		 * createDatabaseViaCredentials(). So we can simply reuse the hashes without
-		 *  re adding the images.
+		 * createDatabaseViaCredentials(). So we can simply reuse the hashes without re
+		 * adding the images.
 		 */
 		connectViaConnectionObject();
 
@@ -66,10 +74,10 @@ public class DatabaseExample {
 		String password = "";
 
 		// Wrap in try with block or call close at the end!
-		try (DatabaseImageMatcher db = new DatabaseImageMatcher(dbName, userName, password)) {
+		try (H2DatabaseImageMatcher db = new H2DatabaseImageMatcher(dbName, userName, password)) {
 			// Proceed as normal
-			db.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 20);
-			db.addHashingAlgorithm(new PerceptiveHash(32), 15);
+			db.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), .4);
+			db.addHashingAlgorithm(new PerceptiveHash(32), .2);
 
 			// Image files
 			File ballon = new File("src/test/resources/ballon.jpg");
@@ -80,11 +88,11 @@ public class DatabaseExample {
 
 			PriorityQueue<Result<String>> results = db.getMatchingImages(copyright);
 			results.forEach(System.out::println);
-		
-			//Find all images which are similar to any image in the database
+
+			// Find all images which are similar to any image in the database
 			System.out.println(db.getAllMatchingImages());
 		}
-		
+
 		/*
 		 * finally { //Not necessary since we use a try with otherwise db.close(); }
 		 */
@@ -103,18 +111,22 @@ public class DatabaseExample {
 		// Therefore normal SQL databases should work as well. But it's not tested.
 		Connection conn = DriverManager.getConnection("jdbc:h2:~/" + dbName, userName, password);
 
-		DatabaseImageMatcher db = DatabaseImageMatcher.createDefaultMatcher(conn);
+		// Here we can also use the database image matcher instead of the h2 image
+		// matcher
+		try(DatabaseImageMatcher db = new H2DatabaseImageMatcher(conn)){
+			db.addHashingAlgorithm(new AverageHash(64),.4);
+			
+			File copyright = new File("src/test/resources/copyright.jpg");
 
-		// Image file
-		File copyright = new File("src/test/resources/copyright.jpg");
-
-		// No need to add images anymore. We already did it in
-		// createDatabaseViaCredentials();
-		// Be aware that this only works because we are using the exact same hashing
-		// algorithms as
-		// in the earlier function!
-		PriorityQueue<Result<String>> results = db.getMatchingImages(copyright);
-		results.forEach(System.out::println);
+			// No need to add images anymore. We already did it in
+			// createDatabaseViaCredentials();
+			// Be aware that this only works because we are using the exact same hashing
+			// algorithms as
+			// in the earlier function!
+			PriorityQueue<Result<String>> results = db.getMatchingImages(copyright);
+			results.forEach(System.out::println);
+		}
+		
 	}
 
 }

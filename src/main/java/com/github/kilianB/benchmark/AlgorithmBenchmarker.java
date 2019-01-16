@@ -1,6 +1,5 @@
 package com.github.kilianB.benchmark;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,14 +15,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
-
 import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.MathUtil;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.Hash;
-import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.SingleImageMatcher;
+import com.github.kilianB.matcher.TypedImageMatcher.AlgoSettings;
+import com.github.kilianB.matcher.categorize.supervised.LabeledImage;
+import com.github.kilianB.matcher.exotic.SingleImageMatcher;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -91,7 +89,7 @@ public class AlgorithmBenchmarker {
 	private SingleImageMatcher imageMatcher;
 
 	/** The images to test */
-	private List<TestData> imagesToTest = new ArrayList<>();
+	private List<LabeledImage> imagesToTest = new ArrayList<>();
 
 	/** Algorithms extracted from the image matcher */
 	private Map<HashingAlgorithm, AlgoSettings> algorithmsToTest;
@@ -159,8 +157,8 @@ public class AlgorithmBenchmarker {
 	 * 
 	 * @param testImages the images which will be tested
 	 */
-	public void addTestImages(TestData... testImages) {
-		for (TestData t : testImages) {
+	public void addTestImages(LabeledImage... testImages) {
+		for (LabeledImage t : testImages) {
 			imagesToTest.add(t);
 		}
 	}
@@ -281,12 +279,12 @@ public class AlgorithmBenchmarker {
 		}
 
 		// 0. Compute all hashes for each image and hashing algorithm
-		Map<HashingAlgorithm, Map<TestData, Hash>> hashes = new HashMap<>();
+		Map<HashingAlgorithm, Map<LabeledImage, Hash>> hashes = new HashMap<>();
 		for (HashingAlgorithm h : algorithmsToTest.keySet()) {
-			HashMap<TestData, Hash> algorithmSpecificHash = new HashMap<>();
+			HashMap<LabeledImage, Hash> algorithmSpecificHash = new HashMap<>();
 			hashes.put(h, algorithmSpecificHash);
-			for (TestData t : imagesToTest) {
-				algorithmSpecificHash.put(t, h.hash(t.bImage));
+			for (LabeledImage t : imagesToTest) {
+				algorithmSpecificHash.put(t, h.hash(t.getbImage()));
 			}
 		}
 
@@ -373,24 +371,24 @@ public class AlgorithmBenchmarker {
 	 *                    able to display the chart)
 	 * @param scatterMap  map with all distance data points sorted by algorithm
 	 */
-	protected void appendHashingDistances(StringBuilderI htmlBuilder, Map<HashingAlgorithm, Map<TestData, Hash>> hashes,
+	protected void appendHashingDistances(StringBuilderI htmlBuilder, Map<HashingAlgorithm, Map<LabeledImage, Hash>> hashes,
 			Map<HashingAlgorithm, DoubleSummaryStatistics[]> statMap, Map<HashingAlgorithm, List<Double>[]> scatterMap,
 			boolean initChart) {
 		int lastCategory = 0;
 
-		List<TestData> sortedKeys = new ArrayList<>(imagesToTest);
+		List<LabeledImage> sortedKeys = new ArrayList<>(imagesToTest);
 
-		for (TestData base : imagesToTest) {
+		for (LabeledImage base : imagesToTest) {
 			// Compute the distance for all crosses we have not looked at.
 			// It's symmetric no need to check it twice
 			sortedKeys.remove(base);
 
-			if (base.category != lastCategory) {
-				lastCategory = base.category;
+			if (base.getCategory() != lastCategory) {
+				lastCategory = base.getCategory();
 				emptyTableRow(htmlBuilder);
 			}
 
-			for (TestData cross : sortedKeys) {
+			for (LabeledImage cross : sortedKeys) {
 				htmlBuilder.append("<tr>");
 				boolean first = true;
 				for (Entry<HashingAlgorithm, AlgoSettings> entry : algorithmsToTest.entrySet()) {
@@ -398,7 +396,7 @@ public class AlgorithmBenchmarker {
 					HashingAlgorithm h = entry.getKey();
 					AlgoSettings algoSettings = entry.getValue();
 
-					boolean supposedToMatch = base.category == cross.category;
+					boolean supposedToMatch = base.getCategory() == cross.getCategory();
 
 					Hash baseHash = hashes.get(h).get(base);
 					Hash crossHash = hashes.get(h).get(cross);
@@ -436,9 +434,9 @@ public class AlgorithmBenchmarker {
 					}
 
 					if (first) {
-						htmlBuilder.append("<td>").append(base.name).append("-").append(cross.name)
-								.append("</td><td class='category'>").append("[").append(base.category).append("-")
-								.append(cross.category).append("]</td>");
+						htmlBuilder.append("<td>").append(base.getName()).append("-").append(cross.getName())
+								.append("</td><td class='category'>").append("[").append(base.getCategory()).append("-")
+								.append(cross.getCategory()).append("]</td>");
 						first = false;
 					}
 
@@ -611,8 +609,8 @@ public class AlgorithmBenchmarker {
 		for (HashingAlgorithm hasher : algorithmsToTest.keySet()) {
 			long start = System.nanoTime();
 			for (int i = 0; i < 100; i++) {
-				for (TestData testData : imagesToTest) {
-					sum += hasher.hash(testData.bImage).getHashValue().bitCount();
+				for (LabeledImage testData : imagesToTest) {
+					sum += hasher.hash(testData.getbImage()).getHashValue().bitCount();
 				}
 				if (System.nanoTime() - start > warmUpCutoff) {
 					LOGGER.info("warmup cutoff surpassed.");
@@ -650,8 +648,8 @@ public class AlgorithmBenchmarker {
 
 				long startIndividual = System.nanoTime();
 
-				for (TestData testData : imagesToTest) {
-					sum += hasher.hash(testData.bImage).getHashValue().bitCount();
+				for (LabeledImage testData : imagesToTest) {
+					sum += hasher.hash(testData.getbImage()).getHashValue().bitCount();
 				}
 				double elapsed = (((System.nanoTime() - startIndividual))) / (double) 1e6 / imagesToTest.size();
 				averageRuntime.merge(hasher, elapsed, (old, newVal) -> {
@@ -733,7 +731,7 @@ public class AlgorithmBenchmarker {
 
 				// Two lines
 				// TODO calculate the number of images we can not correctly predict no matter
-				// where the threshold is.
+				// where the threshold is. ROC curve as it's done in the forest image matcher
 
 				// Average between centers.
 				double avg = (statMap.get(hasher)[0].getAverage() + statMap.get(hasher)[1].getAverage()) / 2;
@@ -939,84 +937,6 @@ public class AlgorithmBenchmarker {
 	}
 
 	/**
-	 * A labeled image used to benchmark hashing algorithms.
-	 * 
-	 * @author Kilian
-	 * @since 2.0.0
-	 */
-	public static class TestData implements Comparable<TestData> {
-
-		/** A character representation of the file for easy feedback */
-		private String name;
-
-		/** The category of the image. Same categories equals similar images */
-		private int category;
-
-		/** The image to test */
-		private BufferedImage bImage;
-
-		/**
-		 * 
-		 * @param category The image category. Images with the same category are
-		 *                 expected to be classified as similar images
-		 * @param f        The Fie pointing to the image
-		 */
-		public TestData(int category, File f) {
-			try {
-				this.bImage = ImageIO.read(f);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			this.name = f.getName().substring(0, f.getName().lastIndexOf("."));
-			this.category = category;
-		}
-
-		@Override
-		public int compareTo(TestData o) {
-			return Integer.compare(category, o.category);
-		}
-
-		@Override
-		public String toString() {
-			return "TestData [name=" + name + ", category=" + category + "]";
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((bImage == null) ? 0 : bImage.hashCode());
-			result = prime * result + category;
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			TestData other = (TestData) obj;
-			if (bImage == null) {
-				if (other.bImage != null)
-					return false;
-			} else if (!bImage.equals(other.bImage))
-				return false;
-			if (category != other.category)
-				return false;
-			if (name == null) {
-				if (other.name != null)
-					return false;
-			} else if (!name.equals(other.name))
-				return false;
-			return true;
-		}
-	}
-
-	/**
 	 * Construct the html frame to embed the benchmark result into
 	 * 
 	 * @return an html template
@@ -1056,7 +976,7 @@ public class AlgorithmBenchmarker {
 	 * @since 2.0.0
 	 */
 	private static class StringBuilderI {
-		StringBuilder internal = new StringBuilder();
+		private StringBuilder internal = new StringBuilder();
 	
 		public StringBuilderI append(String s) {
 			internal.append(s);

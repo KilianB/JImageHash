@@ -2,6 +2,7 @@ package com.github.kilianB.hashAlgorithms;
 import static com.github.kilianB.TestResources.lenna;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,9 +28,19 @@ class RotPHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-1292976068, new RotPHash(14, false).algorithmId());
+				assertEquals(-1427552469, new RotPHash(14, false).algorithmId());
 			}, () -> {
-				assertEquals(-1292914750, new RotPHash(25, true).algorithmId());
+				assertEquals(-1425651611, new RotPHash(25, true).algorithmId());
+			});
+		}
+		
+		@Test
+		@DisplayName("Consistent AlgorithmIds v 2.0.0 collision")
+		public void notVersionTwo() {
+			assertAll(() -> {
+				assertNotEquals(-1292976068, new RotPHash(14, false).algorithmId());
+			}, () -> {
+				assertNotEquals(-1292914750, new RotPHash(25, true).algorithmId());
 			});
 		}
 	}
@@ -37,7 +48,7 @@ class RotPHashTest {
 
 	/**
 	 * RotPHash has a setting specifying that the key length is truly the one
-	 * speicfied
+	 * specified
 	 */
 	@Test
 	void keyLengthExact() {
@@ -65,6 +76,16 @@ class RotPHashTest {
 		 */
 		protected int offsetBitResolution() {
 			return 10;
+		}
+		
+		@Override
+		protected double differenceBallonHqHash() {
+			return 54;
+		}
+
+		@Override
+		protected double normDifferenceBallonHqHash() {
+			return 54 / 137d;
 		}
 		
 	}

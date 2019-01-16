@@ -4,28 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.stream.Stream;
-
-import javax.imageio.ImageIO;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.hashAlgorithms.experimental.HogHash;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * @author Kilian
  *
  */
+@SuppressWarnings("deprecation")
 class HogHashTest {
 
 	@Nested
@@ -42,15 +32,25 @@ class HogHashTest {
 		public void consistency() {
 
 			assertAll(() -> {
-				assertEquals(-1105481375, new AverageHash(14).algorithmId());
+				assertEquals(-1909360295, new HogHash(14).algorithmId());
 			}, () -> {
-				assertEquals(-1105480383, new AverageHash(25).algorithmId());
+				assertEquals(-1850254951, new HogHash(25).algorithmId());
+			});
+		}
+		
+		@Test
+		@DisplayName("Consistent AlgorithmIds v 2.0.0 collision")
+		public void notVersionTwo() {
+			assertAll(() -> {
+				assertNotEquals(769691726, new HogHash(14).algorithmId());
+			}, () -> {
+				assertNotEquals(771598350, new HogHash(25).algorithmId());
 			});
 		}
 	}
 
 	@Test
-	void illegalConstructor() {
+	public void illegalConstructor() {
 		assertThrows(IllegalArgumentException.class, () -> {
 			new HogHash(2);
 		});
@@ -69,6 +69,16 @@ class HogHashTest {
 		@Override
 		protected int offsetBitResolution() {
 			return 10;
+		}
+		
+		@Override
+		protected double differenceBallonHqHash() {
+			return 50;
+		}
+
+		@Override
+		protected double normDifferenceBallonHqHash() {
+			return 50 / 144d;
 		}
 	}
 

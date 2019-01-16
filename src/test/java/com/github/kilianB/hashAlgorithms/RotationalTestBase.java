@@ -1,16 +1,19 @@
 package com.github.kilianB.hashAlgorithms;
 
+import static com.github.kilianB.TestResources.lenna;
+import static com.github.kilianB.TestResources.lenna180;
+import static com.github.kilianB.TestResources.lenna270;
+import static com.github.kilianB.TestResources.lenna90;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 
-import static com.github.kilianB.TestResources.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.hash.Hash;
 
 /**
  * @author Kilian
@@ -20,7 +23,7 @@ public abstract class RotationalTestBase extends HashTestBase{
 
 	@ParameterizedTest
 	@MethodSource(value = "com.github.kilianB.hashAlgorithms.RotationalTestBase#bitResolution")
-	void rotatedImages(Integer bitResolution) {
+	public void rotatedImages(Integer bitResolution) {
 
 		HashingAlgorithm h = getInstance(bitResolution+this.offsetBitResolution());
 		Hash rot0 = h.hash(lenna);
@@ -43,7 +46,7 @@ public abstract class RotationalTestBase extends HashTestBase{
 		});
 	}
 	
-	static Stream<Integer> bitResolution() {
+	public static Stream<Integer> bitResolution() {
 		Integer[] ints = new Integer[10];
 		ArrayUtil.fillArray(ints, (index) -> {
 			return index*2+20;

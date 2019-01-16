@@ -39,7 +39,7 @@ import com.github.kilianB.ArrayUtil;
  * @see MedianKernel
  * @see MaximumKernel
  */
-public class MinimumKernel extends Kernel {
+public class MinimumKernel extends NonAveragingKernel {
 
 	private static final long serialVersionUID = -2271995765850760974L;
 
@@ -78,110 +78,24 @@ public class MinimumKernel extends Kernel {
 
 	@Override
 	protected double calcValue(byte[][] input, int x, int y) {
-		int maskW = mask[0].length / 2;
-		int maskH = mask.length / 2;
-		int width = input[0].length;
-		int height = input.length;
-
-		double[] wValues = new double[mask.length * mask[0].length];
-		double[] values = new double[mask.length * mask[0].length];
-
-		int index = 0;
-		for (int yMask = -maskH; yMask <= maskH; yMask++) {
-			for (int xMask = -maskW; xMask <= maskW; xMask++) {
-
-				int xPixelIndex;
-				int yPixelIndex;
-
-				if (edgeHandling.equals(EdgeHandlingStrategy.NO_OP)) {
-					xPixelIndex = x + xMask;
-					yPixelIndex = y + yMask;
-
-					if (xPixelIndex < 0 || xPixelIndex >= width || yPixelIndex < 0 || yPixelIndex >= height) {
-						return input[y][x];
-					}
-				} else {
-					xPixelIndex = edgeHandling.correctPixel(x + xMask, width);
-					yPixelIndex = edgeHandling.correctPixel(y + yMask, height);
-				}
-
-				values[index] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-				wValues[index++] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-			}
-		}
-		return values[ArrayUtil.minimumIndex(wValues)];
+		return resolveMax(computePotentialValues(input, x, y));
 	}
 
 	@Override
 	protected double calcValue(int[][] input, int x, int y) {
-		int maskW = mask[0].length / 2;
-		int maskH = mask.length / 2;
-		int width = input[0].length;
-		int height = input.length;
-
-		double[] wValues = new double[mask.length * mask[0].length];
-		double[] values = new double[mask.length * mask[0].length];
-
-		int index = 0;
-		for (int yMask = -maskH; yMask <= maskH; yMask++) {
-			for (int xMask = -maskW; xMask <= maskW; xMask++) {
-
-				int xPixelIndex;
-				int yPixelIndex;
-
-				if (edgeHandling.equals(EdgeHandlingStrategy.NO_OP)) {
-					xPixelIndex = x + xMask;
-					yPixelIndex = y + yMask;
-
-					if (xPixelIndex < 0 || xPixelIndex >= width || yPixelIndex < 0 || yPixelIndex >= height) {
-						return input[y][x];
-					}
-				} else {
-					xPixelIndex = edgeHandling.correctPixel(x + xMask, width);
-					yPixelIndex = edgeHandling.correctPixel(y + yMask, height);
-				}
-
-				values[index] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-				wValues[index++] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-			}
-		}
-		return values[ArrayUtil.minimumIndex(wValues)];
+		return resolveMax(computePotentialValues(input, x, y));
 	}
 
 	@Override
 	protected double calcValue(double[][] input, int x, int y) {
-		int maskW = mask[0].length / 2;
-		int maskH = mask.length / 2;
-		int width = input[0].length;
-		int height = input.length;
-
-		double[] wValues = new double[mask.length * mask[0].length];
-		double[] values = new double[mask.length * mask[0].length];
-
-		int index = 0;
-		for (int yMask = -maskH; yMask <= maskH; yMask++) {
-			for (int xMask = -maskW; xMask <= maskW; xMask++) {
-
-				int xPixelIndex;
-				int yPixelIndex;
-
-				if (edgeHandling.equals(EdgeHandlingStrategy.NO_OP)) {
-					xPixelIndex = x + xMask;
-					yPixelIndex = y + yMask;
-
-					if (xPixelIndex < 0 || xPixelIndex >= width || yPixelIndex < 0 || yPixelIndex >= height) {
-						return input[y][x];
-					}
-				} else {
-					xPixelIndex = edgeHandling.correctPixel(x + xMask, width);
-					yPixelIndex = edgeHandling.correctPixel(y + yMask, height);
-				}
-
-				values[index] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-				wValues[index++] = mask[yMask + maskH][xMask + maskW] * input[yPixelIndex][xPixelIndex];
-			}
+		return resolveMax(computePotentialValues(input, x, y));
+	}
+	
+	protected double resolveMax(double[][] values) {
+		if (values[1].length == 1 && values[1][0] == Double.MIN_VALUE) {
+			return values[0][0];
 		}
-		return values[ArrayUtil.minimumIndex(wValues)];
+		return values[0][ArrayUtil.minimumIndex(values[1])];
 	}
 
 }

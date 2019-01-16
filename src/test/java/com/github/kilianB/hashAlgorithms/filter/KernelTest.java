@@ -3,13 +3,6 @@ package com.github.kilianB.hashAlgorithms.filter;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.Arrays;
-
-import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -26,18 +19,18 @@ import com.github.kilianB.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy;
 class KernelTest {
 
 	/** 3x3 Kernel */
-	static Kernel squareKernel;
+	private static Kernel squareKernel;
 	/** 1x3 Kernel */
-	static Kernel widthKernel;
+	private static Kernel widthKernel;
 	/** 3x1 kernel */
-	static Kernel heightKernel;
+	private static Kernel heightKernel;
 
-	static double[][] dummyInputDouble = new double[10][15];
-	static int[][] dummyInputInt = new int[10][15];
-	static byte[][] dummyInputByte = new byte[10][15];
+	private static double[][] dummyInputDouble = new double[10][15];
+	private static int[][] dummyInputInt = new int[10][15];
+	private static byte[][] dummyInputByte = new byte[10][15];
 
 	@BeforeAll
-	static void prepareDefaultKernels() {
+	public static void prepareDefaultKernels() {
 
 		double[][] square = { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
 		double[][] width = { { 1, 1, 1 } };
@@ -61,20 +54,20 @@ class KernelTest {
 	}
 
 	@Test
-	void copyConstructorEdge() {
+	public void copyConstructorEdge() {
 		Kernel copy = new Kernel(widthKernel);
 		assertEquals(widthKernel.edgeHandling, copy.edgeHandling);
 	}
 
 	@Test
-	void copyConstructorMask() {
+	public void copyConstructorMask() {
 		Kernel copy = new Kernel(widthKernel);
 		assertAll(() -> assertEquals(widthKernel.mask.length, copy.mask.length),
 				() -> assertEquals(widthKernel.mask[0].length, copy.mask[0].length));
 	}
 
 	@Test
-	void identity() {
+	public void identity() {
 
 		double[][] mask = { { 1d } };
 		double[][] arr = new double[10][10];
@@ -87,7 +80,7 @@ class KernelTest {
 	}
 
 	@Test
-	void sameDimension1D() {
+	public void sameDimension1D() {
 		double[][] input = { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
 		double[][] mask = { { 1d, 1d, 1d } };
 		Kernel k = new Kernel(mask);
@@ -99,7 +92,7 @@ class KernelTest {
 	}
 
 	@Test
-	void sameDimension2DSquared() {
+	public void sameDimension2DSquared() {
 		double[][] input = { { 0, 1, 2 }, { 0, 1, 2 }, { 0, 1, 2 } };
 		double[][] mask = { { 1d, 1d, 1d }, { 1d, 1d, 1d }, { 1d, 1d, 1d } };
 		Kernel k = new Kernel(mask);
@@ -109,7 +102,7 @@ class KernelTest {
 	}
 
 	@Test
-	void sameDimension2D() {
+	public void sameDimension2D() {
 		double[][] input = { { 0, 1, 2 }, { 0, 1, 2 } };
 		double[][] mask = { { 1d, 1d, 1d } };
 
@@ -120,7 +113,7 @@ class KernelTest {
 	}
 
 	@Test
-	void sameDimension2D1() {
+	public void sameDimension2D1() {
 		double[][] input = { { 0, 1, 2 }, { 0, 1, 2 } };
 		double[][] mask = { { 1d }, { 1d }, { 1d } };
 
@@ -137,7 +130,7 @@ class KernelTest {
 		class Original {
 			@Disabled
 			@Test
-			void widthHeightConstructor() {
+			public void widthHeightConstructor() {
 				int width = 21;
 				int height = 1;
 				Kernel k = Kernel.boxFilter(width, height, 1);
@@ -149,9 +142,8 @@ class KernelTest {
 		class Normalized {
 
 			// Works on MultiKernels
-
 			@Test
-			void widthHeightConstructor() {
+			public void widthHeightConstructor() {
 				int width = 3;
 				int height = 51;
 				Kernel k = Kernel.boxFilterNormalized(width, height);
@@ -174,84 +166,117 @@ class KernelTest {
 		@Nested
 		class Double {
 			@Test
-			void testNoOpSquare() {
+			public void testNoOpSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
-				k.apply(dummyInputDouble);
+				double[][] expected = {
+						{ 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 9.0, 18.0, 27.0, 36.0, 45.0, 54.0, 63.0, 72.0, 81.0, 90.0, 99.0, 108.0, 117.0, 14.0 },
+						{ 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0 } };
+				assertArrayEquals(expected, k.apply(dummyInputDouble));
 			}
 
 			@Test
-			void testNoOpWidth() {
+			public void testNoOpWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
-				k.apply(dummyInputDouble);
+				double[][] expected = {
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 },
+						{ 0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 14.0 } };
+				assertArrayEquals(expected, k.apply(dummyInputDouble));
 			}
 
 			@Test
-			void testNoOpHeight() {
+			public void testNoOpHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
 				k.apply(dummyInputDouble);
+				double[][] expected = {{0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0},
+					 {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0}};
+				assertArrayEquals(expected, k.apply(dummyInputDouble));
 			}
 
 			@Test
-			void testExpandSquare() {
+			public void testExpandSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.EXPAND;
 				k.apply(dummyInputDouble);
 			}
 
 			@Test
-			void testExpandWidth() {
+			public void testExpandWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.EXPAND;
 				k.apply(dummyInputDouble);
 			}
 
 			@Test
-			void testExpandHeight() {
+			public void testExpandHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.EXPAND;
 				k.apply(dummyInputDouble);
 			}
 
 			@Test
-			void testWrapSquare() {
+			public void testWrapSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.WRAP;
 				k.apply(dummyInputDouble);
 			}
 
 			@Test
-			void testWrapWidth() {
+			public void testWrapWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.WRAP;
 				k.apply(dummyInputDouble);
 			}
 
 			@Test
-			void testWrapHeight() {
+			public void testWrapHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.WRAP;
 				k.apply(dummyInputDouble);
 			}
 
 			@Test
-			void testMirrorSquare() {
+			public void testMirrorSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.MIRROR;
 				k.apply(dummyInputDouble);
 			}
 
 			@Test
-			void testMirrorWidth() {
+			public void testMirrorWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.MIRROR;
 				k.apply(dummyInputDouble);
 			}
 
 			@Test
-			void testMirrorHeight() {
+			public void testMirrorHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.MIRROR;
 				k.apply(dummyInputDouble);
@@ -261,84 +286,84 @@ class KernelTest {
 		@Nested
 		class Integer {
 			@Test
-			void testNoOpSquare() {
+			public void testNoOpSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testNoOpWidth() {
+			public void testNoOpWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testNoOpHeight() {
+			public void testNoOpHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testExpandSquare() {
+			public void testExpandSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.EXPAND;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testExpandWidth() {
+			public void testExpandWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.EXPAND;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testExpandHeight() {
+			public void testExpandHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.EXPAND;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testWrapSquare() {
+			public void testWrapSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.WRAP;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testWrapWidth() {
+			public void testWrapWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.WRAP;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testWrapHeight() {
+			public void testWrapHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.WRAP;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testMirrorSquare() {
+			public void testMirrorSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.MIRROR;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testMirrorWidth() {
+			public void testMirrorWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.MIRROR;
 				k.apply(dummyInputInt);
 			}
 
 			@Test
-			void testMirrorHeight() {
+			public void testMirrorHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.MIRROR;
 				k.apply(dummyInputInt);
@@ -348,84 +373,84 @@ class KernelTest {
 		@Nested
 		class Byte {
 			@Test
-			void testNoOpSquare() {
+			public void testNoOpSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testNoOpWidth() {
+			public void testNoOpWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testNoOpHeight() {
+			public void testNoOpHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.NO_OP;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testExpandSquare() {
+			public void testExpandSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.EXPAND;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testExpandWidth() {
+			public void testExpandWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.EXPAND;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testExpandHeight() {
+			public void testExpandHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.EXPAND;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testWrapSquare() {
+			public void testWrapSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.WRAP;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testWrapWidth() {
+			public void testWrapWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.WRAP;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testWrapHeight() {
+			public void testWrapHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.WRAP;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testMirrorSquare() {
+			public void testMirrorSquare() {
 				Kernel k = new Kernel(squareKernel);
 				k.edgeHandling = EdgeHandlingStrategy.MIRROR;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testMirrorWidth() {
+			public void testMirrorWidth() {
 				Kernel k = new Kernel(widthKernel);
 				k.edgeHandling = EdgeHandlingStrategy.MIRROR;
 				k.apply(dummyInputByte);
 			}
 
 			@Test
-			void testMirrorHeight() {
+			public void testMirrorHeight() {
 				Kernel k = new Kernel(heightKernel);
 				k.edgeHandling = EdgeHandlingStrategy.MIRROR;
 				k.apply(dummyInputByte);

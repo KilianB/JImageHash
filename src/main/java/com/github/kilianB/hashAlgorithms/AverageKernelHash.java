@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.Require;
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
@@ -27,14 +28,9 @@ import com.github.kilianB.hashAlgorithms.filter.Kernel;
  * @author Kilian
  *
  */
-public class AverageKernelHash extends HashingAlgorithm implements Serializable {
+public class AverageKernelHash extends AverageHash implements Serializable {
 
 	private static final long serialVersionUID = -5234612717498362659L;
-
-	/**
-	 * The height and width of the scaled instance used to compute the hash
-	 */
-	private int height, width;
 
 	/**
 	 * The kernel filtering the luminosity of the image
@@ -96,19 +92,11 @@ public class AverageKernelHash extends HashingAlgorithm implements Serializable 
 	 */
 	public AverageKernelHash(int bitResolution, Kernel... kernels) {
 		super(bitResolution);
-
-		/*
-		 * Figure out how big our resized image has to be in order to create a hash with
-		 * approximately bit resolution bits while trying to stay as squared as possible
-		 * to not introduce bias via stretching or shrinking the image asymmetrically.
-		 */
-		computeDimension(bitResolution);
-
 		filters = new ArrayList<Kernel>(Arrays.asList(Require.deepNonNull(kernels, "The kernel may not be null")));
 	}
 
 	@Override
-	protected BigInteger hash(BufferedImage image, BigInteger hash) {
+	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
@@ -117,7 +105,6 @@ public class AverageKernelHash extends HashingAlgorithm implements Serializable 
 		// Calculate the average color of the entire image
 
 		// Kernel filter
-
 		double[][] filtered = null;
 
 		for (Kernel kernel : filters) {
@@ -128,44 +115,15 @@ public class AverageKernelHash extends HashingAlgorithm implements Serializable 
 			}
 		}
 
-		// Create hash
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				if (luminocity[x][y] < filtered[x][y]) {
-					hash = hash.shiftLeft(1);
-				} else {
-					hash = hash.shiftLeft(1).add(BigInteger.ONE);
-				}
-			}
-		}
-		return hash;
-	}
+		double avgPixelValue = ArrayUtil.average(filtered);
 
-	/**
-	 * Compute the resize width and height for our image.
-	 * 
-	 * 
-	 * @param bitResolution the target bit resolution of the final hash
-	 */
-	private void computeDimension(int bitResolution) {
-
-		// Allow for slightly non symmetry to get closer to the true bit resolution
-		int dimension = (int) Math.round(Math.sqrt(bitResolution));
-
-		// Lets allow for a +1 or -1 asymmetry and find the most fitting value
-		int normalBound = (dimension * dimension);
-		int higherBound = (dimension * (dimension + 1));
-
-		this.height = dimension;
-		this.width = dimension;
-		if (normalBound < bitResolution || (normalBound - bitResolution) > (higherBound - bitResolution)) {
-			this.width++;
-		}
+		return computeHash(hash, filtered, avgPixelValue);
 	}
 
 	@Override
 	protected int precomputeAlgoId() {
-		return Objects.hash(getClass().getName(), height, width, filters);
+		//*31 to create a distinct id compare to v 2.0.0 bugfix
+		return Objects.hash(getClass().getName(), height, width, filters) *31;
 	}
 
 	@Override
