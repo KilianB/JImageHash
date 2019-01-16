@@ -151,7 +151,6 @@ Image matchers can be configured using different algorithm. Each comes with indi
   <tr><td><a href="#hoghash">HogHash</a></td> <td>Angular Gradient based (detection of shapes?) </td> <td>A hashing algorithm based on hog feature detection which extracts gradients and pools them by angles. Usually used in support vector machine/NNs human outline detection. It's not entirely set how the feature vectors should be encoded. Currently average, but not great results, expensive to compute and requires a rather high bit resolution</td> </tr>  
 </table>
 
-
 ### Version 3.0.0 Image clustering
 
 Image clustering with fuzzy hashes allowing to represent hashes with probability bits instead of simple 0's and 1's
@@ -164,4 +163,3 @@ Image clustering with fuzzy hashes allowing to represent hashes with probability
 See the wiki page on how to test differet hashing algorithms with your set of images
 
 <img src="https://user-images.githubusercontent.com/9025925/49185669-c14a0b80-f362-11e8-92fa-d51a20476937.jpg" />
-
