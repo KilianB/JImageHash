@@ -1,8 +1,5 @@
 package com.github.kilianB.matcher.categorize;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A categorization result describes the membership to a cluster. It contains
  * the identifier of the category this image was matched to as well as a quality

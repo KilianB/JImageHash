@@ -129,7 +129,7 @@ public class GagExampleMain {
 
 			for (int i = 0; i < imageFiles.length; i++) {
 				cMatcher.categorizeImageAndAdd(imageFiles[i]);
-				if (i % 1000 == 0) {
+				if (i % 250 == 0) {
 					System.out.printf(progressFormat, i);
 				}
 			}
@@ -281,7 +281,8 @@ public class GagExampleMain {
 			}
 
 			// Print all categories which are not memes
-			printImagesInCategories(cMatcher, memeCategories);
+			//Show if you are interested
+			//printImagesInCategories(cMatcher, memeCategories);
 
 			// Print all images which are very very likely to be duplicates
 			System.out.println("Incredibly likly duplicates");
@@ -317,7 +318,6 @@ public class GagExampleMain {
 					+ " Mote than 2 Elems: " + duplicates + " Pure cluster: " + singleton);
 
 
-
 			//Build animation used in the blog post
 //			// 27 confession bear
 //			buildAnim(cMatcher, 27, "ConfessionBear");
@@ -343,6 +343,11 @@ public class GagExampleMain {
 		return name.substring(0, name.lastIndexOf("."));
 	}
 
+	/**
+	 * Print all images contained in the cluster
+	 * @param cMatcher The matcher to retrieve the data from
+	 * @param categoriesToIgnore the categories we omit
+	 */
 	private static void printImagesInCategories(CategoricalMatcher cMatcher, Collection<Integer> categoriesToIgnore) {
 		LinkedHashMap<Integer, Integer> categories = cMatcher.getCategoriesSortedByImageCount();
 		//
@@ -363,6 +368,8 @@ public class GagExampleMain {
 	@SuppressWarnings("unused")
 	private static void buildAnim(CategoricalMatcher cMatcher, int category, String name) throws IOException {
 
+		//Build animation for blog post
+		
 		HashingAlgorithm hasher = new AverageHash(512);
 
 		List<String> images = cMatcher.getImagesInCategory(category);

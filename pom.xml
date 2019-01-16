@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.kilianB</groupId>
 	<artifactId>JImageHash</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
+	<version>3.0.0</version>
 
 	<properties>
 		<bintrayRepository>maven</bintrayRepository>

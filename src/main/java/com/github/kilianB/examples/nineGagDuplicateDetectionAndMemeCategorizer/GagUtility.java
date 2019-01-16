@@ -124,7 +124,7 @@ public class GagUtility implements AutoCloseable {
 	 * @throws SQLException if an error occurs accessing the database
 	 */
 	public void scrapMetadata(Section section, boolean abortIfAnEntryAlreadyExists) throws SQLException {
-		scrapMetadata(section.name(), abortIfAnEntryAlreadyExists);
+		scrapMetadata(section.name().toLowerCase(), abortIfAnEntryAlreadyExists);
 	}
 
 	private ExecutorService boundCachedThreadPoolExecutor;
@@ -151,7 +151,6 @@ public class GagUtility implements AutoCloseable {
 	 */
 	public void scrapMetadata(String sectionEndpoint, boolean abortIfAnEntryAlreadyExists) throws SQLException {
 		LOGGER.info("Begin scrapping metadata");
-
 		if (abortIfAnEntryAlreadyExists && dbManager.containsPostItemFromSection(sectionEndpoint)) {
 			LOGGER.info(
 					"It appears the section was already scrapped. Ignore request. If you want to reparse the section either clear the databse"

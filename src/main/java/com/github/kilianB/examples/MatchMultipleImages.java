@@ -2,7 +2,6 @@ package com.github.kilianB.examples;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.PriorityQueue;
 
 import javax.imageio.ImageIO;

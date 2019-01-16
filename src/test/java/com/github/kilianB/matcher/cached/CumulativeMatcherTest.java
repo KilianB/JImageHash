@@ -23,8 +23,6 @@ import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.matcher.TypedImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.cached.ConsecutiveMatcher;
-import com.github.kilianB.matcher.cached.CumulativeMatcher;
 
 /**
  * @author Kilian

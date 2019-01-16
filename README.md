@@ -73,12 +73,8 @@ and optimize individual algorithms on your own.
 			<td>Test different algorithm/setting combinations against your images to see which settings give the best result.</td>
 		</tr>
 		<tr>
-			<td><a href="/src/main/java/com/github/kilianB/examples/AlgorithmBenchmark.java">FuzzyHashes.java</a></td>
-			<td>FuzzyHashes and clustering</td>
-		</tr>
-		<tr>
-			<td><a href="/src/main/java/com/github/kilianB/examples/AlgorithmBenchmark.java">AlgorithmBenchmark.java</a></td>
-			<td>Extensive tutotial matching 17.000 images . Following the block post ...</td>
+			<td><a href="/src/main/java/com/github/kilianB/examples/nineGagDuplicateDetectionAndMemeCategorizer">Clustering Example</a></td>
+			<td>Extensive tutotial matching 17.000 images . As described in the <a href="https://medium.com/@kilian.brachtendorf_83099/getting-tired-of-re-uploads-4a4f88908d52">blog<a/a></td>
 		</tr>
 	</tbody>
 </table>
@@ -182,47 +178,6 @@ The `ecotic` package
 	
 </table>
 
-### Persistently Store Hashes (New Version 2.0.0)
-
-The database image matcher allows you to store hashes persistently between JVM lifecycles.
-
-````Java
-String dbName = "imageHashDB";
-String userName = "root";
-String password = "";
-	
-DatabaseImageMatcher db = new DatabaseImageMatcher(dbName,userName,password);
-	
-// Proceed as normal
-db.addHashingAlgorithm(new AverageHash(32),25);
-db.addHashingAlgorithm(new PerceptiveHash(20),15);
-	
-//Image hashes are saved to the database and persistently available
-db.addImage(new File("ImageFile.png"));
-db.addImage("UniqueId",BufferedImage);
-	
-//Opposed to other matchers you get the absolute file path or the unique id returned
-PriorityQueue results = db.getMatchingImages(...);
-	
-//....
-//Find all images which are similar to any image in the database
-Map allMatchingImages = db.getAllMatchingImages();
-	
-//Once done you can also save the matcher to the database for later retrieval desired.
-db.serializeToDatabase(1);
-````
-
-You may also use a connection object to connect to a database of your choice. Matchers can be serialized to the db and can be reconstructed at a later time
-
-````Java
-	
-//1. Connect via a connection object
-Class.forName("org.h2.Driver");
-Connection conn = DriverManager.getConnection("jdbc:h2:~/" + dbName, userName, password);
-	
-//2. Load from database
-db = DatabaseImageMatcher.getFromDatabase(conn,1);
-````
 
 ## Hashing algorithm
 
@@ -243,52 +198,15 @@ Image matchers can be configured using different algorithm. Each comes with indi
   <tr><td><a href="#hoghash">HogHash</a></td> <td>Angular Gradient based (detection of shapes?) </td> <td>A hashing algorithm based on hog feature detection which extracts gradients and pools them by angles. Usually used in support vector machine/NNs human outline detection. It's not entirely set how the feature vectors should be encoded. Currently average, but not great results, expensive to compute and requires a rather high bit resolution</td> </tr>  
 </table>
 
-A combination of Average and PerceptiveHashes are usually your way to go. 
 
-## Algorithm chaining & fine tuning
-In some situations it may be useful to chain multiple detection algorithms back to back to utilize the different features they are based on. 
-A promising approach is to first filter images using the fast difference hash with a low resolution key and if a potential match is found checking again with the perceptive hash function.
+### Version 3.0.0 Image clustering
 
-The 'ImageMatchers' provide a set of classes to do exactly this.
+Image clustering with fuzzy hashes.
 
-Depending on the image domains you may want to play around with different algorithm & threshold combinations to see at which point you get a high retrieval rate without
-too many false positives. The most granular control you can achieve by calculating the hammingDistance on 2 hashes. The hamming distance is a metric indicating how similar two hashes are. A small distance corresponds to closer related images. If two images are identical their hamming distance will be 0. 
+![1_fxpw79yoon8xo3slqsvmta](https://user-images.githubusercontent.com/9025925/51272388-439d9600-19ca-11e9-8220-fe3539ed6061.png)
 
-The <b>hamming distance</b> returned by algorithms ranges from `[0 - bitKeyResolution]` (chosen during algorithm creation)
-The <b>normalized hamming distance</b> ranges from `[0 - 1]`.
 
-````java
-/**
- * Compares the similarity of two images.
- * @param image1	First image to be matched against 2nd image
- * @param image2	The second image
- * @return	true if the algorithm defines the images to be similar.
- */
-public boolean compareTwoImages(BufferedImage image1, BufferedImage image2) {
+### Algorithm benchmarking 
 
-	// Key bit resolution
-	int keyLength = 64;
+<img src="https://user-images.githubusercontent.com/9025925/49185669-c14a0b80-f362-11e8-92fa-d51a20476937.jpg" />
 
-	// Pick an algorithm
-	HashingAlgorithm hasher = new AverageHash(keyLength);
-		
-	//Generate the hash for each image
-	Hash hash1 = hasher.hash(image1);
-	Hash hash2 = hasher.hash(image2);
-
-	//Compute a similarity score
-	// Ranges between 0 - 1. The lower the more similar the images are.
-	double similarityScore = hash1.normalizedHammingDistance(hash2);
-
-	return similarityScore < 0.3d;
-}
-````
-
-<p align= "center">
-<img src="https://user-images.githubusercontent.com/9025925/36545875-3805f32e-17ea-11e8-9b28-96e25ba0ea67.png">
-	</p>
-<p align= "center"><a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">Source</a>
-</p>
-The image describes the tradeoff between false retrieval rate and false acceptance rate.
-
-Only hashes produced by the same algorithm with the same bit resolution can be compared.
