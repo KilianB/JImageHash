@@ -31,7 +31,7 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
  * @author Kilian
  * @since 2.0.0
  */
-@Experimental(description = "")
+@Experimental("Test")
 public class HogHash extends HashingAlgorithm {
 
 	/*

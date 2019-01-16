@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Test;
 import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
-import com.github.kilianB.matcher.cached.InMemoryImageMatcher;
-import com.github.kilianB.matcher.pairwise.CumulativeImageMatcher;
+import com.github.kilianB.matcher.TypedImageMatcher.AlgoSettings;
+import com.github.kilianB.matcher.TypedImageMatcher.Setting;
+import com.github.kilianB.matcher.cached.ConsecutiveMatcher;
+import com.github.kilianB.matcher.cached.CumulativeMatcher;
 
 /**
  * @author Kilian
@@ -32,7 +32,7 @@ import com.github.kilianB.matcher.pairwise.CumulativeImageMatcher;
  */
 class CumulativeImageMatcherTest {
 
-	private void addDefaultTestImages(CumulativeImageMatcher matcher) {
+	private void addDefaultTestImages(CumulativeMatcher matcher) {
 		matcher.addImage(ballon);
 		matcher.addImage(copyright);
 		matcher.addImage(highQuality);
@@ -40,7 +40,7 @@ class CumulativeImageMatcherTest {
 		matcher.addImage(thumbnail);
 	}
 
-	private void assertImageMatches(CumulativeImageMatcher matcher) {
+	private void assertImageMatches(CumulativeMatcher matcher) {
 		// We only expect ballon to be returned
 		final PriorityQueue<Result<BufferedImage>> results = matcher.getMatchingImages(ballon);
 
@@ -62,7 +62,7 @@ class CumulativeImageMatcherTest {
 	@Test
 	@DisplayName("Check Similarity")
 	public void imageMatches() {
-		CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
+		CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher();
 		addDefaultTestImages(matcher);
 		assertImageMatches(matcher);
 	}
@@ -71,7 +71,7 @@ class CumulativeImageMatcherTest {
 	@DisplayName("Check Similarity Non Normalized")
 	public void imageMatcheNonNormalizedVersion() {
 
-		CumulativeImageMatcher matcher = new CumulativeImageMatcher(20, false);
+		CumulativeMatcher matcher = new CumulativeMatcher(20, false);
 
 		matcher.addHashingAlgorithm(new AverageHash(64));
 
@@ -85,7 +85,7 @@ class CumulativeImageMatcherTest {
 		@DisplayName("Default")
 		public void defaultMatcher() {
 
-			CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
+			CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher();
 
 			addDefaultTestImages(matcher);
 			assertImageMatches(matcher);
@@ -95,7 +95,7 @@ class CumulativeImageMatcherTest {
 		@DisplayName("Forgiving")
 		public void forgiving() {
 
-			CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher(Setting.Forgiving);
+			CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher(Setting.Forgiving);
 
 			addDefaultTestImages(matcher);
 			assertImageMatches(matcher);
@@ -105,7 +105,7 @@ class CumulativeImageMatcherTest {
 		@DisplayName("Fair")
 		public void imageMatches() {
 
-			CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher(Setting.Fair);
+			CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher(Setting.Fair);
 
 			addDefaultTestImages(matcher);
 			assertImageMatches(matcher);
@@ -114,7 +114,7 @@ class CumulativeImageMatcherTest {
 
 	@Test
 	public void alterAlgorithmAfterImageHasAlreadyBeenAdded() {
-		CumulativeImageMatcher matcher = CumulativeImageMatcher.createDefaultMatcher();
+		CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher();
 
 		addDefaultTestImages(matcher);
 
@@ -139,7 +139,7 @@ class CumulativeImageMatcherTest {
 	@Test
 	@DisplayName("Empty Matcher")
 	public void noAlgorithm() {
-		InMemoryImageMatcher matcher = new InMemoryImageMatcher();
+		ConsecutiveMatcher matcher = new ConsecutiveMatcher();
 		BufferedImage dummyImage = new BufferedImage(1, 1, 0x1);
 		assertThrows(IllegalStateException.class, () -> {
 			matcher.getMatchingImages(dummyImage);
@@ -148,7 +148,7 @@ class CumulativeImageMatcherTest {
 
 	@Test
 	public void addAndClearAlgorithms() {
-		InMemoryImageMatcher matcher = new InMemoryImageMatcher();
+		ConsecutiveMatcher matcher = new ConsecutiveMatcher();
 
 		assertEquals(0, matcher.getAlgorithms().size());
 		matcher.addHashingAlgorithm(new AverageHash(14), 0.5);

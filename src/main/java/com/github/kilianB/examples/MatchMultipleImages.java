@@ -11,7 +11,7 @@ import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.cached.InMemoryImageMatcher;
+import com.github.kilianB.matcher.cached.ConsecutiveMatcher;
 
 /**
  * This example shows how a greater number of images can be compared to each
@@ -45,7 +45,7 @@ public class MatchMultipleImages {
 
 		System.out.println("MatchMultipleImagesInMemory():");
 		
-		InMemoryImageMatcher matcher = InMemoryImageMatcher.createDefaultMatcher();
+		ConsecutiveMatcher matcher = ConsecutiveMatcher.createDefaultMatcher();
 
 		//Add all images of interest to the matcher and precalculate hashes
 		matcher.addImages(ballon,copyright,highQuality,lowQuality,thumbnail);

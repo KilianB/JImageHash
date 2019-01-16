@@ -6,7 +6,7 @@ import java.util.Objects;
 
 import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
-import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.hash.Hash;
 
 import javafx.scene.paint.Color;
 

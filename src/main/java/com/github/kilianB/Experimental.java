@@ -10,13 +10,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 @Documented
-@Retention(SOURCE)
 @Inherited
+@Retention(SOURCE)
 @Target({ TYPE, PACKAGE })
 /**
+ * Annotation indicating that a class or method is not ready to be used yet and
+ * might change quickly between versions.
+ * 
  * @author Kilian
  *
  */
 public @interface Experimental {
-	String description();
+	String value();
 }

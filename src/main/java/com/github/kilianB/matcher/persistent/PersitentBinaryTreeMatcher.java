@@ -2,18 +2,23 @@ package com.github.kilianB.matcher.persistent;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.logging.Logger;
 
+import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 /**
  * * Persistent image matchers are a subset of
- * {@link com.github.kilianB.matcher.ImageMatcher ImageMatcher} which can be
- * saved to disk to be later reconstructed. They expose the method
+ * {@link com.github.kilianB.matcher.TypedImageMatcher TypedImageMatcher} which
+ * can be saved to disk to be later reconstructed. They expose the method
  * {@link #serializeState(File)} and {@link #reconstructState(File, boolean)}.
  * 
  * <p>
@@ -37,13 +42,74 @@ public abstract class PersitentBinaryTreeMatcher extends PersistentImageMatcher 
 
 	private static final long serialVersionUID = -4650598803470549478L;
 
-	private static final Logger LOGGER = Logger.getLogger(ConsecutiveImageMatcher.class.getSimpleName());
+	private static final Logger LOGGER = Logger.getLogger(ConsecutiveMatcher.class.getSimpleName());
 
 	/** keep track of images already added. No reason to rehash */
 	protected HashSet<String> addedImages = new HashSet<>();
 
 	/** Binary Tree holding results for each individual hashing algorithm */
 	protected HashMap<HashingAlgorithm, BinaryTree<String>> binTreeMap = new HashMap<>();
+
+	protected boolean cacheAddedHashes;
+
+	/**
+	 * Save the hashes of added images mapped to their unique id for fast retrieval.
+	 */
+	protected Map<HashingAlgorithm, Map<String, Hash>> cachedHashes;
+
+	/**
+	 * TODO handle serialization empty constructor?
+	 * 
+	 * @param cacheAddedHashes Additionally to the binary tree hashes of added
+	 *                         images will be mapped to their uniqueId. This allows
+	 *                         to retrieve matches of added images without loading
+	 *                         the image file from disk speeding up the operation
+	 *                         Immensely. Saving the hash in a hashmap increases
+	 *                         memory overhead.
+	 *                         <p>
+	 *                         Use this setting if
+	 *                         {@link #getMatchingImages(java.io.File)} likely
+	 *                         contains an image already added to the match prior.
+	 */
+	public PersitentBinaryTreeMatcher(boolean cacheAddedHashes) {
+		this.cacheAddedHashes = cacheAddedHashes;
+		if (cacheAddedHashes) {
+			cachedHashes = new HashMap<>();
+		}
+	}
+
+	@Override
+	public PriorityQueue<Result<String>> getMatchingImages(File image) throws IOException {
+		if (cacheAddedHashes && addedImages.contains(image.getAbsolutePath())) {
+			// Quick retrieval possible. We don't need to read the file since the hashes are
+			// cached
+			return getMatchingImagesInternal(null, image.getAbsolutePath());
+		} else {
+			return super.getMatchingImages(image);
+		}
+	}
+
+	@Override
+	public PriorityQueue<Result<String>> getMatchingImages(BufferedImage image) {
+		return getMatchingImagesInternal(image, null);
+	}
+
+	/**
+	 * Return a list of images that are considered matching by the definition of
+	 * this matcher.
+	 * <p>
+	 * This method is propagated by the super class allowing to utilize caching
+	 * techniques to avoid reloading known images. Either the bufferedImage or the
+	 * uniqueId argument is send depending on if the uniqueId is enough to query the
+	 * hashes using the {@link #getHash(HashingAlgorithm, String, BufferedImage)}
+	 * method call.
+	 * 
+	 * @param bi the buffered image to match or null
+	 * @param uniqueId the uniqueId of a previously cached image or null
+	 * @return a list of unique id's identifying the previously matched images
+	 *         sorted by distance.
+	 */
+	protected abstract PriorityQueue<Result<String>> getMatchingImagesInternal(BufferedImage bi, String uniqueId);
 
 	/**
 	 * Append a new hashing algorithm which will be executed after all hash
@@ -61,6 +127,9 @@ public abstract class PersitentBinaryTreeMatcher extends PersistentImageMatcher 
 		super.addHashingAlgorithm(algo, threshold, normalized);
 		BinaryTree<String> binTree = new BinaryTree<>(true);
 		binTreeMap.put(algo, binTree);
+		if (cacheAddedHashes) {
+			cachedHashes.put(algo, new HashMap<>());
+		}
 	}
 
 	/**
@@ -71,6 +140,9 @@ public abstract class PersitentBinaryTreeMatcher extends PersistentImageMatcher 
 	 */
 	public boolean removeHashingAlgo(HashingAlgorithm algo) {
 		binTreeMap.remove(algo);
+		if (cacheAddedHashes) {
+			cachedHashes.remove(algo);
+		}
 		return super.removeHashingAlgo(algo);
 	}
 
@@ -80,6 +152,9 @@ public abstract class PersitentBinaryTreeMatcher extends PersistentImageMatcher 
 	 */
 	public void clearHashingAlgorithms() {
 		binTreeMap.clear();
+		if (cacheAddedHashes) {
+			cachedHashes.clear();
+		}
 		super.clearHashingAlgorithms();
 	}
 
@@ -91,7 +166,11 @@ public abstract class PersitentBinaryTreeMatcher extends PersistentImageMatcher 
 		for (Entry<HashingAlgorithm, AlgoSettings> entry : steps.entrySet()) {
 			HashingAlgorithm algo = entry.getKey();
 			BinaryTree<String> binTree = binTreeMap.get(algo);
+			Hash hash = algo.hash(image);
 			binTree.addHash(algo.hash(image), uniqueId);
+			if (cacheAddedHashes) {
+				cachedHashes.get(algo).put(uniqueId, hash);
+			}
 		}
 		addedImages.add(uniqueId);
 	}
@@ -102,6 +181,8 @@ public abstract class PersitentBinaryTreeMatcher extends PersistentImageMatcher 
 		int result = super.hashCode();
 		result = prime * result + ((addedImages == null) ? 0 : addedImages.hashCode());
 		result = prime * result + ((binTreeMap == null) ? 0 : binTreeMap.hashCode());
+		result = prime * result + (cacheAddedHashes ? 1231 : 1237);
+		result = prime * result + ((cachedHashes == null) ? 0 : cachedHashes.hashCode());
 		return result;
 	}
 
@@ -113,7 +194,7 @@ public abstract class PersitentBinaryTreeMatcher extends PersistentImageMatcher 
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (!(obj instanceof ConsecutiveImageMatcher)) {
+		if (!(obj instanceof PersitentBinaryTreeMatcher)) {
 			return false;
 		}
 		PersitentBinaryTreeMatcher other = (PersitentBinaryTreeMatcher) obj;
@@ -131,7 +212,27 @@ public abstract class PersitentBinaryTreeMatcher extends PersistentImageMatcher 
 		} else if (!binTreeMap.equals(other.binTreeMap)) {
 			return false;
 		}
+		if (cacheAddedHashes != other.cacheAddedHashes) {
+			return false;
+		}
+		if (cachedHashes == null) {
+			if (other.cachedHashes != null) {
+				return false;
+			}
+		} else if (!cachedHashes.equals(other.cachedHashes)) {
+			return false;
+		}
 		return true;
+	}
+
+	protected Hash getHash(HashingAlgorithm algo, String uniqueId, BufferedImage bImage) {
+		if (uniqueId != null && cachedHashes.get(algo).containsKey(uniqueId)) {
+			return cachedHashes.get(algo).get(uniqueId);
+		}
+		if (bImage != null) {
+			return algo.hash(bImage);
+		}
+		throw new IllegalStateException("No hash and buffered image supplied. Can't retrieve hash");
 	}
 
 	/**

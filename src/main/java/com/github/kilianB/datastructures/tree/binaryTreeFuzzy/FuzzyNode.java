@@ -10,6 +10,7 @@ import com.github.kilianB.datastructures.tree.binaryTree.Node;
  */
 public class FuzzyNode extends Node {
 
+	private static final long serialVersionUID = 4043416513243595121L;
 	// TODO explain better
 	/** The lower bound error this node might have */
 	public double lowerDistance = Double.MAX_VALUE;

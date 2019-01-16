@@ -7,9 +7,9 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * An example demonstrating how two images can be compared at a time using a single algorithm

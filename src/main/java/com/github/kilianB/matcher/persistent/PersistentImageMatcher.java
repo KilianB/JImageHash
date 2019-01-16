@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.PriorityQueue;
 import java.util.logging.Logger;
@@ -15,33 +16,37 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import com.github.kilianB.datastructures.tree.Result;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.ImageMatcher;
+import com.github.kilianB.matcher.TypedImageMatcher;
 
 /**
  * Persistent image matchers are a subset of
- * {@link com.github.kilianB.matcher.ImageMatcher ImageMatcher} which can be
- * saved to disk to be later reconstructed. They expose the method
+ * {@link com.github.kilianB.matcher.TypedImageMatcher TypedImageMatcher} which
+ * can be saved to disk to be later reconstructed. They expose the method
  * {@link #serializeState(File)} and {@link #reconstructState(File, boolean)}.
  * 
  * <p>
  * Since serialized hashes can not be updated or recreated due to the source of
  * the hash not being available anymore the persistent matcher needs to ensure
- * that the binary tree stays in a valid state. This means that the matcher forbids adding new
- * hashing algorithms as soon as a single hash was created.
+ * that the binary tree stays in a valid state. This means that the matcher
+ * forbids adding new hashing algorithms as soon as a single hash was created.
  * <p>
- * <b> Implnote:</b> classes extending persistent image matcher need to ensure that
- * their internal state can be serialized.
+ * <b> Implnote:</b> classes extending persistent image matcher need to ensure
+ * that their internal state can be serialized.
  * 
  * @author Kilian
+ * @since 3.0.0
  */
-public abstract class PersistentImageMatcher extends ImageMatcher implements Serializable {
+public abstract class PersistentImageMatcher extends TypedImageMatcher implements Serializable {
 
 	private static final long serialVersionUID = 4656669336898685462L;
 
-	private static final Logger LOGGER = Logger.getLogger(ConsecutiveImageMatcher.class.getSimpleName());
+	private static final Logger LOGGER = Logger.getLogger(ConsecutiveMatcher.class.getSimpleName());
 
 	protected boolean lockedState = false;
+
+	protected HashMap<String, Hash> addedImageMap;
 
 	/**
 	 * Non args constructor for serialization
@@ -67,8 +72,6 @@ public abstract class PersistentImageMatcher extends ImageMatcher implements Ser
 		super.clearHashingAlgorithms();
 	}
 
-	/// TODO check documentation
-
 	/**
 	 * Index the image. This enables the image matcher to find the image in future
 	 * searches. The database image matcher does not store the image data itself but
@@ -76,15 +79,10 @@ public abstract class PersistentImageMatcher extends ImageMatcher implements Ser
 	 * 
 	 * <p>
 	 * The path of the file has to be unique in order for this operation to return
-	 * deterministic results. Otherwise this image will only added to the database
-	 * for the hashing algorithms no entry exists yet.
-	 * <p>
-	 * This is useful for the situation in which you want to add an additional
-	 * hashing algorithm to the database image matcher, but will leave the db in
-	 * inconsistent stage the unique id is used multiple times.
+	 * deterministic results.
 	 * 
 	 * @param imageFile The image whose hash will be added to the matcher
-	 * @throws IOException  if an error exists reading the file
+	 * @throws IOException if an error exists reading the file
 	 */
 	public void addImage(File imageFile) throws IOException {
 		addImage(imageFile.getAbsolutePath(), imageFile);
@@ -110,22 +108,23 @@ public abstract class PersistentImageMatcher extends ImageMatcher implements Ser
 	 * 
 	 * <p>
 	 * The uniqueId has to be globally unique in order for this operation to return
-	 * deterministic results. Otherwise this image will only added to the database
-	 * for the hashing algorithms no entry exists yet.
-	 * <p>
-	 * This is useful for the situation in which you want to add an additional
-	 * hashing algorithm to the database image matcher, but will leave the db in
-	 * inconsistent stage the unique id is used multiple times.
+	 * deterministic results.
 	 * 
 	 * @param uniqueId  a unique identifier returned if querying for the image
 	 * @param imageFile The image whose hash will be added to the matcher
-	 * @throws IOException  if an error exists reading the file
+	 * @throws IOException if an error exists reading the file
 	 * @since 2.0.2
 	 */
 	public void addImage(String uniqueId, File imageFile) throws IOException {
 		if (steps.isEmpty())
 			throw new IllegalStateException(
 					"Please supply at least one hashing algorithm prior to invoking the match method");
+
+		if (!imageFile.isFile()) {
+			throw new IllegalArgumentException(
+					"Please make sure you add an image to the matcher. Directories are not supported");
+		}
+
 		addImage(uniqueId, ImageIO.read(imageFile));
 	}
 
@@ -147,14 +146,35 @@ public abstract class PersistentImageMatcher extends ImageMatcher implements Ser
 
 	/**
 	 * Add this image to the image matcher.
+	 * 
 	 * @param uniqueId the unique id to refer to during lookup
-	 * @param image the image to add
+	 * @param image    the image to add
 	 */
 	protected abstract void addImageInternal(String uniqueId, BufferedImage image);
 
-	public abstract PriorityQueue<Result<String>> getMatchingImages(BufferedImage image);
+	/**
+	 * Return a list of images that are considered matching by the definition of
+	 * this matcher.
+	 * 
+	 * @param image the image to check all saved images against
+	 * @return a list of unique id's identifying the previously matched images
+	 *         sorted by distance.
+	 * @throws IOException if an error occurs reading the file
+	 */
+	public PriorityQueue<Result<String>> getMatchingImages(File image) throws IOException {
+		return getMatchingImages(ImageIO.read(image));
+	}
 
-	public abstract PriorityQueue<Result<String>> getMatchingImages(BufferedImage image, double maxiumDistance);
+	/**
+	 * Search for all similar images passing the algorithm filters supplied to this
+	 * matcher. If the image itself was added to the tree it will be returned with a
+	 * distance of 0
+	 * 
+	 * @param image the image to check all saved images against
+	 * @return a list of unique id's identifying the previously matched images
+	 *         sorted by distance of the last applied algorithm
+	 */
+	public abstract PriorityQueue<Result<String>> getMatchingImages(BufferedImage image);
 
 	/**
 	 * Serialize this image matcher to a file. Serialized matchers keep their

@@ -12,10 +12,15 @@ import java.util.stream.Collectors;
 
 import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.StringUtil;
-import com.github.kilianB.matcher.FuzzyHash;
-import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.hash.FuzzyHash;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.mutable.MutableDouble;
 
+/**
+ * 
+ * @author Kilian
+ * @since 3.0.0
+ */
 public class ClusterResult {
 
 	protected int numberOfClusters;
@@ -27,7 +32,7 @@ public class ClusterResult {
 	protected HashMap<Integer, DoubleSummaryStatistics> stats = new HashMap<>();
 
 	// Int array as reverse map
-	protected HashMap<Hash, Integer> resolveEntryToCluster = new HashMap<>();
+	protected HashMap<Hash, Integer> entryToDataIndex = new HashMap<>();
 
 	/** Key the cluster index, value the data index */
 	protected HashMap<Integer, List<Integer>> entriesInCluster = new HashMap<>();
@@ -43,14 +48,13 @@ public class ClusterResult {
 	private HashMap<Integer, MutableDouble> sse = new HashMap<>();
 	private HashMap<Integer, MutableDouble> silhouetteCoef = new HashMap<>();
 
+	private boolean silhouetteCoefComputed = false;
 	// Cohesion ...
 
 	// Radius ... diameter
 	// density volume/points
 
 	public ClusterResult(int[] clusterIndex, Hash[] hashes) {
-
-		int hashLength = hashes[0].getBitResolution();
 
 		this.clusterIndex = clusterIndex;
 
@@ -69,17 +73,20 @@ public class ClusterResult {
 			entriesInCluster.put(cluster, new ArrayList<>());
 		}
 
+		// TODO these hashes are already created at the cluster level. Can't we just
+		// provide them in the constructor?
 		// After constructing the mean
 		for (int i = 0; i < hashes.length; i++) {
 			int cluster = clusterIndex[i];
 			clusters.get(cluster).mergeFast(hashes[i]);
 			hashesByCluster.get(cluster).add(hashes[i]);
-			resolveEntryToCluster.put(hashes[i], i);
+			entryToDataIndex.put(hashes[i], i);
 			entriesInCluster.get(cluster).add(i);
 		}
 
 		// Calculate the distance
 		for (int i = 0; i < hashes.length; i++) {
+
 			int cluster = clusterIndex[i];
 			double distance = clusters.get(cluster).weightedDistance(hashes[i]);
 			stats.get(cluster).accept(distance);
@@ -87,71 +94,7 @@ public class ClusterResult {
 			// Summed squared error
 			MutableDouble m = sse.get(cluster);
 			m.setValue(m.getValue() + distance * distance);
-
-			// Silhouette Coefficient
-
-			// 0. For each point calculate the distance to all other points in the same
-			// cluster
-			List<Hash> sameCluster = hashesByCluster.get(cluster);
-
-			// -1 don't count itself
-			int pointsInCluster = sameCluster.size() - 1;
-
 		}
-
-//		// Compute metrics
-//
-//		DistanceFunction eucD = new EuclideanDistance();
-//
-//		// For each datapoint
-//		for (int i = 0; i < data.length; i++) {
-//
-//			// Silhouette Coefficient
-//
-//			// 0. For each point calculate the distance to all other points in the same
-//			// cluster
-//
-//			List<double[]> sameCluster = clusters.get(cluster);
-//
-//			// -1 don't count itself
-//			int pointsInCluster = sameCluster.size() - 1;
-//
-//			double avgDistSameCluster = 0;
-//			for (double[] p : sameCluster) {
-//				avgDistSameCluster += (eucD.distance(data[i], p) / pointsInCluster);
-//			}
-//
-//			double minAvgDistanceOtherCluster = Double.MAX_VALUE;
-//
-//			for (int j = 0; j < numberOfClusters; j++) {
-//				if (j != cluster) {
-//					double avgDistanceOtherCluster = 0;
-//					List<double[]> otherCluster = clusters.get(j);
-//					pointsInCluster = otherCluster.size();
-//
-//					for (double[] p : otherCluster) {
-//						avgDistanceOtherCluster += (eucD.distance(data[i], p) / pointsInCluster);
-//					}
-//					if (avgDistanceOtherCluster < minAvgDistanceOtherCluster) {
-//						minAvgDistanceOtherCluster = avgDistanceOtherCluster;
-//					}
-//				}
-//			}
-//
-//			double silhoutteCoefficient;
-//
-//			if (avgDistSameCluster < minAvgDistanceOtherCluster) {
-//				silhoutteCoefficient = 1 - (avgDistSameCluster / minAvgDistanceOtherCluster);
-//			} else {
-//				silhoutteCoefficient = (minAvgDistanceOtherCluster / avgDistSameCluster) - 1;
-//			}
-//
-//			// System.out.println(avgDistSameCluster<minAvgDistanceOtherCluster);
-//
-//			MutableDouble sil = silhouetteCoef.get(cluster);
-//			sil.setValue(sil.getValue() + silhoutteCoefficient / sameCluster.size());
-//
-//		}
 
 		for (int i = 0; i < numberOfClusters; i++) {
 			sseSum += sse.get(i).doubleValue();
@@ -159,9 +102,75 @@ public class ClusterResult {
 
 	}
 
+	private void calculateSilhouetteCoefficient() {
+		// Calculate the distance
+
+		if (silhouetteCoefComputed) {
+			return;
+		}
+
+		Hash[] hashes = entryToDataIndex.keySet().toArray(new Hash[entryToDataIndex.size()]);
+
+		for (int i = 0; i < hashes.length; i++) {
+
+			int cluster = indexToCluster(entryToDataIndex.get(hashes[i]));
+
+			// Silhouette Coefficient
+			// 0. For each point calculate the distance to all other points in the same
+			// cluster
+			List<Hash> sameCluster = hashesByCluster.get(cluster);
+			// -1 don't count itself
+			int pointsInCluster = sameCluster.size() - 1;
+
+			double avgDistSameCluster = 0;
+			for (Hash h : sameCluster) {
+				avgDistSameCluster += h.normalizedHammingDistanceFast(hashes[i]);
+			}
+
+			// TODO we could cut this quickly by first finding the cluster centeroid that is
+			// the
+			// closest and just calculate the distance to this point. For kMeans this is
+			// deterministic.
+			// for others not so much
+
+			double minAvgDistanceOtherCluster = Double.MAX_VALUE;
+
+			for (int j = 0; j < numberOfClusters; j++) {
+				if (j != cluster) {
+					double avgDistanceOtherCluster = 0;
+					List<Hash> otherCluster = hashesByCluster.get(j);
+					pointsInCluster = otherCluster.size();
+
+					for (Hash h : otherCluster) {
+						avgDistanceOtherCluster += h.normalizedHammingDistanceFast(hashes[i]) / pointsInCluster;
+					}
+					if (avgDistanceOtherCluster < minAvgDistanceOtherCluster) {
+						minAvgDistanceOtherCluster = avgDistanceOtherCluster;
+					}
+				}
+
+				double silhoutteCoefficient;
+				if (avgDistSameCluster < minAvgDistanceOtherCluster) {
+					silhoutteCoefficient = 1 - (avgDistSameCluster / minAvgDistanceOtherCluster);
+				} else {
+					silhoutteCoefficient = (minAvgDistanceOtherCluster / avgDistSameCluster) - 1;
+				}
+
+				MutableDouble sil = silhouetteCoef.get(cluster);
+				sil.setValue(sil.getValue() + silhoutteCoefficient / sameCluster.size());
+			}
+		}
+		silhouetteCoefComputed = true;
+	}
+
 	// Cohesian /Area of the cluster.
 
-	public void printInformation() {
+	public void printInformation(boolean includeSilhouetteCoefficient) {
+
+		// Lazily calulate metric. Might be expensive if we have many entries
+		if (includeSilhouetteCoefficient) {
+			calculateSilhouetteCoefficient();
+		}
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("Observations: ").append(clusterIndex.length).append("\n").append("Number of Clusters: ")
@@ -185,72 +194,22 @@ public class ClusterResult {
 		for (int i = 0; i < numberOfClusters; i++) {
 			sb.append(String.format(format, i, hashesByCluster.get(i).size()));
 			// Cluster stats;
-			DoubleSummaryStatistics cStats = stats.get(i);
-			sb.append(" [ ");
-			sb.append(clusters.get(i));
-			silouetteCoeffificient += silhouetteCoef.get(i).getValue();
-			sb.append("] Silhouette Coef: ").append(df.format(silhouetteCoef.get(i).getValue())).append(" SSE:")
-					.append(sseDf.format(sse.get(i).doubleValue())).append("\n");
+//			DoubleSummaryStatistics cStats = stats.get(i);
+			sb.append(" [ ").append(clusters.get(i)).append("] ");
+			if (includeSilhouetteCoefficient) {
+				silouetteCoeffificient += silhouetteCoef.get(i).getValue();
+				sb.append("Silhouette Coef: ").append(df.format(silouetteCoeffificient));
+			}
+			sb.append(" SSE:").append(sseDf.format(sse.get(i).doubleValue())).append("\n");
 		}
 
 		sb.append("SSE: " + df.format(sseSum)).append("\n");
-		sb.append("Silhouette Coef/#clusters: " + df.format(silouetteCoeffificient / numberOfClusters)).append("\n");
-
+		if (includeSilhouetteCoefficient) {
+			sb.append("Silhouette Coef/#clusters: " + df.format(silouetteCoeffificient / numberOfClusters))
+					.append("\n");
+		}
 		System.out.println(sb.toString());
 	}
-
-//	public void toImage(File outputFile) {
-//		BufferedImage bi = new BufferedImage(700, 700, 0x1);
-//		Graphics g = bi.getGraphics();
-//
-//		// Find the range of the data
-//
-//		double minVal = Double.MAX_VALUE;
-//		double maxVal = -Double.MAX_VALUE;
-//
-//		for (int cluster = 0; cluster < numberOfClusters; cluster++) {
-//			DoubleSummaryStatistics[] clusterStats = stats.get(cluster);
-//			for (int dim = 0; dim < clusterStats.length; dim++) {
-//
-//				if (clusterStats[dim].getMax() > maxVal) {
-//					maxVal = clusterStats[dim].getMax();
-//				}
-//				if (clusterStats[dim].getMin() < minVal) {
-//					minVal = clusterStats[dim].getMin();
-//				}
-//			}
-//		}
-//
-//		javafx.scene.paint.Color[] c = ColorUtil.ColorPalette.getPaletteHue(numberOfClusters, Color.BLUE, Color.RED);
-//
-//		// Scale data
-//		g.fillRect(0, 0, 700, 700);
-//
-//		double newMin = 0;
-//		double newMax = 700;
-//		double observedRange = maxVal - minVal;
-//		double newRange = newMax - newMin;
-//
-//		for (int i = -1; i < numberOfClusters; i++) {
-//			if (i == -1) {
-//				g.setColor(ColorUtil.fxToAwtColor(Color.GRAY));
-//			} else {
-//				g.setColor(ColorUtil.fxToAwtColor(c[i]));
-//			}
-//			List<double[]> points = clusters.get(i);
-//			for (double[] point : points) {
-//				int x = (int) MathUtil.normalizeValue(point[0], observedRange, maxVal, newRange, newMax, true);
-//				int y = (int) MathUtil.normalizeValue(point[1], observedRange, maxVal, newRange, newMax, true);
-//				g.fillOval(x, y, 10, 10);
-//			}
-//		}
-//		g.dispose();
-//		try {
-//			ImageIO.write(bi, "png", outputFile);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
 
 	public Map<Integer, List<Hash>> getClusters() {
 		return hashesByCluster;
@@ -270,8 +229,17 @@ public class ClusterResult {
 
 	// Metrics
 
+	public double getSumSquaredError(int cluster) {
+		return sse.get(cluster).doubleValue();
+	}
+
 	public double getSumSquaredError() {
 		return sseSum;
+	}
+
+	public double getSilhouetteCoef(int cluster) {
+		calculateSilhouetteCoefficient();
+		return silhouetteCoef.get(cluster).doubleValue();
 	}
 
 	/**
@@ -308,13 +276,19 @@ public class ClusterResult {
 	 * @return the index of the cluster this hash belongs to
 	 */
 	public int lookupClusterIdForKnownHash(Hash testHash) {
-		return indexToCluster(resolveEntryToCluster.get(testHash));
+		return indexToCluster(entryToDataIndex.get(testHash));
 	}
 
 	public List<Integer> clusterIndexToDataIndex(int clusterIndex) {
 		return entriesInCluster.get(clusterIndex);
 	}
 
+	/**
+	 * Return the cluster index for the data point of the given index
+	 * 
+	 * @param index of the datapoint when the cluster method was called
+	 * @return the cluster index
+	 */
 	public int indexToCluster(int index) {
 		return clusterIndex[index];
 	}
@@ -339,7 +313,8 @@ public class ClusterResult {
 	 * @param sigma    a stretch factor indicating how much error from a cluster
 	 *                 center to the hash is allowed based on the range of the
 	 *                 distances within the cluster. With the original dataset a
-	 *                 sigma of 1 would include with a 100% certainty.
+	 *                 sigma of 1 would include the best fit cluster with a 100%
+	 *                 certainty.
 	 * 
 	 * @return the cluster indices a match is most likely
 	 */

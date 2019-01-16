@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.ImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
+import com.github.kilianB.matcher.TypedImageMatcher.AlgoSettings;
+import com.github.kilianB.matcher.TypedImageMatcher.Setting;
 
 /**
  * @author Kilian
@@ -56,9 +56,9 @@ class ConsecutiveImageMatcherTest {
 
 		PersitentBinaryTreeMatcher matcher;
 		if (algorithmSettings == null) {
-			matcher = ConsecutiveImageMatcher.createDefaultMatcher();
+			matcher = ConsecutiveMatcher.createDefaultMatcher(false);
 		} else {
-			matcher = ConsecutiveImageMatcher.createDefaultMatcher(algorithmSettings);
+			matcher = ConsecutiveMatcher.createDefaultMatcher(false,algorithmSettings);
 		}
 		matcher.addImage("Ballon", ballon);
 		matcher.addImage("Copyright", copyright);
@@ -110,7 +110,7 @@ class ConsecutiveImageMatcherTest {
 	@Test
 	@DisplayName("Empty Matcher")
 	public void noAlgorithm() {
-		PersitentBinaryTreeMatcher matcher = new ConsecutiveImageMatcher();
+		PersitentBinaryTreeMatcher matcher = new ConsecutiveMatcher(false);
 		BufferedImage dummyImage = new BufferedImage(1, 1, 0x1);
 		assertThrows(IllegalStateException.class, () -> {
 			matcher.getMatchingImages(dummyImage);
@@ -119,7 +119,7 @@ class ConsecutiveImageMatcherTest {
 
 	@Test
 	public void addAndClearAlgorithms() {
-		PersitentBinaryTreeMatcher matcher = new ConsecutiveImageMatcher();
+		PersitentBinaryTreeMatcher matcher = new ConsecutiveMatcher(true);
 
 		assertEquals(0, matcher.getAlgorithms().size());
 		matcher.addHashingAlgorithm(new AverageHash(14), 0.5, true);
@@ -136,7 +136,7 @@ class ConsecutiveImageMatcherTest {
 			File target = new File("ConsecutiveImageMatcherTest.ser");
 			matcher.serializeState(target);
 
-			PersitentBinaryTreeMatcher deserialized = (PersitentBinaryTreeMatcher) ConsecutiveImageMatcher
+			PersitentBinaryTreeMatcher deserialized = (PersitentBinaryTreeMatcher) ConsecutiveMatcher
 					.reconstructState(target, true);
 			assertMatches(deserialized);
 
@@ -153,7 +153,7 @@ class ConsecutiveImageMatcherTest {
 		try {
 			File target = new File("ConsecutiveImageMatcherTest.ser");
 			matcher.serializeState(target);
-			PersitentBinaryTreeMatcher deserialized = (PersitentBinaryTreeMatcher) ConsecutiveImageMatcher
+			PersitentBinaryTreeMatcher deserialized = (PersitentBinaryTreeMatcher) ConsecutiveMatcher
 					.reconstructState(target, true);
 			assertEquals(matcher, deserialized);
 		} catch (IOException | ClassNotFoundException e) {

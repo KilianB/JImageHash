@@ -11,9 +11,9 @@ class CategoricalMatcherTest extends CategorizeBaseTest{
 
 	@Override
 	CategoricalMatcher getInstance() {
-		CategoricalMatcher matcher = new CategoricalMatcher();
+		CategoricalMatcher matcher = new CategoricalMatcher(.2);
 		HashingAlgorithm hasher = new AverageHash(32);
-		matcher.addHashingAlgorithm(hasher, 1);
+		matcher.addHashingAlgorithm(hasher);
 		return matcher;
 	}
 	

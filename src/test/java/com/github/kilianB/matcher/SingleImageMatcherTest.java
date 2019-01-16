@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.github.kilianB.hashAlgorithms.AverageHash;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
-import com.github.kilianB.matcher.pairwise.SingleImageMatcher;
+import com.github.kilianB.matcher.TypedImageMatcher.Setting;
+import com.github.kilianB.matcher.simple.SingleImageMatcher;
 
 class SingleImageMatcherTest {
 

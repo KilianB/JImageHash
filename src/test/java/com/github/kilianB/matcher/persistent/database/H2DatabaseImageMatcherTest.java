@@ -33,12 +33,12 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.datastructures.tree.Result;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.Hash;
-import com.github.kilianB.matcher.ImageMatcher;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
+import com.github.kilianB.matcher.TypedImageMatcher;
+import com.github.kilianB.matcher.TypedImageMatcher.Setting;
 
 /**
  * @author Kilian
@@ -46,6 +46,7 @@ import com.github.kilianB.matcher.ImageMatcher.Setting;
  */
 class H2DatabaseImageMatcherTest {
 
+	@SuppressWarnings("resource")
 	@Test
 	public void deleteDatabase() throws ClassNotFoundException, SQLException {
 		H2DatabaseImageMatcher matcher;
@@ -67,13 +68,14 @@ class H2DatabaseImageMatcherTest {
 		String password = "";
 		String dbName = "testSerializeNotPresent";
 		try {
-			ImageMatcher deserialized = H2DatabaseImageMatcher.getFromDatabase(dbName, user, password, 0);
+			TypedImageMatcher deserialized = H2DatabaseImageMatcher.getFromDatabase(dbName, user, password, 0);
 			assertNull(deserialized);
 		} finally {
 			DeleteDbFiles.execute("~", dbName, true);
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	@DisplayName("Empty Matcher")
 	public void noAlgorithm() throws ClassNotFoundException, SQLException {
@@ -99,6 +101,7 @@ class H2DatabaseImageMatcherTest {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void addAndClearAlgorithms() throws ClassNotFoundException, SQLException {
 		String user = "rootTest";
@@ -288,6 +291,7 @@ class H2DatabaseImageMatcherTest {
 
 	@Nested
 	class EntryExist {
+		@SuppressWarnings("resource")
 		@Test
 		public void doesEntryExistEmpty() throws ClassNotFoundException, SQLException {
 
@@ -306,6 +310,7 @@ class H2DatabaseImageMatcherTest {
 			}
 		}
 
+		@SuppressWarnings("resource")
 		@Test
 		public void doesEntryExistTrue() throws ClassNotFoundException, SQLException {
 
@@ -325,6 +330,7 @@ class H2DatabaseImageMatcherTest {
 			}
 		}
 
+		@SuppressWarnings("resource")
 		@Test
 		public void doesEntryExistAddAlgoLater() throws SQLException, ClassNotFoundException {
 

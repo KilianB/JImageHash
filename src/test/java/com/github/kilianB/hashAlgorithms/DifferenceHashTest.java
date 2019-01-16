@@ -27,8 +27,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.TestResources;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
-import com.github.kilianB.matcher.Hash;
 
 //TODO  move difference hash to the default test scenarios
 class DifferenceHashTest {

@@ -3,8 +3,8 @@ package com.github.kilianB.datastructures;
 import java.util.Random;
 
 import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.matcher.FuzzyHash;
-import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.hash.FuzzyHash;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.pcg.fast.PcgRSFast;
 
 /**

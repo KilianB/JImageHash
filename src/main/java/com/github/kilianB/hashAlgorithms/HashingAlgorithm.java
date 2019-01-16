@@ -12,8 +12,8 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 import com.github.kilianB.Require;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.filter.Filter;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * Base class for hashing algorithms returning perceptual hashes for supplied
@@ -78,7 +78,7 @@ public abstract class HashingAlgorithm implements Serializable {
 			+ "and therefore invalidate further modification requests";
 
 	/**
-	 * Promises a key with approximately bit resolution (+ 1 padding bit). Due to
+	 * Promises a key with approximately bit resolution. Due to
 	 * geometric requirements the key might be marginally larger or smaller than
 	 * specified. Hashing algorithms shall try to at least provide the number of
 	 * bits specified
@@ -91,6 +91,48 @@ public abstract class HashingAlgorithm implements Serializable {
 				"The bit resolution for hashing algorithms has to be positive");
 	}
 
+	/**
+	 * Calculate hashes for the given images. Invoking the hash function on the same
+	 * image has to return the same hash value. A comparison of the hashes relates
+	 * to the similarity of the images. The lower the value the more similar the
+	 * images are. Equal images will produce a similarity of 0.
+	 * 
+	 * @param images whose hash will be calculated
+	 * @return The hash representing the image
+	 * @see Hash
+	 * @since 3.0.0
+	 */
+	public Hash[] hash(BufferedImage... images) {
+		Hash[] returnValue = new Hash[images.length];
+		
+		for(int i = 0; i < images.length; i++) {
+			returnValue[i] = this.hash(images[i]);
+		}
+		return returnValue;
+	}
+	
+	/**
+	 * Calculate hashes for the given images. Invoking the hash function on the same
+	 * image has to return the same hash value. A comparison of the hashes relates
+	 * to the similarity of the images. The lower the value the more similar the
+	 * images are. Equal images will produce a similarity of 0.
+	 * 
+	 * @param imageFiles pointing to the images
+	 * @return The hash representing the images
+	 * @throws IOException if an error occurs during loading the image
+	 * @see Hash
+	 * @since 3.0.0
+	 */
+	public Hash[] hash(File... imageFiles) throws IOException {
+		Hash[] returnValue = new Hash[imageFiles.length];
+		
+		for(int i = 0; i < imageFiles.length; i++) {
+			returnValue[i] = this.hash(imageFiles[i]);
+		}
+		return returnValue;
+	}
+	
+	
 	/**
 	 * Calculate a hash for the given image. Invoking the hash function on the same
 	 * image has to return the same hash value. A comparison of the hashes relates
@@ -301,7 +343,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * <p>
 	 * Some algorithms may choose to return an extended hash class to overwrite
 	 * certain behavior, in particular the
-	 * {@link com.github.kilianB.matcher.Hash#toImage(int)} is likely to differ.
+	 * {@link com.github.kilianB.hash.Hash#toImage(int)} is likely to differ.
 	 * 
 	 * <p>
 	 * If the algorithm does not utilize a special hash sub class this method

@@ -10,8 +10,8 @@ import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.ImageMatcher.Setting;
-import com.github.kilianB.matcher.pairwise.SingleImageMatcher;
+import com.github.kilianB.matcher.TypedImageMatcher.Setting;
+import com.github.kilianB.matcher.simple.SingleImageMatcher;
 
 /**
  * To increase the quality of the returned results it can be useful to chain

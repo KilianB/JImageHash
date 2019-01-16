@@ -3,7 +3,6 @@ package com.github.kilianB.matcher.categorize;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.DoubleSummaryStatistics;
 import java.util.HashMap;
@@ -19,11 +18,10 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.github.kilianB.datastructures.Pair;
+import com.github.kilianB.hash.FuzzyHash;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.FuzzyHash;
-import com.github.kilianB.matcher.Hash;
-import com.github.kilianB.matcher.ImageMatcher;
-import com.github.kilianB.matcher.supervised.LabeledImage;
+import com.github.kilianB.matcher.categorize.supervised.LabeledImage;
 
 /**
  * 
@@ -38,13 +36,19 @@ import com.github.kilianB.matcher.supervised.LabeledImage;
  * @author Kilian
  * @since 3.0.0
  */
-public class CategoricalMatcher extends ImageMatcher implements CategoricalImageMatcher {
+public class CategoricalMatcher extends AbstractCategoricalMatcher {
 
 	private static final Logger LOGGER = Logger.getLogger(WeightedCategoricalMatcher.class.getSimpleName());
 
 	// per hashing algorithm / per category / per bit / count
+	/**
+	 * The cluster centeroid of a given hashing algorithm and category.
+	 */
 	protected Map<HashingAlgorithm, Map<Integer, FuzzyHash>> clusterHash = new HashMap<>();
 
+	/**
+	 * Quick lookup the category of a fuzzy cluster hash
+	 */
 	protected Map<HashingAlgorithm, Map<FuzzyHash, Integer>> clusterReverseLookup = new HashMap<>();
 
 	/**
@@ -52,16 +56,37 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 	 */
 	protected Map<String, Map<HashingAlgorithm, Hash>> cachedHashes = new HashMap<>();
 
-	protected Map<Integer, List<String>> cachedImagesInCategory = new HashMap<>();
-	protected Map<String, Integer> cachedImagesCategoryMap = new HashMap<>();
-
+	/**
+	 * Internal cluster distances
+	 */
 	protected Map<Integer, DoubleSummaryStatistics> clusterQuality = new HashMap<>();
 
+	/**
+	 * Were the categories updated or are they dirty
+	 */
 	protected boolean clusterRecomputed = false;
-	// TODO double sort.
+
+	/**
+	 * Cluster id's currently usde by the matcher
+	 */
 	protected TreeSet<Integer> categories = new TreeSet<>();
 
+	/**
+	 * Chained matchers which sub categorize computed clusters even further.
+	 * 
+	 * TODO currently not implemented as cluster re evaluation requires access to
+	 * the base image which we do not have!
+	 */
 	protected Map<Integer, CategoricalImageMatcher> subCategoryMatcher = new HashMap<>();
+
+	/**
+	 * The distance an image max have to be considered in an own cluster
+	 */
+	protected double newCategoryThreshold;
+
+	public CategoricalMatcher(double newAdditionThreshold) {
+		newCategoryThreshold = newAdditionThreshold;
+	}
 
 	@Override
 	public void recomputeCategories() {
@@ -102,7 +127,7 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 				Hash[] hashes = new Hash[this.steps.size()];
 				// Linked hashmap so we can preserve order
 				int i = 0;
-				for (HashingAlgorithm hasher : this.steps.keySet()) {
+				for (HashingAlgorithm hasher : this.steps) {
 					hashes[i++] = hashesAsMap.get(hasher);
 				}
 
@@ -115,7 +140,7 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 				}
 
 				newImageCategoryMap.put(uniqueId, new Pair<>(category, hashes));
-				int oldCategory = cachedImagesCategoryMap.get(uniqueId);
+				int oldCategory = reverseImageCategoryMap.get(uniqueId);
 
 				// If the image category changed note it.
 				if (category != oldCategory) {
@@ -144,20 +169,25 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 		return globalChange;
 	}
 
+	/**
+	 * Method invoked before {@link #recomputeClusters(int)} is being called.
+	 */
 	protected void clusterPrecomputation() {
 	}
 
+	/**
+	 * Method invoked after {@link #recomputeClusters(int)} is being called.
+	 */
 	protected void clusterPostcomputation() {
 	}
 
 	protected int getCategory(int iter, String uniqueId, Hash[] hashes, Set<Integer> categoriesAltered) {
-		Pair<Integer, Double> catResult = this.categorizeImage(uniqueId, hashes, categoriesAltered);
-		return catResult.getFirst();
+		return this.categorizeImage(uniqueId, hashes, categoriesAltered).category;
 	}
 
 	protected void updateCategories(Map<String, Pair<Integer, Hash[]>> newImageCategoryMap) {
 
-		cachedImagesCategoryMap.clear();
+		reverseImageCategoryMap.clear();
 		cachedImagesInCategory.clear();
 		clusterQuality.clear();
 
@@ -165,11 +195,11 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 		// affilitation
 		resetBitWeights();
 		// Clone the current hash state
-		Map<HashingAlgorithm, Map<Integer, Hash>> cachedHasheClone = new HashMap<>();
-		for (HashingAlgorithm hasher : this.steps.keySet()) {
+		Map<HashingAlgorithm, Map<Integer, Hash>> cachedHashClone = new HashMap<>();
+		for (HashingAlgorithm hasher : this.steps) {
 			Map<Integer, FuzzyHash> hashes = clusterHash.get(hasher);
 			Map<Integer, Hash> clonedHashes = new HashMap<>();
-			cachedHasheClone.put(hasher, clonedHashes);
+			cachedHashClone.put(hasher, clonedHashes);
 			for (int category : categories) {
 				FuzzyHash bHash = hashes.get(category);
 				clonedHashes.put(category, new Hash(bHash.getHashValue(), bHash.getBitResolution(), Integer.MAX_VALUE));
@@ -184,20 +214,12 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 			// Add the image to the cluster and update the centeroid
 			addCategoricalImage(hashes, category, uniqueId);
 
-			cachedImagesCategoryMap.put(uniqueId, category);
-
-			if (cachedImagesInCategory.containsKey(category)) {
-				cachedImagesInCategory.get(category).add(uniqueId);
-			} else {
-				List<String> uniqueIds = new ArrayList<>();
-				uniqueIds.add(uniqueId);
-				cachedImagesInCategory.put(category, uniqueIds);
-			}
+			reverseImageCategoryMap.put(uniqueId, category);
 		}
 		// Extract the old hash again.
-		for (HashingAlgorithm hasher : this.steps.keySet()) {
+		for (HashingAlgorithm hasher : this.steps) {
 			Map<Integer, FuzzyHash> hashes = clusterHash.get(hasher);
-			Map<Integer, Hash> clonedHashes = cachedHasheClone.get(hasher);
+			Map<Integer, Hash> clonedHashes = cachedHashClone.get(hasher);
 			for (int category : categories) {
 				FuzzyHash categoryBase = hashes.get(category);
 				categoryBase.subtractFast(clonedHashes.get(category));
@@ -214,7 +236,7 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 			if (cachedImagesInCategory.get(category).isEmpty()) {
 				cachedImagesInCategory.remove(category);
 
-				for (HashingAlgorithm hasher : steps.keySet()) {
+				for (HashingAlgorithm hasher : steps) {
 
 					FuzzyHash removedHash = clusterHash.get(hasher).remove(category);
 					clusterReverseLookup.get(hasher).remove(removedHash);
@@ -224,8 +246,11 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 		}
 	}
 
+	/**
+	 * Reset the clusteroids hash weights while keeping the mode hash intact
+	 */
 	protected void resetBitWeights() {
-		for (HashingAlgorithm hasher : this.steps.keySet()) {
+		for (HashingAlgorithm hasher : this.steps) {
 			Map<Integer, FuzzyHash> hashes = clusterHash.get(hasher);
 			for (int category : categories) {
 				hashes.get(category).reset();
@@ -234,15 +259,17 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 	}
 
 	@Override
-	public void addHashingAlgorithm(HashingAlgorithm algo, double threshold, boolean normalized) {
-		if (!steps.containsKey(algo)) {
+	public boolean addHashingAlgorithm(HashingAlgorithm algo) {
+		if (!steps.contains(algo)) {
 			clusterHash.put(algo, new HashMap<>());
 			clusterReverseLookup.put(algo, new HashMap<>());
 		}
-		super.addHashingAlgorithm(algo, threshold, normalized);
+		return super.addHashingAlgorithm(algo);
 	}
 
 	/**
+	 * 
+	 * 
 	 * The name of the labeled image serves as unique identifier
 	 * 
 	 * @param images the images to categories
@@ -263,8 +290,8 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 
 	public double addCategoricalImage(BufferedImage bi, int category, String uniqueId) {
 		int i = 0;
-		Hash[] hashes = new Hash[this.steps.keySet().size()];
-		for (HashingAlgorithm hashAlgorithm : this.steps.keySet()) {
+		Hash[] hashes = new Hash[this.steps.size()];
+		for (HashingAlgorithm hashAlgorithm : this.steps) {
 			Hash createdHash = hashAlgorithm.hash(bi);
 			hashes[i++] = createdHash;
 			if (cachedHashes.containsKey(uniqueId)) {
@@ -283,7 +310,7 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 		double averageDistance = 0;
 		int i = 0;
 
-		for (HashingAlgorithm hashAlgorithm : this.steps.keySet()) {
+		for (HashingAlgorithm hashAlgorithm : this.steps) {
 			Hash createdHash = hashes[i++];
 
 			Map<Integer, FuzzyHash> categoryMap = clusterHash.get(hashAlgorithm);
@@ -309,9 +336,20 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 			clusterQuality.put(category, stats);
 		}
 
-		double distance = averageDistance / this.steps.keySet().size();
+		double distance = averageDistance / this.steps.size();
 		stats.accept(distance);
 		categoriesAltered.add(category);
+
+		reverseImageCategoryMap.put(uniqueId, category);
+
+		if (cachedImagesInCategory.containsKey(category)) {
+			cachedImagesInCategory.get(category).add(uniqueId);
+		} else {
+			List<String> uniqueIds = new ArrayList<>();
+			uniqueIds.add(uniqueId);
+			cachedImagesInCategory.put(category, uniqueIds);
+		}
+
 		return distance;
 	}
 
@@ -330,19 +368,14 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 	 *         image. Smaller distances meaning a closer match
 	 */
 	@Override
-	public Pair<Integer, Double> categorizeImage(BufferedImage bi) {
-		Pair<Integer, Double> categoryResult = this.categorizeImage(null, bi);
-
-		// TODO avoid same category. e.g. if this matcher has category 0 -3
-		if (subCategoryMatcher.containsKey(categoryResult.getFirst())) {
+	public CategorizationResult categorizeImage(BufferedImage bi) {
+		CategorizationResult catResult = this.categorizeImage(null, bi);
+		if (subCategoryMatcher.containsKey(catResult.getCategory())) {
 			// If this return cat 1 we don't know which category it actually belongs to
-			return subCategoryMatcher.get(categoryResult.getFirst()).categorizeImage(bi);
-
-			// TODO also take care of categorize and add!
-			// TODO
+			catResult.addCategory(subCategoryMatcher.get(catResult.getCategory()).categorizeImage(bi));
+			return catResult;
 		}
-		return categoryResult;
-
+		return catResult;
 	}
 
 	/**
@@ -356,11 +389,11 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 	 *         returns a distance measure between the category and the supplied
 	 *         image
 	 */
-	private Pair<Integer, Double> categorizeImage(String uniqueId, BufferedImage bi) {
-		Hash[] hashes = new Hash[this.steps.keySet().size()];
+	protected CategorizationResult categorizeImage(String uniqueId, BufferedImage bi) {
+		Hash[] hashes = new Hash[this.steps.size()];
 		int j = 0;
 		// Compute hashes for the image
-		for (HashingAlgorithm hashAlgorithm : this.steps.keySet()) {
+		for (HashingAlgorithm hashAlgorithm : this.steps) {
 			hashes[j] = hashAlgorithm.hash(bi);
 			j++;
 		}
@@ -380,7 +413,7 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 	 * @return the best category and distance to it. if no matching category can be
 	 *         found return -1 and Double.MaxValue
 	 */
-	protected Pair<Integer, Double> categorizeImage(String uniqueId, Hash[] hashes, Set<Integer> categoriesAltered) {
+	protected CategorizationResult categorizeImage(String uniqueId, Hash[] hashes, Set<Integer> categoriesAltered) {
 		double bestDistance = Double.MAX_VALUE;
 		int bestCategory = -1;
 		/*
@@ -389,7 +422,7 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 		 */
 		if (uniqueId != null && isCategorized(uniqueId)) {
 			int oldCategory = getCategory(uniqueId);
-			bestDistance = computeDistanceForCategory(hashes, getCategory(uniqueId), bestDistance);
+			bestDistance = computeDistanceForCategory(hashes, oldCategory, bestDistance);
 			bestCategory = oldCategory;
 		}
 		// Categorize image based on the weighted distance based on bit importance
@@ -408,10 +441,10 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 
 		if (bestCategory == -1) {
 			// Empty
-			return new Pair<>(bestCategory, Double.MAX_VALUE);
+			return new CategorizationResult(bestCategory, Double.MAX_VALUE);
 		} else {
-			double normalizedHammingDistance = bestDistance / this.steps.keySet().size();
-			return new Pair<>(bestCategory, normalizedHammingDistance);
+			double normalizedHammingDistance = bestDistance / this.steps.size();
+			return new CategorizationResult(bestCategory, normalizedHammingDistance);
 		}
 	}
 
@@ -433,7 +466,7 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 	protected double computeDistanceForCategory(Hash[] hashes, int category, double bestDistance) {
 		double hammingDistance = 0;
 		int j = 0;
-		for (HashingAlgorithm hashAlgorithm : this.steps.keySet()) {
+		for (HashingAlgorithm hashAlgorithm : this.steps) {
 			Map<Integer, FuzzyHash> categoricalAverageHash = clusterHash.get(hashAlgorithm);
 			hammingDistance += categoricalAverageHash.get(category).normalizedHammingDistanceFast(hashes[j]);
 			j++;
@@ -442,13 +475,19 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 	}
 
 	@Override
-	public Pair<Integer, Double> categorizeImageAndAdd(BufferedImage bi, double maxThreshold, String uniqueId) {
-		Pair<Integer, Double> catResult = categorizeImage(uniqueId, bi);
+	public CategorizationResult categorizeImageAndAdd(BufferedImage bi, String uniqueId) {
 
-		int category = catResult.getFirst();
-		double distance = catResult.getSecond();
+		if (this.steps.isEmpty()) {
+			throw new IllegalStateException("Please add a hashing algorithm before categorizing images");
+		}
 
-		if (distance > maxThreshold) {
+		CategorizationResult catResult = categorizeImage(uniqueId, bi);
+
+		int category = catResult.getCategory();
+		double distance = catResult.getQuality();
+
+		// Add image to a new category if necessary
+		if (distance > newCategoryThreshold) {
 			if (categories.isEmpty()) {
 				category = 0;
 			} else {
@@ -458,46 +497,22 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 		}
 		distance = addCategoricalImage(bi, category, uniqueId);
 
-		cachedImagesCategoryMap.put(uniqueId, category);
+		catResult.category = category;
+		catResult.qualityMeasurement = distance;
 
-		if (cachedImagesInCategory.containsKey(category)) {
-			cachedImagesInCategory.get(category).add(uniqueId);
-		} else {
-			List<String> uniqueIds = new ArrayList<>();
-			uniqueIds.add(uniqueId);
-			cachedImagesInCategory.put(category, uniqueIds);
+		if (subCategoryMatcher.containsKey(category)) {
+			catResult.addCategory(subCategoryMatcher.get(category).categorizeImageAndAdd(bi, uniqueId));
 		}
 
-		return new Pair<>(category, distance);
+		return catResult;
 	}
 
-	/**
-	 * Get the categories that are are present in this matcher. A category
-	 * represents a set of images (or a single image) whose hashes are closely
-	 * related to each other.
-	 * 
-	 * <p>
-	 * If images are added by calling
-	 * {@link #categorizeImageAndAdd(BufferedImage, double, String)} the categories
-	 * will be in the range of [0 - n]. Gaps can appear if
-	 * {@link #addCategoricalImage}
-	 * 
-	 * @return a list containing the category indices in sorted order.
-	 */
+	@Override
 	public List<Integer> getCategories() {
+		// Quicker implementation
 		List<Integer> categoriesAsList = new ArrayList<>(categories);
 		categoriesAsList.sort(null);
 		return categoriesAsList;
-	}
-
-	/**
-	 * Get the number of images that are were added in this category.
-	 * 
-	 * @param category to retrieve the number of images from.
-	 * @return he number of images that were mapped and added to this category
-	 */
-	public int getImageCountInCategory(int category) {
-		return cachedImagesInCategory.get(category).size();
 	}
 
 	/**
@@ -525,21 +540,7 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 				}, LinkedHashMap::new));
 	}
 
-	/**
-	 * Get the unique id's of all images mapped to this category
-	 * 
-	 * @param category to check for
-	 * @return a list of all unique id's mapped to this category
-	 */
-	public List<String> getImagesInCategory(int category) {
-		return Collections.unmodifiableList(cachedImagesInCategory.get(category));
-	}
-
 	// Debug functions
-
-//	public void printHashArray(HashingAlgorithm hashAlgorithm, int category) {
-//		System.out.println(ArrayUtil.deepToStringFormatted(averageBits.get(hashAlgorithm).get(category)));
-//	}
 
 	public BufferedImage categoricalHashToImage(HashingAlgorithm hashAlgorithm, int category, int blockSize) {
 		if (!categories.contains(category)) {
@@ -548,25 +549,17 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 		return clusterHash.get(hashAlgorithm).get(category).toImage(blockSize, hashAlgorithm);
 	}
 
-	public int getCategory(String uniqueId) {
-		return cachedImagesCategoryMap.get(uniqueId);
-	}
-
-	public boolean isCategorized(String uniqueId) {
-		return cachedImagesCategoryMap.containsKey(uniqueId);
-	}
-
-	@Override
-	public void addNestedMatcher(int category, CategoricalImageMatcher catMatcher) {
-		subCategoryMatcher.put(category, catMatcher);
-	}
-
 	public void printClusterInfo(int minImagesInCluster) {
 		for (Entry<Integer, DoubleSummaryStatistics> entry : clusterQuality.entrySet()) {
 			if (entry.getValue().getCount() >= minImagesInCluster) {
-				System.out.println(entry.getKey() + " " + entry.getValue().getAverage());
+				System.out
+						.println("Category: " + entry.getKey() + " Average Distance: " + entry.getValue().getAverage());
 			}
 		}
+	}
+
+	public double getAverageDistanceWithinCluster(int category) {
+		return clusterQuality.get(category).getAverage();
 	}
 
 	/**
@@ -579,4 +572,5 @@ public class CategoricalMatcher extends ImageMatcher implements CategoricalImage
 	public FuzzyHash getClusterAverageHash(HashingAlgorithm algorithm, int category) {
 		return clusterHash.get(algorithm).get(category);
 	}
+
 }

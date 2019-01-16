@@ -45,12 +45,15 @@
 	<!-- Dependencies -->
 
 	<dependencies>
+
+		<!-- Fast image access methods and overall utility code -->
 		<dependency>
 			<groupId>com.github.kilianB</groupId>
 			<artifactId>UtilityCode</artifactId>
-			<version>1.5.6</version>
+			<version>1.5.7</version>
 		</dependency>
 
+		<!-- Required for perceptive hasher -->
 		<dependency>
 			<groupId>com.github.wendykierp</groupId>
 			<artifactId>JTransforms</artifactId>
@@ -58,6 +61,8 @@
 			<classifier>with-dependencies</classifier>
 		</dependency>
 
+		<!-- Database image matcher dependency. It's large so let user decide if 
+			they are using it. -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -65,27 +70,45 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- Example dependencies. They are required to compile the library but 
+			won't be needed during execution if non examples are run. Therefore, there 
+			is no need for depended libraries to also depend on those projects. Set the 
+			optional tag to true. -->
+
+
 		<!-- Google image downloading dependency -->
+
 		<dependency>
-			<groupId>net.sourceforge.htmlunit</groupId>
-			<artifactId>htmlunit</artifactId>
-			<version>2.32</version>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>11</version>
 			<optional>true</optional>
 		</dependency>
 
 		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.4.0-b180725.0427</version>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
+			<version>12-ea+8</version>
+			<optional>true</optional>
+		</dependency>
+
+
+
+		<!-- 9 Gag categorization example -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.8.3</version>
 			<optional>true</optional>
 		</dependency>
 
 		<dependency>
-			<groupId>com.jfoenix</groupId>
-			<artifactId>jfoenix</artifactId>
-			<version>8.0.4</version>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20180130</version>
 			<optional>true</optional>
 		</dependency>
+
 
 		<!-- Testing -->
 		<dependency>
@@ -120,9 +143,7 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
-					<excludes>
-						<exclude>**/kilianB/examples/**</exclude>
-					</excludes>
+					<!-- <excludes> <exclude>**/kilianB/examples/**</exclude> </excludes> -->
 				</configuration>
 			</plugin>
 			<plugin>
@@ -146,9 +167,7 @@
 				<artifactId>maven-source-plugin</artifactId>
 				<version>3.0.1</version>
 				<configuration>
-					<excludes>
-						<exclude>**/kilianB/examples/**</exclude>
-					</excludes>
+					<!-- <excludes> <exclude>**/kilianB/examples/**</exclude> </excludes> -->
 				</configuration>
 				<executions>
 					<execution>
@@ -163,10 +182,8 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.0.1</version>
 				<configuration>
-					<excludes>
-						<exclude>**/kilianB/examples/**</exclude>
-					</excludes>
-					<!-- Only supported once moved to java 9  -->
+					<!-- <excludes> <exclude>**/kilianB/examples/**</exclude> </excludes> -->
+					<!-- Only supported once moved to java 9 -->
 					<!-- <additionalOptions>-html5</additionalOptions> -->
 				</configuration>
 				<executions>

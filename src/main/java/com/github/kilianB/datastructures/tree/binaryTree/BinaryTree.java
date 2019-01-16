@@ -10,7 +10,7 @@ import java.util.PriorityQueue;
 import com.github.kilianB.datastructures.tree.AbstractBinaryTree;
 import com.github.kilianB.datastructures.tree.NodeInfo;
 import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.hash.Hash;
 
 /**
  * A not thread safe binary tree implementation used to quickly compute the

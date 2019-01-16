@@ -6,7 +6,7 @@ import java.util.PriorityQueue;
 
 import com.github.kilianB.datastructures.tree.binaryTree.Leaf;
 import com.github.kilianB.datastructures.tree.binaryTree.Node;
-import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.hash.Hash;
 
 /**
  * @author Kilian
@@ -151,7 +151,8 @@ public abstract class AbstractBinaryTree<T> implements Serializable {
 	public abstract PriorityQueue<Result<T>> getElementsWithinHammingDistance(Hash hash, int maxDistance);
 
 	/**
-	 * Return the hash that is the most similar to the supplied hash.
+	 * Get the most similar to the queried argument. In case of equidistant hashes,
+	 * multiple objects may be returned.
 	 * 
 	 * @param hash the hash to search the closest match for
 	 * 

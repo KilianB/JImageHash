@@ -7,7 +7,10 @@ import com.github.kilianB.graphics.FastPixel;
 import com.github.kilianB.graphics.ImageUtil;
 import com.github.kilianB.hashAlgorithms.HashBuilder;
 
+
 /**
+ * 
+ * 
  * @author Kilian
  * @deprecated not ready to use yet
  * @since 2.0.0

@@ -13,7 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.hash.Hash;
 
 /**
  * @author Kilian

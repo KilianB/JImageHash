@@ -8,19 +8,47 @@
 ### Added
  - Categorical Matcher. (Clustering matcher)
  - Weighted Categorical Matcher (much slower but takes into account more or less important bits)
- - RandomForestInMemoryImageMatcherGiny for testing purposes
+ - Fuzzy hashes
+ - Haar Wavelet Hash
+ - Bloom filter for exact hash lookup
+ - KMeans clustering
+ - Many additional interfaces and abstract classes
+ - Warning to perceptive hash that a high res might trigger JTransforms thread pool leading to a delayed jvm exit without intervention.
+ - create a persistent and in memory version of common matchers.
+ - a persistent package allowing matchers to be serialized
+ - RandomForstMatcher for testing purposes
+ - usage of codacy to decrease technical debt
+ - Experimental annotation to mark experimental code
+ 
+ #### 9 Gag duplication example
+ - optional jsoup dependency
 
 ### Changed
+
  - Move from float to double precision for algorithm settings.
+ - Change ImageMatcher.getAlgorithms() to return a unmodifiable map instead of the underlaying collection
+ - Renamed TestData to LabeledImage
+ - Make h2 dependency optional. (extract h2 into a separate class)
+ - Result removed getValue and getDistance
+ - Increased performance of binary tree by 50% by cutting debug path information.
+ - Swap out BigInteger for HashBuilder to increase hash construction performance. see https://github.com/KilianB/JImageHash/issues/22
+ 	This will increase performance by a great deal (magnitude) for big hash resolutions and a little bit for smaller once. We don't need to do an empty pass to compute the bit resolution anymore.
+ 	The bit order flipped with the first added bit being the rightmost bit instead of the leftmost.
  - moved TestData class to individual class to allow usage in other parts of the program.
- - renamed TestData to LabeledImage
- - make h2 dependency optional. (extract h2 into a separate class)
  - AColorHash AKernelHash and Median hash now inherit from AverageHash reducing duplicate code
+ - Make Hash , fuzzy hash BinaryTree,Node,Leaf Serializable
+ - change packet structure to better reflect persistent and in memory matchers
+ - shorted readme and put information into wiki
  
  ### Fixed
  - AverageKernelHash now correctly computes it's hash based on the filtered luminocity compare to the average value instead 
- of the filtered value compared to the unfiltered value. Now it works more closely in line with aHash
+ of the filtered value compared to the unfiltered value. Now it works more closely in line with aHash This will in turn make hashes created by v 3.0.0 incompatible with older hashes 
+- a bug which resulted in hashes containing only 0's added to a binary tree creating an additional node
 
+
+### Removed
+- removed unused optional import javax.xml.bind
+- GoogleInMemoryDownload exmaple. While useful the returned results are worse as they are not optimized giving the user a false sense of the capability of this library.
 
 ## [2.1.1] 25.12.2018
 

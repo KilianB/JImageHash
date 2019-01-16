@@ -14,8 +14,8 @@ import com.github.kilianB.hashAlgorithms.experimental.HogHash;
 import com.github.kilianB.hashAlgorithms.experimental.HogHashAngularEncoded;
 import com.github.kilianB.hashAlgorithms.experimental.HogHashDual;
 import com.github.kilianB.hashAlgorithms.filter.Kernel;
-import com.github.kilianB.matcher.pairwise.SingleImageMatcher;
-import com.github.kilianB.matcher.supervised.LabeledImage;
+import com.github.kilianB.matcher.categorize.supervised.LabeledImage;
+import com.github.kilianB.matcher.simple.SingleImageMatcher;
 
 /**
  * 
@@ -40,13 +40,13 @@ public class AlgorithmBenchmark {
 		// Chose one of the examples to run
 
 		/* Commonly used algorithms */
-		//benchmakDefaultAlgorthms();
+		benchmakDefaultAlgorthms();
 
 		/* Hue sat */
-		benchmarkDefaultHueSat();
+		//benchmarkDefaultHueSat();
 
 		// Algorithms which are able to work with rotated images
-		//benchmarkRotationalHashes();
+		benchmarkRotationalHashes();
 
 		// Algorithms who might be release ready in one of the following versions
 		//benchmarkExperimentalHashingAlgos();
@@ -73,10 +73,10 @@ public class AlgorithmBenchmark {
 		matcher.addHashingAlgorithm(new MedianHash(32), 0.4);
 		matcher.addHashingAlgorithm(new MedianHash(64), 0.4);
 		
-		
 		matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.4);
 		matcher.addHashingAlgorithm(new DifferenceHash(32, Precision.Triple), 0.4);
-
+		
+		
 		// 2. Create a benchmarker
 
 		/*

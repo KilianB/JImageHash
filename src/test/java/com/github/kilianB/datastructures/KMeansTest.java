@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.matcher.Hash;
+import com.github.kilianB.hash.Hash;
 
 /**
  * @author Kilian

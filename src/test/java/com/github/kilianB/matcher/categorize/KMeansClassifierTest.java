@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.datastructures.Pair;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 
 /**
@@ -23,11 +22,11 @@ class KMeansClassifierTest extends CategorizeBaseTest {
 	void distanceIdentity() {
 		CategoricalImageMatcher matcher = getInstance();
 		
-		Pair<Integer, Double> pair = matcher.categorizeImageAndAdd(ballon,0.2,"ballon");
+		CategorizationResult pair = matcher.categorizeImageAndAdd(ballon,"ballon");
 		//Category
-		assertEquals(0,(int)pair.getFirst());
+		assertEquals(0,(int)pair.getCategory());
 		//Dostance
-		assertEquals(Double.NaN,(double)pair.getSecond());
+		assertEquals(Double.NaN,(double)pair.getQuality());
 		
 	}
 }

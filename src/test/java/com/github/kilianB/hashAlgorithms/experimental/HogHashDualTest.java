@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashTestBase;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
@@ -17,6 +16,7 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
  * @author Kilian
  *
  */
+@SuppressWarnings("deprecation")
 class HogHashDualTest {
 
 	@Nested

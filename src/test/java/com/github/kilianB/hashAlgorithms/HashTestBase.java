@@ -29,8 +29,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.TestResources;
+import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.filter.Kernel;
-import com.github.kilianB.matcher.Hash;
 
 /**
  * Base test class applicable to all hashing algorithms

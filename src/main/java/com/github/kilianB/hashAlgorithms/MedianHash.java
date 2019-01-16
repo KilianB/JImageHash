@@ -12,8 +12,8 @@ import com.github.kilianB.graphics.ImageUtil;
  * 
  * <p>
  * Really good performance almost comparable to average hash. So far does a
- * little bit better if watermarks are added to the image but trades this off
- * for a little bit worse if rescaled.
+ * better job matching images if watermarks are added but trades this off for a
+ * little bit worse detection rating if handling rescaled images.
  * 
  * <p>
  * - Slower to compute
