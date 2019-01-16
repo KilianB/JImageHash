@@ -18,8 +18,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.github.kilianB.hashAlgorithms.AverageHash;
-import com.github.kilianB.matcher.TypedImageMatcher.Setting;
-import com.github.kilianB.matcher.simple.SingleImageMatcher;
+import com.github.kilianB.matcher.exotic.SingleImageMatcher;
 
 class SingleImageMatcherTest {
 
@@ -70,22 +69,8 @@ class SingleImageMatcherTest {
 		@Test
 		@DisplayName("Check Similarity Default")
 		public void imageMatches() {
-
-			SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher();
-			assertMatches(matcher);
-		}
-
-		@Test
-		@DisplayName("Check Similarity Forgiving")
-		public void imageMatchesForgiving() {
-			SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher(Setting.Forgiving);
-			assertMatches(matcher);
-		}
-
-		@Test
-		@DisplayName("Check Similarity Fair")
-		public void imageMatchesFair() {
-			SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher(Setting.Fair);
+			SingleImageMatcher matcher = new SingleImageMatcher();
+			matcher.addHashingAlgorithm(new AverageHash(64),.4);
 			assertMatches(matcher);
 		}
 	}

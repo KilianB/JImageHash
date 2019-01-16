@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher;
+package com.github.kilianB.matcher.cached;
 
 import static com.github.kilianB.TestResources.ballon;
 import static com.github.kilianB.TestResources.copyright;
@@ -21,11 +21,10 @@ import org.junit.jupiter.api.Test;
 import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.matcher.TypedImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.TypedImageMatcher.Setting;
-import com.github.kilianB.matcher.cached.ConsecutiveMatcher;
 
-class InMemoryImageMatcherTest {
+class ConsecutiveMatcherTest {
 
 	private void assertMatches(ConsecutiveMatcher matcher) {
 		// We only expect ballon to be returned
@@ -49,14 +48,9 @@ class InMemoryImageMatcherTest {
 	@Nested
 	class TestDefaultSettings {
 
-		private ConsecutiveMatcher createMatcherAndAddDefaultTestImages(Setting algorithmSettings) {
+		private ConsecutiveMatcher createMatcherAndAddDefaultTestImages() {
 
-			ConsecutiveMatcher matcher;
-			if (algorithmSettings == null) {
-				matcher = ConsecutiveMatcher.createDefaultMatcher();
-			} else {
-				matcher = ConsecutiveMatcher.createDefaultMatcher(algorithmSettings);
-			}
+			ConsecutiveMatcher matcher = createMatcher();
 
 			matcher.addImage(ballon);
 			matcher.addImage(copyright);
@@ -70,30 +64,14 @@ class InMemoryImageMatcherTest {
 		@Test
 		@DisplayName("Default")
 		public void defaultMatcher() {
-			ConsecutiveMatcher matcher = createMatcherAndAddDefaultTestImages(null);
-			assertMatches(matcher);
-		}
-
-		@Test
-		@DisplayName("Forgiving")
-		public void forgiving() {
-
-			ConsecutiveMatcher matcher = createMatcherAndAddDefaultTestImages(Setting.Forgiving);
-			assertMatches(matcher);
-		}
-
-		@Test
-		@DisplayName("Fair")
-		public void imageMatches() {
-
-			ConsecutiveMatcher matcher = createMatcherAndAddDefaultTestImages(Setting.Fair);
+			ConsecutiveMatcher matcher = createMatcherAndAddDefaultTestImages();
 			assertMatches(matcher);
 		}
 	}
 
 	@Test
 	public void alterAlgorithmAfterImageHasAlreadyBeenAdded() {
-		ConsecutiveMatcher matcher = ConsecutiveMatcher.createDefaultMatcher();
+		ConsecutiveMatcher matcher = createMatcher();
 
 		matcher.addImage(ballon);
 		matcher.addImage(copyright);
@@ -138,6 +116,13 @@ class InMemoryImageMatcherTest {
 		assertEquals(1, matcher.getAlgorithms().size());
 		matcher.clearHashingAlgorithms();
 		assertEquals(0, matcher.getAlgorithms().size());
+	}
+
+	private static ConsecutiveMatcher createMatcher() {
+		ConsecutiveMatcher matcher = new ConsecutiveMatcher();
+		matcher.addHashingAlgorithm(new AverageHash(32), .4);
+		matcher.addHashingAlgorithm(new PerceptiveHash(64), .3);
+		return matcher;
 	}
 
 }

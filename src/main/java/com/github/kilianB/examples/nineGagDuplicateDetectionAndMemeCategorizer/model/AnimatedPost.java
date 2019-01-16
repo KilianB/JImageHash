@@ -21,10 +21,6 @@ public class AnimatedPost extends PostItem {
 
 	private static final Logger LOGGER = Logger.getLogger(AnimatedPost.class.getSimpleName());
 
-	public AnimatedPost() {
-		setType(null);
-	}
-	
 	// Thumbnail
 	protected List<Dimension> availableDimensionsThumbnail = new ArrayList<>();
 	protected List<URL> imageUrlThumbnail = new ArrayList<>();
@@ -52,6 +48,10 @@ public class AnimatedPost extends PostItem {
 	protected int width;
 	protected int height;
 
+	public AnimatedPost() {
+		setType(null);
+	}
+
 	public boolean isVideo() {
 		return duration > 0;
 	}
@@ -62,14 +62,12 @@ public class AnimatedPost extends PostItem {
 
 	@Override
 	public Type getType() {
-		if(type == null) {
+		if (type == null) {
 			type = isVideo() ? Type.Video : Type.Gif;
 		}
 		return type;
 	}
-	
-	
-	
+
 	/**
 	 * @return the availableDimensionsThumbnail
 	 */
@@ -90,7 +88,6 @@ public class AnimatedPost extends PostItem {
 	public List<URL> getImageUrlWebpThumbnail() {
 		return imageUrlWebpThumbnail;
 	}
-	
 
 	@Override
 	protected void parse(JSONObject item) {
@@ -108,30 +105,30 @@ public class AnimatedPost extends PostItem {
 			// Video
 			// hard coded
 			try {
-				if (key.equals("image460sv")) {
+				if ("image460sv".equals(key)) {
 
-					//TODO a tiny fraction of videos does not have this vp9 url but a normal
-					//field with url instead we might want to flag it.
-					
-					if(obj.has("vp9Url")) {
+					// TODO a tiny fraction of videos does not have this vp9 url but a normal
+					// field with url instead we might want to flag it.
+
+					if (obj.has("vp9Url")) {
 						vp9 = new URL(obj.getString("vp9Url"));
 						vp9Dim = dim;
-					}else {
+					} else {
 						vp9 = new URL(obj.getString("url"));
 						vp9Dim = dim;
 						LOGGER.warning("no vp9 found. fallback to url");
 					}
-					
+
 					h265 = new URL(obj.getString("h265Url"));
 					h265Dim = dim;
-					
+
 					duration = obj.getInt("duration");
-					
-				} else if (key.equals("image460svwm")) {
-				
+
+				} else if ("image460svwm".equals(key)) {
+
 					url = new URL(obj.getString("url"));
 					svwmDimension = dim;
-					
+
 				} else {
 					// Thumbnail
 					if (!availableDimensionsThumbnail.contains(dim)) {
@@ -144,7 +141,7 @@ public class AnimatedPost extends PostItem {
 				}
 			} catch (MalformedURLException | JSONException e) {
 				e.printStackTrace();
-				
+
 			}
 
 		}
@@ -177,11 +174,5 @@ public class AnimatedPost extends PostItem {
 	public void setHeight(int height) {
 		this.height = height;
 	}
-
-	public static class VideoData {
-
-	}
-
-
 
 }

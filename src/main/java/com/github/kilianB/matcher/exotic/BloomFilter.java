@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher;
+package com.github.kilianB.matcher.exotic;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -12,6 +12,7 @@ import com.github.kilianB.ArrayUtil;
 import com.github.kilianB.Experimental;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.matcher.PlainImageMatcher;
 import com.github.kilianB.pcg.fast.PcgRSFast;
 
 /**

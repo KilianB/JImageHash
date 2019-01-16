@@ -24,10 +24,6 @@ public abstract class PostItem {
 	// individual items are.
 	private static AtomicInteger globalInt = new AtomicInteger(0);
 
-	public static void setGlobalInt(int newInt) {
-		globalInt.set(newInt);
-	}
-
 	/** Title of the post */
 	protected String title;
 
@@ -87,6 +83,10 @@ public abstract class PostItem {
 	 */
 	protected boolean isVoteMasked;
 
+	public static void setGlobalInt(int newInt) {
+		globalInt.set(newInt);
+	}
+	
 	/**
 	 * @return the downvoteCount
 	 */

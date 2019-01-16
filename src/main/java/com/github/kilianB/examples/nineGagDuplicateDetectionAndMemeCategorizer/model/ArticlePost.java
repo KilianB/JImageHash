@@ -8,7 +8,7 @@ import org.json.JSONObject;
  */
 public class ArticlePost extends PostItem{
 
-	JSONObject articleData;
+	protected JSONObject articleData;
 	
 	public ArticlePost() {
 		setType(Type.Article);

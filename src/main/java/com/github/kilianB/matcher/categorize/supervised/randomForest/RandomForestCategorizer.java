@@ -47,9 +47,6 @@ import com.github.kilianB.pcg.fast.PcgRSFast;
 
 /**
  * 
- * 
- * TODO this is not a single image matcher anymore. ...
- * 
  * @author Kilian
  * @deprecated not ready yet. got rewritten
  */
@@ -69,7 +66,7 @@ public class RandomForestCategorizer extends PlainImageMatcher implements Catego
 	// bufferedImage
 	protected List<LabeledImage> labeledImages = new ArrayList<>();
 
-	TreeSet<Integer> categories = new TreeSet<>();
+	protected TreeSet<Integer> categories = new TreeSet<>();
 
 //	private Map<HashingAlgorithm, Map<String, Hash>> preComputedHashes;
 

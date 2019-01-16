@@ -49,6 +49,8 @@
 ### Removed
 - removed unused optional import javax.xml.bind
 - GoogleInMemoryDownload exmaple. While useful the returned results are worse as they are not optimized giving the user a false sense of the capability of this library.
+- Removed get default matcher. Every problem requires individual algorithms, it's a hassle to keep every matcher supported and simply does not make sense
+
 
 ## [2.1.1] 25.12.2018
 

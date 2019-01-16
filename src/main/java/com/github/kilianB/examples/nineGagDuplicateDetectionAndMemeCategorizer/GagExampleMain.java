@@ -530,10 +530,16 @@ public class GagExampleMain {
 	 * @param h  the height of the arrow.
 	 */
 	private static void drawArrowLine(Graphics g, int x1, int y1, int x2, int y2, int d, int h) {
-		int dx = x2 - x1, dy = y2 - y1;
+		int dx = x2 - x1;
+		int dy = y2 - y1;
 		double D = Math.sqrt(dx * dx + dy * dy);
-		double xm = D - d, xn = xm, ym = h, yn = -h, x;
-		double sin = dy / D, cos = dx / D;
+		double xm = D - d;
+		double xn = xm;
+		double ym = h;
+		double yn = -h;
+		double x;
+		double sin = dy / D;
+		double cos = dx / D;
 
 		x = xm * cos - ym * sin + x1;
 		ym = xm * sin + ym * cos + y1;

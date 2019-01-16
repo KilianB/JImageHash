@@ -24,20 +24,27 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.categorize.supervised.LabeledImage;
 
 /**
+ * Cluster images into common categories. This matcher clusters images by
+ * computing the distance to the closest cluster and adds an image if it is
+ * within a given distance. This method works only approximate
+ * {@link #recomputeCategories()} has to be called after images have been added.
  * 
- * Cluster images into common categories. A category
+ * <p>
+ * Cluster centeroids are represented as FuzzyHashes a prot hash represented as
+ * mode hash of all added images.
  * 
- * Computes the distance to the average hash of each category.
- * 
- * Be aware that the order in which images are added matters ... since the
- * average hash of a cluster is constantly updates without re checking old
- * entries.
+ * <b>ImplNote:</b> TODO the weighted categorical matcher employs different techniques
+ * to speed up cluster recomputation because it was so slow. While this class is 
+ * usually faster there is no reason to not port the improvements over to this class
+ * as well.
  * 
  * @author Kilian
  * @since 3.0.0
  */
 public class CategoricalMatcher extends AbstractCategoricalMatcher {
 
+	
+	
 	private static final Logger LOGGER = Logger.getLogger(WeightedCategoricalMatcher.class.getSimpleName());
 
 	// per hashing algorithm / per category / per bit / count

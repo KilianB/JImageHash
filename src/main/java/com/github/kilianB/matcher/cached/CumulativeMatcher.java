@@ -20,9 +20,9 @@ import com.github.kilianB.hashAlgorithms.RotPHash;
 
 /**
  * Convenience class allowing to chain multiple hashing algorithms to find
- * similar images. The CumulativeMatcher keeps the hashes and buffered
- * images in cache, allowing to add and remove hashing algorithms on the fly as
- * well as retrieving the bufferedimage object of matches. On the flip side this
+ * similar images. The CumulativeMatcher keeps the hashes and buffered images in
+ * cache, allowing to add and remove hashing algorithms on the fly as well as
+ * retrieving the bufferedimage object of matches. On the flip side this
  * approach requires much more memory and is unsuited for large collection of
  * images.
  * 
@@ -62,92 +62,11 @@ public class CumulativeMatcher extends ConsecutiveMatcher {
 	private AlgoSettings overallSetting;
 
 	/**
-	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
-	 * high quality results.
-	 * <p>
-	 * The dHash is a quick algorithms allowing to filter images which are very
-	 * unlikely to be similar images. pHash is computationally more expensive and
-	 * used to inspect possible candidates further
-	 * 
-	 * @return The matcher used to check if images are similar
-	 */
-	public static CumulativeMatcher createDefaultMatcher() {
-		return createDefaultMatcher(Setting.Quality);
-	}
-
-	/**
-	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
-	 * high quality results.
-	 * <p>
-	 * The dHash is a quick algorithms allowing to filter images which are very
-	 * unlikely to be similar images. pHash is computationally more expensive and
-	 * used to inspect possible candidates further
-	 * 
-	 * @param algorithmSetting
-	 *                         <p>
-	 *                         How aggressive the algorithm advances while comparing
-	 *                         images
-	 *                         </p>
-	 *                         <ul>
-	 *                         <li><b>Forgiving:</b> Matches a bigger range of
-	 *                         images</li>
-	 *                         <li><b>Fair:</b> Matches all sample images</li>
-	 *                         <li><b>Quality:</b> Recommended: Does not initially
-	 *                         filter as aggressively as Fair but returns usable
-	 *                         results</li>
-	 *                         <li><b>Strict:</b> Only matches images which are
-	 *                         closely related to each other</li>
-	 *                         </ul>
-	 * 
-	 * @return The matcher used to check if images are similar
-	 */
-	public static CumulativeMatcher createDefaultMatcher(Setting algorithmSetting) {
-		CumulativeMatcher matcher = null;
-
-		switch (algorithmSetting) {
-		case Speed:
-			matcher = new CumulativeMatcher(0.6);
-			// Chain in the order of execution speed
-			matcher.addHashingAlgorithm(new AverageHash(16), 1);
-			matcher.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 1);
-			break;
-		case Rotational:
-			// PHash scales better for higher resolutions. Average hash is good as well but
-			// do we need to add it here?
-			matcher = new CumulativeMatcher(0.2);
-			matcher.addHashingAlgorithm(new RotPHash(64), 1f);
-			// matcherToConfigure.addHashingAlgorithm(new RotAverageHash (32),0.21f);
-		case Forgiving:
-
-			matcher = new CumulativeMatcher(0.8);
-			matcher.addHashingAlgorithm(new AverageHash(64), 1);
-			// Add some mroe weight to the perceptive hash since it usually is more accurate
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 2);
-			break;
-		case Quality:
-		case Fair:
-			matcher = new CumulativeMatcher(0.5);
-			matcher.addHashingAlgorithm(new AverageHash(64), 1);
-			// Add some more weight to the perceptive hash since it usually is more accurate
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 2);
-			break;
-		case Strict:
-			matcher = new CumulativeMatcher(0.3);
-			matcher.addHashingAlgorithm(new AverageHash(8), 1);
-			matcher.addHashingAlgorithm(new PerceptiveHash(32), 1);
-			matcher.addHashingAlgorithm(new PerceptiveHash(64), 1);
-			break;
-		default:
-			throw new IllegalArgumentException("Setting not handled");
-		}
-		return matcher;
-	}
-
-	/**
 	 * Create a cumulative in memory image matcher with the specified threshold
 	 * 
-	 * @param threshold The cutoff threshold of the summed and scaled distances of
-	 *                  all hashing algorithm until an image is considered a match.
+	 * @param threshold The cutoff threshold of the summed and scaled normalizted
+	 *                  distances of all hashing algorithm until an image is
+	 *                  considered a match.
 	 *                  <p>
 	 *                  If a negative threshold is supplied no images will ever be
 	 *                  returned.

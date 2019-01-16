@@ -127,7 +127,6 @@ class FuzzyHashTest{
 			assertNotEquals(0, hash.normalizedHammingDistance(h));
 			assertNotEquals(1, hash.normalizedHammingDistance(h1));
 			hash.subtract(h1);
-			;
 			assertEquals(0, hash.normalizedHammingDistance(h));
 			assertEquals(1, hash.normalizedHammingDistance(h1));
 		}
@@ -247,26 +246,6 @@ class FuzzyHashTest{
 			});
 			assertArrayEquals(expected, mask);
 		}
-
-		@Test
-		public void none() {
-			int bits = 2;
-			FuzzyHash hash = new FuzzyHash();
-			Hash h = new Hash(new BigInteger("11", 2), bits, 0);
-			Hash h2 = new Hash(new BigInteger("11", 2), bits, 0);
-
-			hash.merge(h, h2);
-
-			boolean mask[] = hash.getUncertaintyMask(0.2);
-			boolean expected[] = new boolean[bits];
-			ArrayUtil.fillArray(expected, () -> {
-				return true;
-			});
-			// assertArrayEquals(expected,mask);
-			// System.out.println(Arrays.toString(hash.getUncertaintyMask(0)));
-
-		}
-
 	}
 
 	@Nested
@@ -425,27 +404,27 @@ class FuzzyHashTest{
 	class MaximumDistance {
 
 		@Test
-		void empty() {
+		public void empty() {
 			FuzzyHash fuzzy = new FuzzyHash();
 			assertEquals(0, fuzzy.getMaximalError());
 		}
 
 		@Test
-		void length1Zero() {
+		public void length1Zero() {
 			FuzzyHash fuzzy = new FuzzyHash();
 			fuzzy.merge(new Hash(BigInteger.ZERO, 1, 0));
 			assertEquals(1, fuzzy.getMaximalError());
 		}
 
 		@Test
-		void length1One() {
+		public void length1One() {
 			FuzzyHash fuzzy = new FuzzyHash();
 			fuzzy.merge(new Hash(BigInteger.ONE, 1, 0));
 			assertEquals(1, fuzzy.getMaximalError());
 		}
 
 		@Test
-		void length10Zero() {
+		public void length10Zero() {
 			int bits = 10;
 			FuzzyHash fuzzy = new FuzzyHash();
 			Hash h = new Hash(new BigInteger("1111111111", 2), bits, 0);
@@ -454,7 +433,7 @@ class FuzzyHashTest{
 		}
 
 		@Test
-		void length10One() {
+		public void length10One() {
 			int bits = 10;
 			FuzzyHash fuzzy = new FuzzyHash();
 			Hash h = new Hash(new BigInteger("0000000000", 2), bits, 0);
@@ -762,7 +741,7 @@ class FuzzyHashTest{
 	}
 
 	@Test
-	void testGetBitUnsafe() throws Throwable {
+	public void testGetBitUnsafe() throws Throwable {
 
 		int hashLength = 25;
 
@@ -798,7 +777,7 @@ class FuzzyHashTest{
 	class Serialization{
 		
 		@Test
-		void reconstructHash() throws IOException, ClassNotFoundException {
+		public void reconstructHash() throws IOException, ClassNotFoundException {
 			
 			Hash h = new Hash(BigInteger.valueOf(5),16,2);
 			Hash h1 = new Hash(BigInteger.valueOf(6),16,2);

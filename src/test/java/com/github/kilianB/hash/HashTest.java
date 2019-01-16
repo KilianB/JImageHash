@@ -221,7 +221,7 @@ class HashTest {
 	class Serialization{
 		
 		@Test
-		void reconstructHash() throws IOException, ClassNotFoundException {
+		public void reconstructHash() throws IOException, ClassNotFoundException {
 			
 			Hash h = new Hash(BigInteger.valueOf(5121),16,2);
 			File serTestFile = new File("testHash.ser");

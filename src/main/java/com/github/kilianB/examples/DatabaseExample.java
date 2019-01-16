@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.PriorityQueue;
 
 import com.github.kilianB.datastructures.tree.Result;
+import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
@@ -75,8 +76,8 @@ public class DatabaseExample {
 		// Wrap in try with block or call close at the end!
 		try (H2DatabaseImageMatcher db = new H2DatabaseImageMatcher(dbName, userName, password)) {
 			// Proceed as normal
-			db.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), 20);
-			db.addHashingAlgorithm(new PerceptiveHash(32), 15);
+			db.addHashingAlgorithm(new DifferenceHash(32, Precision.Double), .4);
+			db.addHashingAlgorithm(new PerceptiveHash(32), .2);
 
 			// Image files
 			File ballon = new File("src/test/resources/ballon.jpg");
@@ -112,18 +113,20 @@ public class DatabaseExample {
 
 		// Here we can also use the database image matcher instead of the h2 image
 		// matcher
-		DatabaseImageMatcher db = DatabaseImageMatcher.createDefaultMatcher(conn);
+		try(DatabaseImageMatcher db = new H2DatabaseImageMatcher(conn)){
+			db.addHashingAlgorithm(new AverageHash(64),.4);
+			
+			File copyright = new File("src/test/resources/copyright.jpg");
 
-		// Image file
-		File copyright = new File("src/test/resources/copyright.jpg");
-
-		// No need to add images anymore. We already did it in
-		// createDatabaseViaCredentials();
-		// Be aware that this only works because we are using the exact same hashing
-		// algorithms as
-		// in the earlier function!
-		PriorityQueue<Result<String>> results = db.getMatchingImages(copyright);
-		results.forEach(System.out::println);
+			// No need to add images anymore. We already did it in
+			// createDatabaseViaCredentials();
+			// Be aware that this only works because we are using the exact same hashing
+			// algorithms as
+			// in the earlier function!
+			PriorityQueue<Result<String>> results = db.getMatchingImages(copyright);
+			results.forEach(System.out::println);
+		}
+		
 	}
 
 }

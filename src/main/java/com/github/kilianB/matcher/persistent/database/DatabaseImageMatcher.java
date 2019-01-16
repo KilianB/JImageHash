@@ -165,54 +165,6 @@ public class DatabaseImageMatcher extends TypedImageMatcher implements Serializa
 	}
 
 	/**
-	 * A preconfigured image matcher backed by the supplied SQL Database
-	 * 
-	 * @param dbConnection Connection object pointing to a database. If the database
-	 *                     does not exist the necessary tables will be created
-	 * @return The matcher used to check if images are similar
-	 * @throws SQLException if an error occurs while connecting to the database
-	 */
-	public static DatabaseImageMatcher createDefaultMatcher(Connection dbConnection) throws SQLException {
-		return createDefaultMatcher(Setting.Quality, dbConnection);
-	}
-
-	/**
-	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
-	 * high quality results.
-	 * <p>
-	 * The dHash is a quick algorithms allowing to filter images which are very
-	 * unlikely to be similar images. pHash is computationally more expensive and
-	 * used to inspect possible candidates further
-	 * 
-	 * @param algorithmSetting
-	 *                         <p>
-	 *                         How aggressive the algorithm advances while comparing
-	 *                         images
-	 *                         </p>
-	 *                         <ul>
-	 *                         <li><b>Forgiving:</b> Matches a bigger range of
-	 *                         images</li>
-	 *                         <li><b>Fair:</b> Matches all sample images</li>
-	 *                         <li><b>Quality:</b> Recommended: Does not initially
-	 *                         filter as aggressively as Fair but returns usable
-	 *                         results</li>
-	 *                         <li><b>Strict:</b> Only matches images which are
-	 *                         closely related to each other</li>
-	 *                         </ul>
-	 * @param dbConnection     Connection object pointing to a database. If the
-	 *                         database does not exist the necessary tables will be
-	 *                         created
-	 * @return The matcher used to check if images are similar
-	 * @throws SQLException if an error occurs while connecting to the database
-	 */
-	public static DatabaseImageMatcher createDefaultMatcher(Setting algorithmSetting, Connection dbConnection)
-			throws SQLException {
-		DatabaseImageMatcher matcher = new DatabaseImageMatcher(dbConnection);
-		matcher.addDefaultHashingAlgorithms(matcher, algorithmSetting);
-		return matcher;
-	}
-
-	/**
 	 * Create the default tables used if they do not yet exist.
 	 * @param conn The database connection
 	 * @throws SQLException if an sql error occurs

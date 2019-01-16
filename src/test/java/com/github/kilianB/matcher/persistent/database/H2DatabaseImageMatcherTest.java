@@ -1,6 +1,5 @@
 package com.github.kilianB.matcher.persistent.database;
 
-
 import static com.github.kilianB.TestResources.ballon;
 import static com.github.kilianB.TestResources.copyright;
 import static com.github.kilianB.TestResources.highQuality;
@@ -22,14 +21,12 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.h2.tools.DeleteDbFiles;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.kilianB.datastructures.tree.Result;
@@ -38,7 +35,6 @@ import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.matcher.TypedImageMatcher;
-import com.github.kilianB.matcher.TypedImageMatcher.Setting;
 
 /**
  * @author Kilian
@@ -155,16 +151,20 @@ class H2DatabaseImageMatcherTest {
 
 	@Nested
 	class TestDefaultSettings {
-		@ParameterizedTest
-		@MethodSource("com.github.kilianB.matcher.persistent.database.H2DatabaseImageMatcherTest#createDefaultMatcher")
-		public void imageMatches(H2DatabaseImageMatcher matcher) throws SQLException {
+		@Test
+		public void imageMatches() throws SQLException {
+			@SuppressWarnings("resource")
+			H2DatabaseImageMatcher matcher = new H2DatabaseImageMatcher("TestReconstruct", "sa", "");
 			try {
+				
+				matcher.addHashingAlgorithm(new AverageHash(128),.4);
+				
 				matcher.addImage("Ballon", ballon);
 				matcher.addImage("CopyRight", copyright);
 				matcher.addImage("HighQuality", highQuality);
 				matcher.addImage("LowQuality", lowQuality);
 				matcher.addImage("Thumbnail", thumbnail);
-				
+
 				// We only expect ballon to be returned
 				PriorityQueue<Result<String>> results = matcher.getMatchingImages(ballon);
 				assertAll("Ballon", () -> {
@@ -227,11 +227,14 @@ class H2DatabaseImageMatcherTest {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void getAllMatchingImages() throws SQLException, ClassNotFoundException {
 		H2DatabaseImageMatcher dbMatcher = null;
 		try {
-			dbMatcher = H2DatabaseImageMatcher.createDefaultMatcher("TestAllMatching", "sa", "");
+
+			dbMatcher = new H2DatabaseImageMatcher("TestAllMatching1", "sa", "");
+			dbMatcher.addHashingAlgorithm(new AverageHash(64),.4);
 			dbMatcher.addImage("ballon", ballon);
 			dbMatcher.addImage("highQuality", highQuality);
 			dbMatcher.addImage("lowQuality", lowQuality);
@@ -357,18 +360,6 @@ class H2DatabaseImageMatcherTest {
 				}
 			}
 		}
-	}
-
-	private static Stream<Arguments> createDefaultMatcher() throws SQLException {
-
-		String dbName = "testDefault";
-		String userName = "sa";
-		String password = "test";
-
-		return Stream.of(Arguments.of(H2DatabaseImageMatcher.createDefaultMatcher(dbName, userName, password)),
-				Arguments.of(H2DatabaseImageMatcher.createDefaultMatcher(Setting.Fair, dbName, userName, password)),
-				Arguments.of(H2DatabaseImageMatcher.createDefaultMatcher(Setting.Forgiving, dbName, userName, password)),
-				Arguments.of(H2DatabaseImageMatcher.createDefaultMatcher(Setting.Quality, dbName, userName, password)));
 	}
 
 }

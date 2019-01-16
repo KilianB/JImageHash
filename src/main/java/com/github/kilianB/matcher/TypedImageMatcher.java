@@ -6,12 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.AverageHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.hashAlgorithms.RotPHash;
 
 /**
  * Image matchers are a collection of classes which bundle the hashing operation
@@ -28,85 +23,10 @@ import com.github.kilianB.hashAlgorithms.RotPHash;
 public abstract class TypedImageMatcher {
 
 	/**
-	 * Configuration level for the default matcher
-	 * 
-	 * @author Kilian
-	 *
-	 */
-	// TODO rename description. It'S not set
-	public enum Setting {
-		/**
-		 * Most permissive setting. Many images will be matched. Be aware of false
-		 * positives
-		 */
-		Forgiving,
-		/**
-		 * Permissive setting. A bit more strict than forgiving
-		 */
-		Fair,
-		/**
-		 * Strict image matcher. Only matches close images.
-		 */
-		Strict,
-		/**
-		 * Default setting used as non argument. Currently the same as fair.
-		 */
-		Quality,
-		/**
-		 * An image matcher which is robust against rotational transforms
-		 */
-		Rotational,
-
-		/**
-		 * Preset focusing greatly on speed rather than accuracy.
-		 */
-		Speed
-
-	}
-
-	/**
 	 * Contains multiple hashing algorithms applied in the order they were added to
 	 * the image matcher
 	 */
 	protected LinkedHashMap<HashingAlgorithm, AlgoSettings> steps = new LinkedHashMap<>();
-
-	/**
-	 * Factory helper method to configure a default hashing algorithm. Implementing
-	 * classes may use this utility function to prevent repetitive code but are free
-	 * to redefine what each setting stands for.
-	 * 
-	 * @param matcherToConfigure The matcher to add algorithm to
-	 * @param settings           the configuration level of the matcher
-	 */
-	protected void addDefaultHashingAlgorithms(TypedImageMatcher matcherToConfigure, Setting settings) {
-		switch (settings) {
-
-		case Speed:
-			// Chain in the order of execution speed
-			matcherToConfigure.addHashingAlgorithm(new AverageHash(16), 0.31);
-			matcherToConfigure.addHashingAlgorithm(new DifferenceHash(64, Precision.Simple), 0.31);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(16), 0.33);
-			break;
-		case Rotational:
-			// PHash scales better for higher resolutions. Average hash is good as well but
-			// do we need to add it here?
-			matcherToConfigure.addHashingAlgorithm(new RotPHash(64), 0.19);
-		case Forgiving:
-			matcherToConfigure.addHashingAlgorithm(new AverageHash(64), 0.5);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.5);
-			break;
-		case Quality:
-		case Fair:
-			matcherToConfigure.addHashingAlgorithm(new AverageHash(64), 0.4);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.3);
-			break;
-		case Strict:
-			matcherToConfigure.addHashingAlgorithm(new AverageHash(8), 0);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(32), 0.15);
-			matcherToConfigure.addHashingAlgorithm(new PerceptiveHash(64), 0.15);
-			break;
-		}
-	}
 
 	/**
 	 * Append a new hashing algorithm which will be executed after all hash

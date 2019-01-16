@@ -2,6 +2,7 @@ package com.github.kilianB.examples;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.PriorityQueue;
 
 import javax.imageio.ImageIO;
@@ -45,8 +46,11 @@ public class MatchMultipleImages {
 
 		System.out.println("MatchMultipleImagesInMemory():");
 		
-		ConsecutiveMatcher matcher = ConsecutiveMatcher.createDefaultMatcher();
-
+		ConsecutiveMatcher matcher = new ConsecutiveMatcher();
+		matcher.addHashingAlgorithm(new AverageHash(64),.4);
+		matcher.addHashingAlgorithm(new PerceptiveHash(32),.3);
+		
+		
 		//Add all images of interest to the matcher and precalculate hashes
 		matcher.addImages(ballon,copyright,highQuality,lowQuality,thumbnail);
 		
@@ -57,7 +61,7 @@ public class MatchMultipleImages {
 		
 		//Print out results
 		similarImages.forEach(result ->{
-			System.out.printf("Distance: %3d Image: %s%n",result.distance,result.value);
+			System.out.printf("Distance: %.3f Image: @%s%n",result.distance,System.identityHashCode(result.value));
 		});
 		
 	}
@@ -133,6 +137,7 @@ public class MatchMultipleImages {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 	public static void main(String[] args) {

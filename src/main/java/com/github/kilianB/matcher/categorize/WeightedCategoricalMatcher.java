@@ -13,13 +13,18 @@ import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 /**
- * Cluster images into common categories. A category
+ ** Cluster images into common categories. This matcher clusters images by
+ * computing the distance to the closest cluster and adds an image if it is
+ * within a given distance. This method works only approximate
+ * {@link #recomputeCategories()} has to be called after images have been added.
  * 
- * Computes the distance to the average hash of each category.
- * 
- * Be aware that the order in which images are added matters ... since the
- * average hash of a cluster is constantly updates without re checking old
- * entries.
+ * <p>
+ * Cluster centeroids are represented as FuzzyHashes a prot hash represented as
+ * mode hash of all added images.
+ * <p>
+ * Opposed to the categorical matcher this matcher calculates the distances to
+ * clusters using the weighted distance, resulting in more accurate results but
+ * at the cost of increase computational requirements.
  * 
  * @author Kilian
  * @since 3.0.0
@@ -34,19 +39,36 @@ public class WeightedCategoricalMatcher extends CategoricalMatcher {
 	 *
 	 */
 	public enum DimReduction {
-		NONE, K_MEANS_APPROXIMATION, BINARY_TREE
+		/**
+		 * Use no metric to speed up cluster recomputation.
+		 */
+		NONE,
+		/**
+		 * Use KMeans cluster to fit multiple clusters into subcategories reducing the
+		 * number of clusters images have to be checked against.
+		 * This approach usually performs well if enough images are added to the matcher but may
+		 * fail at other occasions. Usually the fastest approach. It still is an approximation.!
+		 */
+		K_MEANS_APPROXIMATION, 
+		/**
+		 * Construct a binary tree prior to recomputing the clusters. This step takes time
+		 * and the tree might not be able to be pruned quickly. It's usually slower than 
+		 * KMeans but results in correct computation.
+		 */
+		BINARY_TREE
 	}
 
 	private DimReduction dimensionalityReduction = DimReduction.NONE;
+
+	// TODO check serialization we are not in the persistent package but might as
+	// well try to handle it.
+	protected transient ClusterResult[] clusterResult = null;
+	protected transient FuzzyBinaryTree fuzzyBinaryTree = null;
 
 	public WeightedCategoricalMatcher(double newCategoryThreshold, DimReduction reductionTechnique) {
 		super(newCategoryThreshold);
 		this.dimensionalityReduction = reductionTechnique;
 	}
-
-	//TODO check serialization
-	protected transient ClusterResult[] clusterResult = null;
-	protected transient FuzzyBinaryTree fuzzyBinaryTree = null;
 
 	protected void clusterPostcomputation() {
 		// Cleanup

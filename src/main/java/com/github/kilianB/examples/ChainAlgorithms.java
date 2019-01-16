@@ -6,12 +6,13 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash;
 import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.TypedImageMatcher.Setting;
-import com.github.kilianB.matcher.simple.SingleImageMatcher;
+import com.github.kilianB.hashAlgorithms.WaveletHash;
+import com.github.kilianB.matcher.exotic.SingleImageMatcher;
 
 /**
  * To increase the quality of the returned results it can be useful to chain
@@ -32,7 +33,11 @@ public class ChainAlgorithms {
 		 * A single image matcher allows to compare two images against each other. The
 		 * default matcher chains an average hash followed by a perceptive hash
 		 */
-		SingleImageMatcher matcher = SingleImageMatcher.createDefaultMatcher();
+		SingleImageMatcher matcher = new SingleImageMatcher();
+		
+		//Add hashing algorithms as you please. Both hashes will be queried
+		matcher.addHashingAlgorithm(new AverageHash(64),.3);
+		matcher.addHashingAlgorithm(new WaveletHash(32,3),.3);
 
 		// Lets get two images
 		BufferedImage img1 = images.get("ballon");
@@ -46,37 +51,6 @@ public class ChainAlgorithms {
 		}
 	}
 
-	/**
-	 * Demonstrates the different presets of the default matcher
-	 */
-	@SuppressWarnings("unused")
-	public void configuredDefaultMatcher() {
-
-		// Example use one of those
-		SingleImageMatcher fair;
-		SingleImageMatcher forgiving;
-		SingleImageMatcher strict;
-		SingleImageMatcher quality;
-
-		// Lets get two images
-		BufferedImage img1 = images.get("highQuality");
-		BufferedImage img2 = images.get("thumbnail");
-
-		// More or less aggressive presets are available
-		fair = SingleImageMatcher.createDefaultMatcher(Setting.Fair);
-		forgiving = SingleImageMatcher.createDefaultMatcher(Setting.Forgiving);
-		strict = SingleImageMatcher.createDefaultMatcher(Setting.Strict);
-		// Same as no argument constructor
-		quality = SingleImageMatcher.createDefaultMatcher(Setting.Quality);
-
-		// Will return true
-		System.out.println("Quality Matcher: Images are likely "
-				+ (quality.checkSimilarity(img1, img2) ? "duplicates" : "distinct"));
-
-		// Will return false
-		System.out.println("Strict Matcher : Images are likely "
-				+ (strict.checkSimilarity(img1, img2) ? "duplicates" : "distinct"));
-	}
 
 	/**
 	 * Demonstrates how to fully configure a SingleImageMatcher. Choose own
@@ -94,7 +68,7 @@ public class ChainAlgorithms {
 		HashingAlgorithm dHash = new DifferenceHash(32, Precision.Double);
 		// When shall an image be classified as a duplicate [0 - keyLenght]
 		// DHashes double precision doubles the key length supplied in the constructor
-		int dHashThreshold = 15;
+		double dHashThreshold = .6;
 
 		HashingAlgorithm pHash = new PerceptiveHash(32);
 		// When shall an image be counted as a duplicate? [0-1]
@@ -124,9 +98,6 @@ public class ChainAlgorithms {
 
 		System.out.println("defaultMatcher()");
 		defaultMatcher();
-
-		System.out.println("\nconfiguredDefaultMatcher()");
-		configuredDefaultMatcher();
 
 		System.out.println("\nchainAlgorithms()");
 		chainAlgorithms(images.get("highQuality"), images.get("lowQuality"));

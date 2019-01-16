@@ -15,7 +15,7 @@ import com.github.kilianB.hashAlgorithms.experimental.HogHashAngularEncoded;
 import com.github.kilianB.hashAlgorithms.experimental.HogHashDual;
 import com.github.kilianB.hashAlgorithms.filter.Kernel;
 import com.github.kilianB.matcher.categorize.supervised.LabeledImage;
-import com.github.kilianB.matcher.simple.SingleImageMatcher;
+import com.github.kilianB.matcher.exotic.SingleImageMatcher;
 
 /**
  * 

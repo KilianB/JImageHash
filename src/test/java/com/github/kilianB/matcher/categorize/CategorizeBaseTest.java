@@ -1,12 +1,15 @@
 package com.github.kilianB.matcher.categorize;
 
 import static com.github.kilianB.TestResources.ballon;
+import static com.github.kilianB.TestResources.copyright;
+import static com.github.kilianB.TestResources.highQuality;
+import static com.github.kilianB.TestResources.lenna;
+import static com.github.kilianB.TestResources.lowQuality;
+import static com.github.kilianB.TestResources.thumbnail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
-
-import com.github.kilianB.TestResources;
 
 /**
  * @author Kilian
@@ -31,12 +34,12 @@ public abstract class CategorizeBaseTest {
 
 		CategoricalImageMatcher matcher = getInstance();
 
-		matcher.categorizeImageAndAdd(TestResources.ballon, "ballon");
-		matcher.categorizeImageAndAdd(TestResources.copyright, "copyright");
-		matcher.categorizeImageAndAdd(TestResources.highQuality, "highQuality");
-		matcher.categorizeImageAndAdd(TestResources.thumbnail, "thumbnail");
-		matcher.categorizeImageAndAdd(TestResources.lowQuality, "lowQuality");
-		matcher.categorizeImageAndAdd(TestResources.lenna, "lena");
+		matcher.categorizeImageAndAdd(ballon, "ballon");
+		matcher.categorizeImageAndAdd(copyright, "copyright");
+		matcher.categorizeImageAndAdd(highQuality, "highQuality");
+		matcher.categorizeImageAndAdd(thumbnail, "thumbnail");
+		matcher.categorizeImageAndAdd(lowQuality, "lowQuality");
+		matcher.categorizeImageAndAdd(lenna, "lena");
 		matcher.recomputeCategories();
 		assertEquals(3, matcher.getCategories().size());
 

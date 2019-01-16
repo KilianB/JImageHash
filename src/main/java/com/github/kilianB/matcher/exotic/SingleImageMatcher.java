@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.simple;
+package com.github.kilianB.matcher.exotic;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,50 +20,6 @@ import com.github.kilianB.matcher.TypedImageMatcher;
  *
  */
 public class SingleImageMatcher extends TypedImageMatcher {
-
-	/**
-	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
-	 * high quality results.
-	 * <p>
-	 * The dHash is a quick algorithms allowing to filter images which are very
-	 * unlikely to be similar images. pHash is computationally more expensive and
-	 * used to inspect possible candidates further
-	 * 
-	 * @return The matcher used to check if images are similar
-	 */
-	public static SingleImageMatcher createDefaultMatcher() {
-		return createDefaultMatcher(Setting.Quality);
-	}
-
-	/**
-	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
-	 * high quality results.
-	 * <p>
-	 * The dHash is a quick algorithms allowing to filter images which are very
-	 * unlikely to be similar images. pHash is computationally more expensive and
-	 * used to inspect possible candidates further
-	 * 
-	 * @param algorithmSetting How agressive the algorithm advances while comparing
-	 *                         images
-	 *                         </p>
-	 *                         <ul>
-	 *                         <li><b>Forgiving:</b> Matches a bigger range of
-	 *                         images</li>
-	 *                         <li><b>Fair:</b> Matches all sample images</li>
-	 *                         <li><b>Quality:</b> Recommended: Does not initially
-	 *                         filter as aggressively as Fair but returns usable
-	 *                         results</li>
-	 *                         <li><b>Strict:</b> Only matches images which are
-	 *                         closely related to each other</li>
-	 *                         </ul>
-	 * 
-	 * @return The matcher used to check if images are similar
-	 */
-	public static SingleImageMatcher createDefaultMatcher(Setting algorithmSetting) {
-		SingleImageMatcher matcher = new SingleImageMatcher();
-		matcher.addDefaultHashingAlgorithms(matcher, algorithmSetting);
-		return matcher;
-	}
 
 	/**
 	 * Execute all supplied hashing algorithms in the order they were supplied and

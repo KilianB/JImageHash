@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher;
+package com.github.kilianB.matcher.cached;
 
 import static com.github.kilianB.TestResources.ballon;
 import static com.github.kilianB.TestResources.copyright;
@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.matcher.TypedImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.TypedImageMatcher.Setting;
 import com.github.kilianB.matcher.cached.ConsecutiveMatcher;
 import com.github.kilianB.matcher.cached.CumulativeMatcher;
 
@@ -30,7 +30,7 @@ import com.github.kilianB.matcher.cached.CumulativeMatcher;
  * @author Kilian
  *
  */
-class CumulativeImageMatcherTest {
+class CumulativeMatcherTest {
 
 	private void addDefaultTestImages(CumulativeMatcher matcher) {
 		matcher.addImage(ballon);
@@ -62,7 +62,7 @@ class CumulativeImageMatcherTest {
 	@Test
 	@DisplayName("Check Similarity")
 	public void imageMatches() {
-		CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher();
+		CumulativeMatcher matcher = createMatcher();
 		addDefaultTestImages(matcher);
 		assertImageMatches(matcher);
 	}
@@ -85,27 +85,7 @@ class CumulativeImageMatcherTest {
 		@DisplayName("Default")
 		public void defaultMatcher() {
 
-			CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher();
-
-			addDefaultTestImages(matcher);
-			assertImageMatches(matcher);
-		}
-
-		@Test
-		@DisplayName("Forgiving")
-		public void forgiving() {
-
-			CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher(Setting.Forgiving);
-
-			addDefaultTestImages(matcher);
-			assertImageMatches(matcher);
-		}
-
-		@Test
-		@DisplayName("Fair")
-		public void imageMatches() {
-
-			CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher(Setting.Fair);
+			CumulativeMatcher matcher = createMatcher();
 
 			addDefaultTestImages(matcher);
 			assertImageMatches(matcher);
@@ -114,7 +94,7 @@ class CumulativeImageMatcherTest {
 
 	@Test
 	public void alterAlgorithmAfterImageHasAlreadyBeenAdded() {
-		CumulativeMatcher matcher = CumulativeMatcher.createDefaultMatcher();
+		CumulativeMatcher matcher = createMatcher();
 
 		addDefaultTestImages(matcher);
 
@@ -155,6 +135,13 @@ class CumulativeImageMatcherTest {
 		assertEquals(1, matcher.getAlgorithms().size());
 		matcher.clearHashingAlgorithms();
 		assertEquals(0, matcher.getAlgorithms().size());
+	}
+
+	private static CumulativeMatcher createMatcher() {
+		CumulativeMatcher matcher = new CumulativeMatcher(.5);
+		matcher.addHashingAlgorithm(new AverageHash(32));
+		matcher.addHashingAlgorithm(new PerceptiveHash(64));
+		return matcher;
 	}
 
 }

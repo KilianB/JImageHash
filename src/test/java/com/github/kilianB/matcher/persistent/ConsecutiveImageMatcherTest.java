@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import com.github.kilianB.hashAlgorithms.PerceptiveHash;
 import com.github.kilianB.matcher.TypedImageMatcher.AlgoSettings;
-import com.github.kilianB.matcher.TypedImageMatcher.Setting;
 
 /**
  * @author Kilian
@@ -52,14 +52,15 @@ class ConsecutiveImageMatcherTest {
 		});
 	}
 
-	private PersitentBinaryTreeMatcher createMatcherAndAddDefaultTestImages(Setting algorithmSettings) {
+	private PersitentBinaryTreeMatcher createMatcherAndAddDefaultTestImages() {
 
 		PersitentBinaryTreeMatcher matcher;
-		if (algorithmSettings == null) {
-			matcher = ConsecutiveMatcher.createDefaultMatcher(false);
-		} else {
-			matcher = ConsecutiveMatcher.createDefaultMatcher(false,algorithmSettings);
-		}
+
+		matcher =  new ConsecutiveMatcher(true);
+		matcher.addHashingAlgorithm(new AverageHash(64),.4);
+		matcher.addHashingAlgorithm(new PerceptiveHash(64),.3);
+
+		
 		matcher.addImage("Ballon", ballon);
 		matcher.addImage("Copyright", copyright);
 		matcher.addImage("HighQuality", highQuality);
@@ -74,30 +75,14 @@ class ConsecutiveImageMatcherTest {
 		@Test
 		@DisplayName("Default")
 		public void defaultMatcher() {
-			PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages(null);
-			assertMatches(matcher);
-		}
-
-		@Test
-		@DisplayName("Forgiving")
-		public void forgiving() {
-
-			PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages(Setting.Forgiving);
-			assertMatches(matcher);
-		}
-
-		@Test
-		@DisplayName("Fair")
-		public void imageMatches() {
-
-			PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages(Setting.Fair);
+			PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages();
 			assertMatches(matcher);
 		}
 	}
 
 	@Test
 	public void alterAlgorithmAfterImageHasAlreadyBeenAdded() {
-		PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages(null);
+		PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages();
 
 		// It's a linked hashmap get the last algo
 		Map<HashingAlgorithm, AlgoSettings> algorithm = matcher.getAlgorithms();
@@ -130,10 +115,10 @@ class ConsecutiveImageMatcherTest {
 
 	@Test
 	public void serializeAndDeSeriazlize() {
-		PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages(null);
+		PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages();
 
 		try {
-			File target = new File("ConsecutiveImageMatcherTest.ser");
+			File target = new File("ConsecutiveMatcherTest.ser");
 			matcher.serializeState(target);
 
 			PersitentBinaryTreeMatcher deserialized = (PersitentBinaryTreeMatcher) ConsecutiveMatcher
@@ -148,10 +133,10 @@ class ConsecutiveImageMatcherTest {
 
 	@Test
 	public void serializeAndDeSeriazlizeEquality() {
-		PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages(null);
+		PersitentBinaryTreeMatcher matcher = createMatcherAndAddDefaultTestImages();
 
 		try {
-			File target = new File("ConsecutiveImageMatcherTest.ser");
+			File target = new File("ConsecutiveMatcherTest.ser");
 			matcher.serializeState(target);
 			PersitentBinaryTreeMatcher deserialized = (PersitentBinaryTreeMatcher) ConsecutiveMatcher
 					.reconstructState(target, true);

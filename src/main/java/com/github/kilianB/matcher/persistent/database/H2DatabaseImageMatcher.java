@@ -94,97 +94,6 @@ public class H2DatabaseImageMatcher extends DatabaseImageMatcher {
 			+ "matcher please make sure to add a h2 dependency to the class path. (Last tested version: 1.4.197).";
 
 	/**
-	 * Create a preconfigured image matcher backed by the supplied SQL Database. If
-	 * the database does not yet exist an empty db will be initialized.
-	 * 
-	 * @param algorithmSetting
-	 *                         <p>
-	 *                         How aggressive the algorithm advances while comparing
-	 *                         images
-	 *                         </p>
-	 *                         <ul>
-	 *                         <li><b>Forgiving:</b> Matches a bigger range of
-	 *                         images</li>
-	 *                         <li><b>Fair:</b> Matches all sample images</li>
-	 *                         <li><b>Quality:</b> Recommended: Does not initially
-	 *                         filter as aggressively as Fair but returns usable
-	 *                         results</li>
-	 *                         <li><b>Strict:</b> Only matches images which are
-	 *                         closely related to each other</li>
-	 *                         </ul>
-	 * @param subname          the database file name. By default the file looks at
-	 *                         the base directory of the user.
-	 *                         <p>
-	 *                         <code>"jdbc:h2:~/" + subname</code>
-	 * 
-	 * @param user             the database user on whose behalf the connection is
-	 *                         being made.
-	 * @param password         the user's password. May be empty
-	 * @return The matcher used to check if images are similar
-	 * @throws SQLException if an error occurs while connecting to the database or
-	 *                      the h2 driver could not be found in the classpath
-	 * @since 3.0.0
-	 */
-	public static H2DatabaseImageMatcher createDefaultMatcher(Setting algorithmSetting, String subname, String user,
-			String password) throws SQLException {
-		return createDefaultMatcher(algorithmSetting, getConnection(subname, user, password));
-	}
-
-	/**
-	 * A preconfigured image matcher chaining dHash and pHash algorithms for fast
-	 * high quality results.
-	 * <p>
-	 * The dHash is a quick algorithms allowing to filter images which are very
-	 * unlikely to be similar images. pHash is computationally more expensive and
-	 * used to inspect possible candidates further
-	 * 
-	 * @param algorithmSetting
-	 *                         <p>
-	 *                         How aggressive the algorithm advances while comparing
-	 *                         images
-	 *                         </p>
-	 *                         <ul>
-	 *                         <li><b>Forgiving:</b> Matches a bigger range of
-	 *                         images</li>
-	 *                         <li><b>Fair:</b> Matches all sample images</li>
-	 *                         <li><b>Quality:</b> Recommended: Does not initially
-	 *                         filter as aggressively as Fair but returns usable
-	 *                         results</li>
-	 *                         <li><b>Strict:</b> Only matches images which are
-	 *                         closely related to each other</li>
-	 *                         </ul>
-	 * @param dbConnection     Connection object pointing to a database. If the
-	 *                         database does not exist the necessary tables will be
-	 *                         created
-	 * @return The matcher used to check if images are similar
-	 * @throws SQLException             if an error occurs while connecting to the
-	 *                                  database
-	 * @throws IllegalArgumentException if the connection is not a h2 db connection
-	 * @since 3.0.0
-	 */
-	public static H2DatabaseImageMatcher createDefaultMatcher(Setting algorithmSetting, Connection dbConnection)
-			throws SQLException {
-		H2DatabaseImageMatcher matcher = new H2DatabaseImageMatcher(checkConnection(dbConnection));
-		matcher.addDefaultHashingAlgorithms(matcher, algorithmSetting);
-		return matcher;
-	}
-
-	/**
-	 * A preconfigured image matcher backed by the supplied SQL Database
-	 * 
-	 * @param dbConnection Connection object pointing to a database. If the database
-	 *                     does not exist the necessary tables will be created
-	 * @return The matcher used to check if images are similar
-	 * @throws SQLException             if an error occurs while connecting to the
-	 *                                  database
-	 * @throws IllegalArgumentException if the connection is not a h2 db connection
-	 * @since 3.0.0
-	 */
-	public static H2DatabaseImageMatcher createDefaultMatcher(Connection dbConnection) throws SQLException {
-		return createDefaultMatcher(Setting.Quality, checkConnection(dbConnection));
-	}
-
-	/**
 	 * Get a database image matcher which previously got serialized by calling
 	 * {@link #serializeToDatabase(int)} on the object.
 	 * 
@@ -250,28 +159,6 @@ public class H2DatabaseImageMatcher extends DatabaseImageMatcher {
 	 */
 	public H2DatabaseImageMatcher(Connection dbConnection) throws SQLException {
 		super(checkConnection(dbConnection));
-	}
-
-	/**
-	 * Create a preconfigured image matcher backed by the supplied SQL Database. If
-	 * the database does not yet exist an empty db will be initialized.
-	 * 
-	 * @param subname  the database file name. By default the file looks at the base
-	 *                 directory of the user.
-	 *                 <p>
-	 *                 <code>"jdbc:h2:~/" + subname</code>
-	 * 
-	 * @param user     the database user on whose behalf the connection is being
-	 *                 made.
-	 * @param password the user's password. May be empty
-	 * @return The matcher used to check if images are similar
-	 * @throws SQLException if an error occurs while connecting to the database or
-	 *                      the h2 driver could not be found in the classpath
-	 * @since 3.0.0
-	 */
-	public static H2DatabaseImageMatcher createDefaultMatcher(String subname, String user, String password)
-			throws SQLException {
-		return createDefaultMatcher(Setting.Quality, subname, user, password);
 	}
 
 	/**

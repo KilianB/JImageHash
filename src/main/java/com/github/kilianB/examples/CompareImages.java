@@ -57,7 +57,7 @@ public class CompareImages {
 		// Ranges between 0 - 1. The lower the more similar the images are.
 		double similarityScore = hash1.normalizedHammingDistance(hash2);
 
-		return similarityScore < 0.3d;
+		return similarityScore < 0.4d;
 	}
 	
 	/**
@@ -76,7 +76,7 @@ public class CompareImages {
 		// Ranges between [0 - keyLength]. The lower the more similar the images are.
 		int similarityScore = hash1.hammingDistance(hash2);
 
-		return similarityScore < 20;
+		return similarityScore < 41;
 	}
 
 	

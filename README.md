@@ -120,7 +120,15 @@ public void matchMultipleImagesInMemory() {
 }
 ````
 
+
 Multiple types image matchers are available for each situation
+
+The `persistent` package allows hashes and matchers to be saved to disk. In turn the images are not kept in memory and are only referenced by file path allowing to handle a great deal of images
+at the same time.
+The `cached` version keeps the BufferedImage image objects in memory allowing to change hashing algorithms on the fly and a direct retrieval of the buffered image objects of matching images.
+The `categorize` package contains image clustering matchers. KMeans and Categorical as well as weighted matchers.
+The `ecotic` package 
+
 
 <table>
 	<tr> <th>Image Matcher Class</th> <th>Feature</th> </tr>
