@@ -39,6 +39,34 @@ The project is hosted on bintray and jcenter. <b>Please be aware that migrating 
 </dependency>
 ````
 
+## Hello World
+
+````Java
+File img0 = new File("path/to/file.png");
+File img1 = new File("path/to/secondFile.jpg");
+		
+HashingAlgorithm hasher = new PerceptiveHash(32);
+		
+Hash hash0 = hasher.hash(img0);
+Hash hash1 = hasher.hash(img1);
+		
+double similarityScore = hash0.normalizedHammingDistance(hash1);
+		
+if(similarityScore < .2) {
+    //Considered a duplicate in this particular case
+}
+		
+//Chaining multiple matcher for single image comparison
+
+SingleImageMatcher matcher = new SingleImageMatcher();
+matcher.addHashingAlgorithm(new AverageHash(64),.3);
+matcher.addHashingAlgorithm(new PerceptiveHash(32),.2);
+		
+if(matcher.checkSimilarity(img0,img1)) {
+    //Considered a duplicate in this particular case
+}
+````
+
 ## Examples
 
 Below you can find examples of convenience methods used to get fast results. Further examples are provided in the examples folder explain how to choose 
@@ -137,18 +165,18 @@ The `exotic` package features BloomFilter, and the SingleImageMatcher used to ma
 Image matchers can be configured using different algorithm. Each comes with individual properties
 <table>
   <tr><th>Algorithm</th>  <th>Feature</th><th>Notes</th> </tr>
-  <tr><td><a href="#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageHash</a></td>  <td>Average Luminosity</td> <td>Fast and good all purpose algorithm</td> </tr>
-  <tr><td><a href="#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageColorHash</a></td>  <td>Average Color</td> <td>Version 1.x.x AHash. Usually worse off than AverageHash. Not robust against color changes</td> </tr>
-  <tr><td><a href="#differencehash">DifferenceHash</a></td> <td>Gradient/Edge detection</td> <td>A bit more robust against hue/sat changes compared to AColorHash </td> </tr>
-  <tr><td><a href="#perceptive-hash">Wavelet Hash</a></td> <td>Frequency & Location</td> <td>Feature extracting by applying haar wavlets multiple times to the input image. Detection quality better than inbetween aHash and pHash.</td> </tr>
-  <tr><td><a href="#perceptive-hash">PerceptiveHash</a></td> <td>Frequency</td> <td>Hash based on Discrete Cosine Transformation. Smaller hash distribution but best accuracy / bitResolution.</td> </tr>
-  <tr><td><a href="#averagehash-averagekernelhash-medianhash-averagecolorhash">MedianHash</a></td> <td>Median Luminosity</td> <td>Identical to AHash but takes the median value into account. A bit better to detect watermarks but worse at scale transformation</td> </tr>
-  <tr><td><a href="#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageKernelHash</a></td>  <td>Average luminosity </td> <td>Same as AHash with kernel preprocessing. So far usually performs worse, but testing is not done yet.</td> </tr>
+  <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageHash</a></td>  <td>Average Luminosity</td> <td>Fast and good all purpose algorithm</td> </tr>
+  <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageColorHash</a></td>  <td>Average Color</td> <td>Version 1.x.x AHash. Usually worse off than AverageHash. Not robust against color changes</td> </tr>
+  <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#differencehash">DifferenceHash</a></td> <td>Gradient/Edge detection</td> <td>A bit more robust against hue/sat changes compared to AColorHash </td> </tr>
+  <tr><td>Wavelet Hash</td> <td>Frequency & Location</td> <td>Feature extracting by applying haar wavlets multiple times to the input image. Detection quality better than inbetween aHash and pHash.</td> </tr>
+  <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#perceptive-hash">PerceptiveHash</a></td> <td>Frequency</td> <td>Hash based on Discrete Cosine Transformation. Smaller hash distribution but best accuracy / bitResolution.</td> </tr>
+  <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#averagehash-averagekernelhash-medianhash-averagecolorhash">MedianHash</a></td> <td>Median Luminosity</td> <td>Identical to AHash but takes the median value into account. A bit better to detect watermarks but worse at scale transformation</td> </tr>
+  <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageKernelHash</a></td>  <td>Average luminosity </td> <td>Same as AHash with kernel preprocessing. So far usually performs worse, but testing is not done yet.</td> </tr>
   <tr><td colspan=3 align=center><b>Rotational Invariant</b></td></tr>
-  <tr><td><a href="#rotaveragehash">RotAverageHash</a></td>  <td>Average Luminosity</td> <td>Rotational robust version of AHash. Performs well but performance scales disastrous with higher bit resolutions . Conceptual issue: pixels further away from the center are weightend less.</td> </tr>
-  <tr><td><a href="#rotphash">RotPHash</a></td> <td>Frequency</td> <td> Rotational invariant version of pHash using ring partition to map pixels in a circular fashion. Lower complexity for high bit sizes but due to sorting pixel values usually maps to a lower normalized distance. Usually bit res of >= 64bits are preferable</td> </tr>  
+  <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#rotphash">RotAverageHash</a></td>  <td>Average Luminosity</td> <td>Rotational robust version of AHash. Performs well but performance scales disastrous with higher bit resolutions . Conceptual issue: pixels further away from the center are weightend less.</td> </tr>
+  <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#rotphash">RotPHash</a></td> <td>Frequency</td> <td> Rotational invariant version of pHash using ring partition to map pixels in a circular fashion. Lower complexity for high bit sizes but due to sorting pixel values usually maps to a lower normalized distance. Usually bit res of >= 64bits are preferable</td> </tr>  
    <tr><td colspan=3 align="center"><i><b>Experimental.</b> Hashes available but not well tuned and subject to changes</i></td></tr>
-  <tr><td><a href="#hoghash">HogHash</a></td> <td>Angular Gradient based (detection of shapes?) </td> <td>A hashing algorithm based on hog feature detection which extracts gradients and pools them by angles. Usually used in support vector machine/NNs human outline detection. It's not entirely set how the feature vectors should be encoded. Currently average, but not great results, expensive to compute and requires a rather high bit resolution</td> </tr>  
+  <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#hoghash">HogHash</a></td> <td>Angular Gradient based (detection of shapes?) </td> <td>A hashing algorithm based on hog feature detection which extracts gradients and pools them by angles. Usually used in support vector machine/NNs human outline detection. It's not entirely set how the feature vectors should be encoded. Currently average, but not great results, expensive to compute and requires a rather high bit resolution</td> </tr>  
 </table>
 
 ### Version 3.0.0 Image clustering
