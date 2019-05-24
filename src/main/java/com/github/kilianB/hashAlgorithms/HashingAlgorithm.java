@@ -1,5 +1,6 @@
 package com.github.kilianB.hashAlgorithms;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +65,12 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	private int algorithmId;
 
+	/** Color used in replacement of opaque pixels */
+	protected Color opaqueReplacementColor = Color.WHITE;
+
+	/** Maximum alpha value a pixel must have in order to be replaced */
+	protected double opaqueReplacementThreshold = 2;
+
 	/**
 	 * After a hash was created or the id was calculated the object may not be
 	 * altered anymore.
@@ -78,10 +85,9 @@ public abstract class HashingAlgorithm implements Serializable {
 			+ "and therefore invalidate further modification requests";
 
 	/**
-	 * Promises a key with approximately bit resolution. Due to
-	 * geometric requirements the key might be marginally larger or smaller than
-	 * specified. Hashing algorithms shall try to at least provide the number of
-	 * bits specified
+	 * Promises a key with approximately bit resolution. Due to geometric
+	 * requirements the key might be marginally larger or smaller than specified.
+	 * Hashing algorithms shall try to at least provide the number of bits specified
 	 * 
 	 * @param bitResolution The bit count of the final hash
 	 */
@@ -89,6 +95,48 @@ public abstract class HashingAlgorithm implements Serializable {
 
 		this.bitResolution = Require.positiveValue(bitResolution,
 				"The bit resolution for hashing algorithms has to be positive");
+	}
+
+	/**
+	 * Define how the algorithm shall handle images with alpha value. Hashing
+	 * algorithms usually depend on the luminosity value, which by default will be
+	 * treated as being black.
+	 * <p>
+	 * Sometimes display software may choose to display missing pixels in a
+	 * different color e.g. white. For the algorithm this would result in an
+	 * entirely black image while for the user these images are perceptually
+	 * different.
+	 * 
+	 * @param replacementColor The color used to replace opaque values
+	 * @param alphaThreshold   All colors with a value lower or equal value [0-1]
+	 *                         will be replaced.
+	 *                         <ul>
+	 *                         <li>0 means only invisible (entirely opaque pixels
+	 *                         will be replaced)</li>
+	 *                         <li></li>
+	 *                         </ul>
+	 * @since 3.0.1
+	 */
+	public void setOpaqueHandling(Color replacementColor, double alphaThreshold) {
+		this.opaqueReplacementColor = replacementColor;
+		this.opaqueReplacementThreshold = alphaThreshold;
+	}
+
+	/**
+	 * @return color used in replacement of opaque pixels
+	 * @since 3.0.1
+	 */
+	public Color getOpaqueReplacementColor() {
+		return opaqueReplacementColor;
+	}
+
+	/**
+	 * @return the maximum alpha value a pixel must have in order to be replaced by
+	 *         the opaque replacement color.
+	 * @since 3.0.1
+	 */
+	public double getOpaqueReplacementThreshold() {
+		return opaqueReplacementThreshold;
 	}
 
 	/**
@@ -104,13 +152,13 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	public Hash[] hash(BufferedImage... images) {
 		Hash[] returnValue = new Hash[images.length];
-		
-		for(int i = 0; i < images.length; i++) {
+
+		for (int i = 0; i < images.length; i++) {
 			returnValue[i] = this.hash(images[i]);
 		}
 		return returnValue;
 	}
-	
+
 	/**
 	 * Calculate hashes for the given images. Invoking the hash function on the same
 	 * image has to return the same hash value. A comparison of the hashes relates
@@ -125,14 +173,13 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	public Hash[] hash(File... imageFiles) throws IOException {
 		Hash[] returnValue = new Hash[imageFiles.length];
-		
-		for(int i = 0; i < imageFiles.length; i++) {
+
+		for (int i = 0; i < imageFiles.length; i++) {
 			returnValue[i] = this.hash(imageFiles[i]);
 		}
 		return returnValue;
 	}
-	
-	
+
 	/**
 	 * Calculate a hash for the given image. Invoking the hash function on the same
 	 * image has to return the same hash value. A comparison of the hashes relates
@@ -224,8 +271,8 @@ public abstract class HashingAlgorithm implements Serializable {
 	public final int algorithmId() {
 		if (algorithmId == 0) {
 			algorithmId = 31 * precomputeAlgoId();
-			//Make sure the algo id doesn't collide with version 2.0.0 id's
-			algorithmId = 31 * algorithmId + 5  + preProcessing.hashCode();
+			// Make sure the algo id doesn't collide with version 2.0.0 id's
+			algorithmId = 31 * algorithmId + 5 + preProcessing.hashCode();
 			immutableState = true;
 		}
 		return algorithmId;

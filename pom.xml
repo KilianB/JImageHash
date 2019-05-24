@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.kilianB</groupId>
 	<artifactId>JImageHash</artifactId>
-	<version>3.0.0</version>
+	<version>3.0.1-SNAPSHOT</version>
 
 	<properties>
 		<bintrayRepository>maven</bintrayRepository>
@@ -46,11 +46,17 @@
 
 	<dependencies>
 
+		<dependency>
+			<groupId>com.github.sarxos</groupId>
+			<artifactId>webcam-capture</artifactId>
+			<version>0.3.12</version>
+		</dependency>
+
 		<!-- Fast image access methods and overall utility code -->
 		<dependency>
 			<groupId>com.github.kilianB</groupId>
 			<artifactId>UtilityCode</artifactId>
-			<version>1.5.7</version>
+			<version>1.5.10-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Required for perceptive hasher -->
