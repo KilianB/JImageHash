@@ -115,9 +115,16 @@ public abstract class HashingAlgorithm implements Serializable {
 	 *                         will be replaced)</li>
 	 *                         <li></li>
 	 *                         </ul>
+	 * @throws IllegalStateException if a hash was already created and the object is
+	 *                               considered immutable.
 	 * @since 3.0.1
 	 */
 	public void setOpaqueHandling(Color replacementColor, double alphaThreshold) {
+
+		if (immutableState) {
+			throw new IllegalStateException(LOCKED_MODIFICATION_EXCEPTION);
+		}
+
 		this.opaqueReplacementColor = replacementColor;
 		this.opaqueReplacementThreshold = alphaThreshold;
 	}
