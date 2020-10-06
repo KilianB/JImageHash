@@ -436,7 +436,7 @@ public class Hash implements Serializable {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof Hash))
 			return false;
 		Hash other = (Hash) obj;
 		if (algorithmId != other.getAlgorithmId())
