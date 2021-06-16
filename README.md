@@ -7,28 +7,21 @@
 [![Download](https://api.bintray.com/packages/kilianb/maven/JImageHash/images/download.svg)](https://bintray.com/kilianb/maven/JImageHash/_latestVersion)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3c7db745b9ff4dd9b89484a6aa46ad2f)](https://www.codacy.com/app/KilianB/JImageHash?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KilianB/JImageHash&amp;utm_campaign=Badge_Grade)
 
-JImageHash is a performant perceptual image fingerprinting library entirely written in Java. The library returns a similarity score aiming to identify entities which are likely modifications of the original source while being robust variouse attack vectors ie. color, rotation and scale transformation.
+JImageHash is a performant perceptual image fingerprinting library entirely written in Java. The library returns a similarity score aiming to identify entities which are likely modifications of the original source while being robust various attack vectors ie. color, rotation and scale transformation.
 
 >  A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
 
 This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">kind of like that</a>" and incorporates several improvements. A comprehensive overview of perceptual image hashing can be found in this <a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">paper</a> by Christoph Zauner. 
 
-## Maven - Bintray
+## Maven
 
-The project is hosted on bintray and jcenter. <b>Please be aware that migrating from one major version to another usually invalidates creatd hashes</b> 
+The project is hosted on maven central<b> Please be aware that migrating from one major version to another usually invalidates created hashes in order to retain validity when persistently storing the hashes.</b> 
 
 ````XML
-<repositories>
-	<repository>
-		<id>jcenter</id>
-		<url>https://jcenter.bintray.com/</url>
-	</repository>
-</repositories>
-
 <dependency>
-	<groupId>com.github.kilianB</groupId>
+	<groupId>dev.brachtendorf</groupId>
 	<artifactId>JImageHash</artifactId>
-	<version>3.0.0</version>
+	<version>1.0.0</version>
 </dependency>
 
 <!-- If you want to use the database image matcher you need to add h2 as well -->
@@ -69,43 +62,8 @@ if(matcher.checkSimilarity(img0,img1)) {
 
 ## Examples
 
-Below you can find examples of convenience methods used to get fast results. Further examples are provided in the examples folder explain how to choose 
-and optimize individual algorithms on your own.
+Examples and convenience methods can be found in the [examples repository](https://github.com/KilianB/JImageHash-Examples) 
 
-<table>
-	<thead>
-		<tr>
-			<th>File</th>
-			<th>Content</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td><a href="/src/main/java/com/github/kilianB/examples/CompareImages.java">CompareImages.java</a></td>
-			<td>Compare the similarity of two images using a single algorithm and a custom threshold</td>
-		</tr>
-		<tr>
-			<td><a href="/src/main/java/com/github/kilianB/examples/ChainAlgorithms.java">ChainAlgorithms.java</a></td>
-			<td>Chain multiple algorithms to achieve a better precision & recall.</td>
-		</tr>
-		<tr>
-			<td><a href="/src/main/java/com/github/kilianB/examples/MatchMultipleImages.java">MatchMultipleImages.java</a></td>
-			<td>Precompute the hash of multiple images to retrieve all relevant images in a batch.</td>
-		</tr>
-		<tr>
-			<td><a href="/src/main/java/com/github/kilianB/examples/DatabaseExample.java">DatabaseExample.java</a></td>
-			<td>Store hashes persistently in a database. Serialize and Deserialize the matcher.</td>
-		</tr>
-		<tr>
-			<td><a href="/src/main/java/com/github/kilianB/examples/AlgorithmBenchmark.java">AlgorithmBenchmark.java</a></td>
-			<td>Test different algorithm/setting combinations against your images to see which settings give the best result.</td>
-		</tr>
-		<tr>
-			<td><a href="/src/main/java/com/github/kilianB/examples/nineGagDuplicateDetectionAndMemeCategorizer">Clustering Example</a></td>
-			<td>Extensive tutotial matching 17.000 images . As described in the <a href="https://medium.com/@kilian.brachtendorf_83099/getting-tired-of-re-uploads-4a4f88908d52">blog<a/a></td>
-		</tr>
-	</tbody>
-</table>
 
 ## Multiple types image matchers are available for each situation
 

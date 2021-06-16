@@ -1,6 +1,18 @@
 - Semantic versioning
 
 
+
+## [1.0.0-Snapshot] Distributed via maven central under new groupId  - 16.06.2021
+
+### Changed
+- Move Examples to new repository https://github.com/KilianB/JImageHash-Examples
+
+
+----------------------
+
+
+
+
 ## [3.0.0] - 16.01.2019
 
 ### Added

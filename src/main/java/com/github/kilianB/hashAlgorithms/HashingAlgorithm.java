@@ -287,7 +287,7 @@ public abstract class HashingAlgorithm implements Serializable {
 
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the
-	 * output result. The id shall stay consistent throughout restarts of the jvm.
+	 * output result.
 	 * This method shall contain a hash code for the object which
 	 * 
 	 * <ul>
@@ -305,7 +305,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * resolution as returned by {@link #getKeyResolution()} should be used.
 	 * 
 	 * This method algorithm id's as information available to the child class and
-	 * will be extended the hashcode of the kernels.
+	 * will be extended by the hashcode of the kernels.
 	 * 
 	 * @return the preliminary algorithm id identifying this hashing algorithm
 	 */

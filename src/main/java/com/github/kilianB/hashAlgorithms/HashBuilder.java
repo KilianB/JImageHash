@@ -22,7 +22,7 @@ import java.math.BigInteger;
  * <pre>
  * <code>
  * 	StringBuilder sb = new StringBuilder();
- * 	sb.append("100011);
+ * 	sb.append("100011");
  * 	BigInteger b = new BigInteger(sb.toString(),2);
  * </code>
  * </pre>
@@ -45,6 +45,7 @@ public class HashBuilder {
 
 	private byte[] bytes;
 	private int arrayIndex = 0;
+	// The current bit offset used to calculate the byte packing [0-7]
 	private int bitIndex = 0;
 	protected int length;
 
