@@ -15,7 +15,7 @@ This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.h
 
 ## Maven
 
-The project is hosted on maven central<b> Please be aware that migrating from one major version to another usually invalidates created hashes in order to retain validity when persistently storing the hashes.</b> 
+The project is hosted on maven central. __Please be aware that migrating from one major version to another usually invalidates created hashes in order to retain validity when persistently storing the hashes.__
 
 ````XML
 <dependency>
@@ -77,42 +77,42 @@ The `exotic` package features BloomFilter, and the SingleImageMatcher used to ma
 <tr> <th>Image</th>  <th></th> <th>High</th> <th>Low</th> <th>Copyright</th> <th>Thumbnail</th> <th>Ballon</th> </tr>
 
 <tr> <td>High Quality</td>  <td><img width= 75% src="https://user-images.githubusercontent.com/9025925/36542413-046d8116-17e1-11e8-93ed-210f65293d51.jpg"></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/DC143C?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td> 
 </tr> 
 <tr> <td>Low Quality</td>  <td><img width= 75% src="https://user-images.githubusercontent.com/9025925/36542414-0498079c-17e1-11e8-9224-a9852797b96f.jpg"></td> 
-<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/DC143C?text=+"/></p></td>
+<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td>
 </tr> 
 
  <tr> <td>Altered Copyright</td>  <td><img width= 75% src="https://user-images.githubusercontent.com/9025925/36542411-0438eb36-17e1-11e8-9a59-2c69937560bf.jpg"> </td> 
-<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/DC143C?text=+"/></p></td>
+<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td>
 </tr> 
 
 <tr> <td>Thumbnail</td>  <td><img src="https://user-images.githubusercontent.com/9025925/36542415-04ca8078-17e1-11e8-9be4-9a90b08c404b.jpg"></td> 
-<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/DC143C?text=+"/></p></td>
+<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td>
 </tr> 
 	
 <tr> <td>Ballon</td>  <td><img width= 75% src="https://user-images.githubusercontent.com/9025925/36542417-04f3e6a2-17e1-11e8-91b2-50f9961524b4.jpg"></td> 
-<td><p align="center"><image src="https://placehold.it/30/DC143C?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/DC143C?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/DC143C?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/DC143C?text=+"/></p></td> 
-	<td><p align="center"><image src="https://placehold.it/30/228B22?text=+"/></p></td>
+<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td> 
+	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td>
 </tr> 
 	
 </table>
@@ -146,6 +146,6 @@ Image clustering with fuzzy hashes allowing to represent hashes with probability
 
 ### Algorithm benchmarking 
 
-See the wiki page on how to test differet hashing algorithms with your set of images
+See the wiki page on how to test different hashing algorithms with your set of images
 
 <img src="https://user-images.githubusercontent.com/9025925/49185669-c14a0b80-f362-11e8-92fa-d51a20476937.jpg" />
