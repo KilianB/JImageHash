@@ -11,13 +11,13 @@ import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.ArrayUtil;
+import dev.brachtendorf.ArrayUtil;
 import com.github.kilianB.Experimental;
-import com.github.kilianB.MathUtil;
-import com.github.kilianB.Require;
-import com.github.kilianB.graphics.ColorUtil;
-import com.github.kilianB.graphics.FastPixel;
-import com.github.kilianB.graphics.ImageUtil;
+import dev.brachtendorf.MathUtil;
+import dev.brachtendorf.Require;
+import dev.brachtendorf.graphics.ColorUtil;
+import dev.brachtendorf.graphics.FastPixel;
+import dev.brachtendorf.graphics.ImageUtil;
 import com.github.kilianB.hashAlgorithms.HashBuilder;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 

@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.Require;
+import dev.brachtendorf.ArrayUtil;
+import dev.brachtendorf.Require;
 import com.github.kilianB.hash.FuzzyHash;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.pcg.fast.PcgRSFast;

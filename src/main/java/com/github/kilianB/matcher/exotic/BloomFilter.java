@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.ArrayUtil;
+import dev.brachtendorf.ArrayUtil;
 import com.github.kilianB.Experimental;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;

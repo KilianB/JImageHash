@@ -4,8 +4,8 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import com.github.kilianB.graphics.FastPixel;
-import com.github.kilianB.graphics.ImageUtil;
+import dev.brachtendorf.graphics.FastPixel;
+import dev.brachtendorf.graphics.ImageUtil;
 
 /**
  * Calculate a hash based on iterative application of a haar wavelet on the

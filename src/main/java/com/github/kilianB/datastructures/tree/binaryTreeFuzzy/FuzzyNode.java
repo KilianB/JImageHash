@@ -2,6 +2,8 @@ package com.github.kilianB.datastructures.tree.binaryTreeFuzzy;
 
 import com.github.kilianB.datastructures.tree.binaryTree.Node;
 
+
+
 /**
  * A tree node saving references to it's children.
  * 

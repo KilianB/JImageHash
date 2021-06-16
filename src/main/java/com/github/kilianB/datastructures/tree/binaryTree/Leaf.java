@@ -49,7 +49,7 @@ public class Leaf<T> extends Node{
 		if (!(obj instanceof Leaf)) {
 			return false;
 		}
-		Leaf other = (Leaf) obj;
+		Leaf<?> other = (Leaf<?>) obj;
 		if (data == null) {
 			if (other.data != null) {
 				return false;

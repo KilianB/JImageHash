@@ -17,7 +17,7 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.ArrayUtil;
+import dev.brachtendorf.ArrayUtil;
 import com.github.kilianB.TestResources;
 import com.github.kilianB.hashAlgorithms.AverageHash;
 import com.github.kilianB.pcg.fast.PcgRSFast;

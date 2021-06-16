@@ -2,7 +2,7 @@ package com.github.kilianB.matcher.categorize.supervised.randomForest;
 
 import java.awt.image.BufferedImage;
 
-import com.github.kilianB.StringUtil;
+import dev.brachtendorf.StringUtil;
 import com.github.kilianB.hash.FuzzyHash;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;

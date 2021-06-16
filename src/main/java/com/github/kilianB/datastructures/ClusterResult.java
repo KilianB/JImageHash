@@ -10,11 +10,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.StringUtil;
+import dev.brachtendorf.ArrayUtil;
+import dev.brachtendorf.StringUtil;
 import com.github.kilianB.hash.FuzzyHash;
 import com.github.kilianB.hash.Hash;
-import com.github.kilianB.mutable.MutableDouble;
+import dev.brachtendorf.mutable.MutableDouble;
 
 /**
  * 

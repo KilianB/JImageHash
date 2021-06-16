@@ -2,7 +2,7 @@ package com.github.kilianB.datastructures;
 
 import java.util.Random;
 
-import com.github.kilianB.ArrayUtil;
+import dev.brachtendorf.ArrayUtil;
 import com.github.kilianB.hash.FuzzyHash;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.pcg.fast.PcgRSFast;

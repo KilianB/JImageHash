@@ -4,9 +4,9 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.graphics.FastPixel;
-import com.github.kilianB.graphics.ImageUtil;
+import dev.brachtendorf.ArrayUtil;
+import dev.brachtendorf.graphics.FastPixel;
+import dev.brachtendorf.graphics.ImageUtil;
 
 /**
  * Calculate a hash value based on the average luminosity in an image.

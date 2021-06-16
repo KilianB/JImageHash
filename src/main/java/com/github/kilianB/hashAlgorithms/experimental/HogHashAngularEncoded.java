@@ -3,8 +3,8 @@ package com.github.kilianB.hashAlgorithms.experimental;
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 
-import com.github.kilianB.graphics.FastPixel;
-import com.github.kilianB.graphics.ImageUtil;
+import dev.brachtendorf.graphics.FastPixel;
+import dev.brachtendorf.graphics.ImageUtil;
 import com.github.kilianB.hashAlgorithms.HashBuilder;
 
 

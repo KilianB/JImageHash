@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.ArrayUtil;
+import dev.brachtendorf.ArrayUtil;
 import com.github.kilianB.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy;
 
 /**

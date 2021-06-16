@@ -26,13 +26,13 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.ArrayUtil;
+import dev.brachtendorf.ArrayUtil;
 import com.github.kilianB.Experimental;
-import com.github.kilianB.MathUtil;
-import com.github.kilianB.Require;
-import com.github.kilianB.datastructures.CountHashCollection;
-import com.github.kilianB.datastructures.Pair;
-import com.github.kilianB.datastructures.Triple;
+import dev.brachtendorf.MathUtil;
+import dev.brachtendorf.Require;
+import dev.brachtendorf.datastructures.CountHashCollection;
+import dev.brachtendorf.datastructures.Pair;
+import dev.brachtendorf.datastructures.Triple;
 import com.github.kilianB.hash.FuzzyHash;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.AverageHash;

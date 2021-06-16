@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.github.kilianB.Require;
+import dev.brachtendorf.Require;
 import com.github.kilianB.datastructures.ClusterResult;
 import com.github.kilianB.datastructures.KMeansPlusPlus;
 import com.github.kilianB.hash.Hash;

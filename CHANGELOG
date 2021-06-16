@@ -7,6 +7,9 @@
 ### Changed
 - Move Examples to new repository https://github.com/KilianB/JImageHash-Examples
 
+### Updated
+- bump h2 dependency
+- bump maven build dependencies
 
 ----------------------
 

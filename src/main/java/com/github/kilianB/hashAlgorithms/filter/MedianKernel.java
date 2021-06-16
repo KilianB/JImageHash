@@ -3,8 +3,8 @@ package com.github.kilianB.hashAlgorithms.filter;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
-import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.graphics.FastPixel;
+import dev.brachtendorf.ArrayUtil;
+import dev.brachtendorf.graphics.FastPixel;
 
 /**
  * A median kernel is a non linear filter scanning the image and replacing

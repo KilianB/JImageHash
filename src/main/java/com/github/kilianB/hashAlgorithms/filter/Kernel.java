@@ -1,14 +1,13 @@
 package com.github.kilianB.hashAlgorithms.filter;
 
 import java.awt.image.BufferedImage;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
-import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.MiscUtil;
-import com.github.kilianB.Require;
-import com.github.kilianB.graphics.FastPixel;
+import dev.brachtendorf.ArrayUtil;
+import dev.brachtendorf.MiscUtil;
+import dev.brachtendorf.Require;
+import dev.brachtendorf.graphics.FastPixel;
 
 /**
  * Kernel operations are shifting window masks applied to data point of an array
@@ -37,7 +36,7 @@ import com.github.kilianB.graphics.FastPixel;
  * @author Kilian
  * @since 2.0.0
  */
-public class Kernel implements Serializable, Filter {
+public class Kernel implements Filter {
 
 	private static final long serialVersionUID = -3490082941059458531L;
 

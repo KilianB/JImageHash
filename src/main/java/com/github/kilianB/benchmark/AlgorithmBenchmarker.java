@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.MathUtil;
+import dev.brachtendorf.ArrayUtil;
+import dev.brachtendorf.MathUtil;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 import com.github.kilianB.matcher.TypedImageMatcher.AlgoSettings;

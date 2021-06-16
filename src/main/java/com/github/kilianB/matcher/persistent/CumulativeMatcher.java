@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.PriorityQueue;
 
-import com.github.kilianB.MathUtil;
+import dev.brachtendorf.MathUtil;
 import com.github.kilianB.datastructures.tree.Result;
 import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
 import com.github.kilianB.hash.Hash;

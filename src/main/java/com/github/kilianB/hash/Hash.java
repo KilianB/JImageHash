@@ -10,9 +10,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
 
-import com.github.kilianB.Require;
-import com.github.kilianB.StringUtil;
-import com.github.kilianB.graphics.FastPixel;
+import dev.brachtendorf.Require;
+import dev.brachtendorf.StringUtil;
+import dev.brachtendorf.graphics.FastPixel;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
 
 import javafx.scene.paint.Color;

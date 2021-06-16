@@ -204,7 +204,7 @@ public abstract class AbstractBinaryTree<T> implements Serializable {
 		if (!(obj instanceof AbstractBinaryTree)) {
 			return false;
 		}
-		AbstractBinaryTree other = (AbstractBinaryTree) obj;
+		AbstractBinaryTree<?> other = (AbstractBinaryTree<?>) obj;
 		if (algoId != other.algoId) {
 			return false;
 		}

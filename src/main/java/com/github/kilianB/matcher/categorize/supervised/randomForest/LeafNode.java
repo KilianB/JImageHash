@@ -3,7 +3,7 @@ package com.github.kilianB.matcher.categorize.supervised.randomForest;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.github.kilianB.StringUtil;
+import dev.brachtendorf.StringUtil;
 
 /**
  * A leaf node is a terminating . Reaching this point will r

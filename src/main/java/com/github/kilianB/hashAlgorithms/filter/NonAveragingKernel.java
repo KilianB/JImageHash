@@ -1,6 +1,6 @@
 package com.github.kilianB.hashAlgorithms.filter;
 
-import com.github.kilianB.ArrayUtil;
+import dev.brachtendorf.ArrayUtil;
 
 /**
  * @author Kilian

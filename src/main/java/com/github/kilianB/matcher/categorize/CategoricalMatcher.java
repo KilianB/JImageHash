@@ -17,7 +17,7 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import com.github.kilianB.datastructures.Pair;
+import dev.brachtendorf.datastructures.Pair;
 import com.github.kilianB.hash.FuzzyHash;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.HashingAlgorithm;

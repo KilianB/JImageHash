@@ -12,7 +12,7 @@ import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.Require;
+import dev.brachtendorf.Require;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.filter.Filter;
 

@@ -1,0 +1,11 @@
+{
+    "java.project.sourcePaths": [
+		"src/test",
+		"src/main/java"
+	],
+	"java.configuration.updateBuildConfiguration": "automatic",
+	"cSpell.words": [
+		"ahash",
+		"hasher"
+	]
+}

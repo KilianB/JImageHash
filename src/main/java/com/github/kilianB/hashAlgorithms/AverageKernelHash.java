@@ -1,17 +1,16 @@
 package com.github.kilianB.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import com.github.kilianB.ArrayUtil;
-import com.github.kilianB.Require;
-import com.github.kilianB.graphics.FastPixel;
-import com.github.kilianB.graphics.ImageUtil;
+import dev.brachtendorf.ArrayUtil;
+import dev.brachtendorf.Require;
+import dev.brachtendorf.graphics.FastPixel;
+import dev.brachtendorf.graphics.ImageUtil;
 import com.github.kilianB.hashAlgorithms.filter.Kernel;
 
 /**
@@ -28,7 +27,7 @@ import com.github.kilianB.hashAlgorithms.filter.Kernel;
  * @author Kilian
  *
  */
-public class AverageKernelHash extends AverageHash implements Serializable {
+public class AverageKernelHash extends AverageHash{
 
 	private static final long serialVersionUID = -5234612717498362659L;
 
@@ -100,7 +99,7 @@ public class AverageKernelHash extends AverageHash implements Serializable {
 
 		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
 
-		int[][] luminocity = fp.getLuma();
+		int[][] luminosity = fp.getLuma();
 
 		// Calculate the average color of the entire image
 
@@ -109,7 +108,7 @@ public class AverageKernelHash extends AverageHash implements Serializable {
 
 		for (Kernel kernel : filters) {
 			if (filtered == null) {
-				filtered = kernel.apply(luminocity);
+				filtered = kernel.apply(luminosity);
 			} else {
 				filtered = kernel.apply(filtered);
 			}

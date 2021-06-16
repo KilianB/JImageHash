@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import com.github.kilianB.MathUtil;
+import dev.brachtendorf.MathUtil;
 import com.github.kilianB.datastructures.tree.AbstractBinaryTree;
 import com.github.kilianB.datastructures.tree.NodeInfo;
 import com.github.kilianB.datastructures.tree.Result;
@@ -18,11 +18,11 @@ import com.github.kilianB.hash.Hash;
  * A binary tree implementation allowing to quickly lookup
  * 
  * be aware that fuzzy trees currently are of one time use and are rendered
- * invalid as soon as one of the underlaying hashes changes it's internal
+ * invalid as soon as one of the underlying hashes changes it's internal
  * state.!
  * 
  * TODO for mutability add a list of uncertainties to each node and allow remove
- * operation by suppling the old and the new fuzzy hash state
+ * operation by supplying the old and the new fuzzy hash state
  * 
  * @author Kilian
  * @since 3.0.0
@@ -112,7 +112,7 @@ public class FuzzyBinaryTree extends AbstractBinaryTree<FuzzyHash> {
 		int treeDepth = hash.getBitResolution();
 
 		if (hashLengthDebug != treeDepth) {
-			throw new IllegalStateException("Tried to get neareast neighbot an incompatible hash to the binary tree");
+			throw new IllegalStateException("Tried to get neareast neighbor an incompatible hash to the binary tree");
 		}
 
 		PriorityQueue<NodeInfo<FuzzyHash>> queue = new PriorityQueue<>();
@@ -127,25 +127,20 @@ public class FuzzyBinaryTree extends AbstractBinaryTree<FuzzyHash> {
 		// Begin search at the root
 		queue.add(new NodeInfo<FuzzyHash>(root, 0, treeDepth));
 
-//		System.out.println("Target: " + hash);
-
 		while (!queue.isEmpty()) {
 
-//			System.out.println("\nQueue: " + queue);
 			NodeInfo<FuzzyHash> info = queue.poll();
 
 			// If we found a better result ignore it.
 
 			// This should scale down with distance
 			if (info.distance > curBestDistance) {
-//				System.out.println("Result too far away: " + info + " " + curBestDistance);
 				continue;
 			}
 
-//			System.out.println(info);
 			// We reached a leaf
 			if (info.depth == 0) {
-//				System.out.println("Leaf Depth : " + info.depth + " " + info.node.getChild(true) + " " + info.node.getChild(false));
+
 				@SuppressWarnings("unchecked")
 				Leaf<FuzzyHash> leaf = (Leaf<FuzzyHash>) info.node;
 				for (FuzzyHash o : leaf.getData()) {
@@ -169,8 +164,6 @@ public class FuzzyBinaryTree extends AbstractBinaryTree<FuzzyHash> {
 
 			boolean bit = hash.getBitUnsafe(info.depth - 1);
 
-//			System.out.println("Depth : " + info.depth + " One: " + info.node.getChild(true) + " Zero: " + info.node.getChild(false));
-
 			// Children of the next level
 			for (int i = 0; i < 2; i++) {
 				boolean left = i == 0;
@@ -191,7 +184,7 @@ public class FuzzyBinaryTree extends AbstractBinaryTree<FuzzyHash> {
 					}
 				} else {
 					try {
-						Leaf node = (Leaf) info.node.getChild(left);
+						Leaf<?> node = (Leaf<?>) info.node.getChild(left);
 						if (node != null) {
 							// TODO add distance?
 							queue.add(new NodeInfo<>(node, info.distance, info.depth - 1));
