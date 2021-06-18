@@ -22,11 +22,21 @@ class RotAverageHashTest {
 	@Test
 	@DisplayName("Consistent AlgorithmIds")
 	public void consistency() {
+		assertAll(() -> {
+			assertEquals(254868492, new RotAverageHash(14).algorithmId());
+		}, () -> {
+			assertEquals(275841356, new RotAverageHash(25).algorithmId());
+		});
+	}
+
+	@Test
+	@DisplayName("Consistent AlgorithmIds noPreCacheFix")
+	public void noPreCacheFix() {
 
 		assertAll(() -> {
-			assertEquals(2086431459, new RotAverageHash(14).algorithmId());
+			assertNotEquals(2086431459, new RotAverageHash(14).algorithmId());
 		}, () -> {
-			assertEquals(2087108003, new RotAverageHash(25).algorithmId());
+			assertNotEquals(2087108003, new RotAverageHash(25).algorithmId());
 		});
 	}
 
