@@ -14,6 +14,7 @@ import java.lang.invoke.MethodType;
 import java.math.BigInteger;
 import java.util.Arrays;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -116,14 +117,21 @@ class FuzzyHashTest{
 			});
 		}
 
+		@Disabled("The fuzzy hash has to either b 0 or 1 for the hamming distance. We could throw an error if the uncertainty is to high")
 		@Test
 		void subtractOne() {
 			int bits = 10;
 			FuzzyHash hash = new FuzzyHash();
+			System.out.println(hash);
 			Hash h = new Hash(new BigInteger("0000000000", 2), bits, 0);
 			Hash h1 = new Hash(new BigInteger("1111111111", 2), bits, 0);
-			hash.merge(h);
+			
 			hash.merge(h1);
+			System.out.println(hash);
+			hash.merge(h);
+			System.out.println(hash);
+			
+			System.out.println(hash.normalizedHammingDistance(h));
 			assertNotEquals(0, hash.normalizedHammingDistance(h));
 			assertNotEquals(1, hash.normalizedHammingDistance(h1));
 			hash.subtract(h1);
