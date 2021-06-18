@@ -4,8 +4,8 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
+import dev.brachtendorf.MathUtil;
 import dev.brachtendorf.graphics.FastPixel;
-import dev.brachtendorf.graphics.ImageUtil;
 
 /**
  * 
@@ -125,7 +125,7 @@ public class RotAverageHash extends HashingAlgorithm {
 
 		// 0 bucket does not contain any value.
 		for (int i = 2; i < hashArr.length; i++) {
-			if (hashArr[i] >= hashArr[i - 1]) {
+			if (hashArr[i] >= hashArr[i - 1] || MathUtil.isDoubleEquals(hashArr[i], hashArr[i - 1], 0.000001)) {
 				hash.prependZero();
 			} else {
 				hash.prependOne();
@@ -152,7 +152,10 @@ public class RotAverageHash extends HashingAlgorithm {
 
 	@Override
 	protected int precomputeAlgoId() {
+		// @since 1.0.0 force incompatible hashes due to new calculation method.
+		// https://github.com/KilianB/JImageHash/issues/49
+		final int doubleEqualsOffset = 3;
 		// These variables are enough to uniquely identify the hashing algorithm
-		return Objects.hash(getClass().getName(), width, height);
+		return Objects.hash(getClass().getName(), width, height, doubleEqualsOffset);
 	}
 }
