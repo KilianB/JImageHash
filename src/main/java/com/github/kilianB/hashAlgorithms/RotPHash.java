@@ -10,7 +10,6 @@ import java.util.Objects;
 import org.jtransforms.dct.DoubleDCT_1D;
 
 import dev.brachtendorf.graphics.FastPixel;
-import dev.brachtendorf.graphics.ImageUtil;
 
 /**
  * A rotational invariant hashing algorithm which is mostly immune to rotation

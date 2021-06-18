@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 import dev.brachtendorf.graphics.FastPixel;
-import dev.brachtendorf.graphics.ImageUtil;
 import com.github.kilianB.hash.Hash;
 
 import javafx.scene.paint.Color;

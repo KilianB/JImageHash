@@ -5,7 +5,6 @@ import java.math.BigInteger;
 
 import dev.brachtendorf.ArrayUtil;
 import dev.brachtendorf.graphics.FastPixel;
-import dev.brachtendorf.graphics.ImageUtil;
 
 /**
  * Calculate a hash value based on the median luminosity in an image.

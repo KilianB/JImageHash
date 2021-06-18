@@ -9,7 +9,6 @@ import org.jtransforms.dct.DoubleDCT_2D;
 import org.jtransforms.utils.CommonUtils;
 
 import dev.brachtendorf.graphics.FastPixel;
-import dev.brachtendorf.graphics.ImageUtil;
 
 /**
  * Calculate a hash based on the frequency of an image using the DCT T2. This
@@ -60,8 +59,8 @@ public class PerceptiveHash extends HashingAlgorithm {
 		// This does not get triggered in usual circumstances.
 		if (width * height >= CommonUtils.getThreadsBeginN_2D()) {
 			LOGGER.warning(
-					"Due to an unfortunate design decision in JTransform a threadpool will be kept alive after finishing calulation"
-							+ " possibly block jvm termination.  You see this message because calculating an unusual high bit resolution perceptive hash will likly trigger this rule."
+					"Due to an unfortunate design decision in JTransform a threadpool will be kept alive after finishing calculation"
+							+ " possibly block jvm termination.  You see this message because calculating an unusual high bit resolution perceptive hash will likely trigger this rule."
 							+ " To quickly terminate the jvm without delay please call ConcurrencyUtils.shutdownThreadPoolAndAwaitTermination(); manually once you are done computing perceptive hashes");
 		}
 

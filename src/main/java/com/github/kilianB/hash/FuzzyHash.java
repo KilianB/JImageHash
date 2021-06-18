@@ -462,7 +462,7 @@ public class FuzzyHash extends Hash {
 	 * e.g. if this fuzzy hashes first bit hash a probability of 70% being a 0 and
 	 * the second fuzzyhash has a 60% probability the distance will be 10%^2.
 	 * 
-	 * Be aware that this method id much more expensive than calculating the simple
+	 * Be aware that this method is much more expensive than calculating the simple
 	 * distance between 2 ordinary hashes. (1 quick xor vs multiple calculations per
 	 * bit).
 	 * 
