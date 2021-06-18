@@ -13,6 +13,9 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 import dev.brachtendorf.Require;
+import dev.brachtendorf.graphics.FastPixel;
+import dev.brachtendorf.graphics.ImageUtil;
+
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.filter.Filter;
 
@@ -69,7 +72,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	protected Color opaqueReplacementColor = Color.WHITE;
 
 	/** Maximum alpha value a pixel must have in order to be replaced */
-	protected double opaqueReplacementThreshold = 2;
+	protected int opaqueReplacementThreshold = 2;
 
 	/**
 	 * After a hash was created or the id was calculated the object may not be
@@ -108,7 +111,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * different.
 	 * 
 	 * @param replacementColor The color used to replace opaque values
-	 * @param alphaThreshold   All colors with a value lower or equal value [0-1]
+	 * @param alphaThreshold   All colors with a value lower or equal value [0-255]
 	 *                         will be replaced.
 	 *                         <ul>
 	 *                         <li>0 means only invisible (entirely opaque pixels
@@ -119,7 +122,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	 *                               considered immutable.
 	 * @since 3.0.1
 	 */
-	public void setOpaqueHandling(Color replacementColor, double alphaThreshold) {
+	public void setOpaqueHandling(Color replacementColor, int alphaThreshold) {
 
 		if (immutableState) {
 			throw new IllegalStateException(LOCKED_MODIFICATION_EXCEPTION);
@@ -139,10 +142,10 @@ public abstract class HashingAlgorithm implements Serializable {
 
 	/**
 	 * @return the maximum alpha value a pixel must have in order to be replaced by
-	 *         the opaque replacement color.
+	 *         the opaque replacement color [0-255].
 	 * @since 3.0.1
 	 */
-	public double getOpaqueReplacementThreshold() {
+	public int getOpaqueReplacementThreshold() {
 		return opaqueReplacementThreshold;
 	}
 
@@ -262,6 +265,14 @@ public abstract class HashingAlgorithm implements Serializable {
 	 */
 	protected abstract BigInteger hash(BufferedImage image, HashBuilder hashBuilder);
 
+	protected FastPixel createPixelAccessor(BufferedImage image, int width, int height) {
+		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
+		if (this.opaqueReplacementThreshold > 0) {
+			fp.setReplaceOpaqueColors(this.opaqueReplacementThreshold, this.opaqueReplacementColor);
+		}
+		return fp;
+	}
+
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the
 	 * output result. The id shall stay consistent throughout restarts of the jvm.
@@ -287,8 +298,7 @@ public abstract class HashingAlgorithm implements Serializable {
 
 	/**
 	 * A unique id identifying the settings and algorithms used to generate the
-	 * output result.
-	 * This method shall contain a hash code for the object which
+	 * output result. This method shall contain a hash code for the object which
 	 * 
 	 * <ul>
 	 * <li>Stays consistent throughout restart of the jvm</li>

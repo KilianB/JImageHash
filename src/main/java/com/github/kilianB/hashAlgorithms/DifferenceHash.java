@@ -94,7 +94,8 @@ public class DifferenceHash extends HashingAlgorithm {
 
 	@Override
 	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
-		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = createPixelAccessor(image, width, height);
+
 		// Use data buffer for faster access
 
 		int[][] lum = fp.getLuma();

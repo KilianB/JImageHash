@@ -99,9 +99,8 @@ public class RotPHash extends HashingAlgorithm {
 	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
 
 		// 0. Preprocessing. Extract Luminosity
-		BufferedImage transformed = ImageUtil.getScaledInstance(image, width, height);
 		// Fast pixel access. Order 10x faster than jdk internal
-		FastPixel fp = FastPixel.create(transformed);
+		FastPixel fp = createPixelAccessor(image, width, height);
 
 		@SuppressWarnings("unchecked")
 		List<Integer>[] values = new List[buckets];

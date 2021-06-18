@@ -5,6 +5,8 @@ import static com.github.kilianB.TestResources.copyright;
 import static com.github.kilianB.TestResources.highQuality;
 import static com.github.kilianB.TestResources.lowQuality;
 import static com.github.kilianB.TestResources.thumbnail;
+import static com.github.kilianB.TestResources.white;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -28,6 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.brachtendorf.ArrayUtil;
+
 import com.github.kilianB.TestResources;
 import com.github.kilianB.hash.Hash;
 import com.github.kilianB.hashAlgorithms.filter.Kernel;
@@ -208,6 +211,19 @@ public abstract class HashTestBase {
 		public void equalImage(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(0, h.hash(ballon).hammingDistance(h.hash(ballon)));
+		}
+
+		/**
+		 * The hamming distance of the same image has to be 0
+		 * 
+		 * @param bitRes the bit resolution of the algorithm
+		 * @see https://github.com/KilianB/JImageHash/issues/49
+		 */
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		public void equalImage2(Integer bitRes) {
+			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
+			assertEquals(0, h.hash(white).hammingDistance(h.hash(white)));
 		}
 
 		/**

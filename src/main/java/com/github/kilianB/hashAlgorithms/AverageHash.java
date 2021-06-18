@@ -61,7 +61,7 @@ public class AverageHash extends HashingAlgorithm {
 
 	@Override
 	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
-		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = createPixelAccessor(image, width, height);
 
 		int[][] luminocity = fp.getLuma();
 
@@ -84,7 +84,7 @@ public class AverageHash extends HashingAlgorithm {
 		}
 		return hash.toBigInteger();
 	}
-	
+
 	protected BigInteger computeHash(HashBuilder hash, int[][] pixelValue, double compareAgainst) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {

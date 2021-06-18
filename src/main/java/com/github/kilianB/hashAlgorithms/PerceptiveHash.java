@@ -69,7 +69,7 @@ public class PerceptiveHash extends HashingAlgorithm {
 
 	@Override
 	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
-		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = createPixelAccessor(image, width, height);
 
 		int[][] lum = fp.getLuma();
 

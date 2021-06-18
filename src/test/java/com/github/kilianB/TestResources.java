@@ -25,11 +25,12 @@ public class TestResources {
 	public static BufferedImage highQuality;
 	public static BufferedImage lowQuality;
 	public static BufferedImage thumbnail;
-	
 	public static BufferedImage lenna;
 	public static BufferedImage lenna90;
 	public static BufferedImage lenna180;
 	public static BufferedImage lenna270;
+
+	public static BufferedImage white;
 
 	static {
 		try {
@@ -43,6 +44,7 @@ public class TestResources {
 			lenna180 = ImageIO.read(TestResources.class.getClassLoader().getResourceAsStream("Lenna180.png"));
 			lenna270 = ImageIO.read(TestResources.class.getClassLoader().getResourceAsStream("Lenna270.png"));
 
+			white = ImageIO.read(TestResources.class.getClassLoader().getResourceAsStream("white.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -61,14 +63,16 @@ public class TestResources {
 			assertTrue(lowQuality.getWidth() > 0);
 		}, () -> {
 			assertTrue(thumbnail.getWidth() > 0);
-		},() -> {
+		}, () -> {
 			assertTrue(lenna.getWidth() > 0);
-		},() -> {
+		}, () -> {
 			assertTrue(lenna90.getWidth() > 0);
-		},() -> {
+		}, () -> {
 			assertTrue(lenna180.getWidth() > 0);
-		},() -> {
+		}, () -> {
 			assertTrue(lenna270.getWidth() > 0);
+		}, () -> {
+			assertTrue(white.getWidth() > 0);
 		});
 	}
 

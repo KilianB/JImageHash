@@ -96,8 +96,7 @@ public class AverageKernelHash extends AverageHash{
 
 	@Override
 	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
-
-		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = createPixelAccessor(image, width, height);
 
 		int[][] luminosity = fp.getLuma();
 

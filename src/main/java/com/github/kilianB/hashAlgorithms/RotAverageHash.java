@@ -84,8 +84,7 @@ public class RotAverageHash extends HashingAlgorithm {
 
 	@Override
 	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
-
-		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
+		FastPixel fp = createPixelAccessor(image, width, height);
 
 		// We need 2 more bucket since we compare to n-1 and no values are mapped to 0
 		// bucket
