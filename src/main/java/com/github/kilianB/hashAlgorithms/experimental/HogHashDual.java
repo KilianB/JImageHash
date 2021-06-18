@@ -66,10 +66,7 @@ public class HogHashDual extends HogHash {
 	
 	@Override
 	protected BigInteger hash(BufferedImage image, HashBuilder hash) {
-
-		
-		BufferedImage bi = ImageUtil.getScaledInstance(image, width, height);
-		FastPixel fp = FastPixel.create(bi);
+		FastPixel fp = createPixelAccessor(image, width, height);
 
 		int[][] lum = fp.getLuma();
 

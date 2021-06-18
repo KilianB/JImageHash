@@ -5,19 +5,19 @@
 [![Travis](https://travis-ci.org/KilianB/JImageHash.svg?branch=master)](https://travis-ci.org/KilianB/JImageHash)
 [![GitHub license](https://img.shields.io/github/license/KilianB/JImageHash.svg)](https://github.com/KilianB/JImageHash/blob/master/LICENSE)
 [![Download](https://api.bintray.com/packages/kilianb/maven/JImageHash/images/download.svg)](https://bintray.com/kilianb/maven/JImageHash/_latestVersion)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3c7db745b9ff4dd9b89484a6aa46ad2f)](https://www.codacy.com/app/KilianB/JImageHash?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KilianB/JImageHash&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3c7db745b9ff4dd9b89484a6aa46ad2f)](https://www.codacy.com/app/KilianB/JImageHash?utm_source=github.com&utm_medium=referral&utm_content=KilianB/JImageHash&utm_campaign=Badge_Grade)
 
 JImageHash is a performant perceptual image fingerprinting library entirely written in Java. The library returns a similarity score aiming to identify entities which are likely modifications of the original source while being robust various attack vectors ie. color, rotation and scale transformation.
 
->  A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
+> A perceptual hash is a fingerprint of a multimedia file derived from various features from its content. Unlike cryptographic hash functions which rely on the avalanche effect of small changes in input leading to drastic changes in the output, perceptual hashes are "close" to one another if the features are similar.
 
-This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">kind of like that</a>" and incorporates several improvements. A comprehensive overview of perceptual image hashing can be found in this <a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">paper</a> by Christoph Zauner. 
+This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">kind of like that</a>" and incorporates several improvements. A comprehensive overview of perceptual image hashing can be found in this <a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">paper</a> by Christoph Zauner.
 
 ## Maven
 
-The project is hosted on maven central. __Please be aware that migrating from one major version to another usually invalidates created hashes in order to retain validity when persistently storing the hashes.__
+The project is hosted on maven central. **Please be aware that migrating from one major version to another usually invalidates created hashes in order to retain validity when persistently storing the hashes.**
 
-````XML
+```XML
 <dependency>
 	<groupId>dev.brachtendorf</groupId>
 	<artifactId>JImageHash</artifactId>
@@ -30,40 +30,61 @@ The project is hosted on maven central. __Please be aware that migrating from on
 	<artifactId>h2</artifactId>
 	<version>1.4.197</version>
 </dependency>
-````
+```
 
 ## Hello World
 
-````Java
+```Java
 File img0 = new File("path/to/file.png");
 File img1 = new File("path/to/secondFile.jpg");
-		
+
 HashingAlgorithm hasher = new PerceptiveHash(32);
-		
+
 Hash hash0 = hasher.hash(img0);
 Hash hash1 = hasher.hash(img1);
-		
+
 double similarityScore = hash0.normalizedHammingDistance(hash1);
-		
+
 if(similarityScore < .2) {
     //Considered a duplicate in this particular case
 }
-		
+
 //Chaining multiple matcher for single image comparison
 
 SingleImageMatcher matcher = new SingleImageMatcher();
 matcher.addHashingAlgorithm(new AverageHash(64),.3);
 matcher.addHashingAlgorithm(new PerceptiveHash(32),.2);
-		
+
 if(matcher.checkSimilarity(img0,img1)) {
     //Considered a duplicate in this particular case
 }
-````
+```
 
 ## Examples
 
-Examples and convenience methods can be found in the [examples repository](https://github.com/KilianB/JImageHash-Examples) 
+Examples and convenience methods can be found in the [examples repository](https://github.com/KilianB/JImageHash-Examples)
 
+## Transparent image support
+
+Support for transparent images has to be enabled specifically due to backwards compatibility and force users of the libraries to understand the implication of this setting.
+
+The `setOpaqueHandling(Color? replacementColor, int alphaThreshold)` will replace transparent pixels with the specified color before calculating the hash.
+
+### Be aware of the following culprits: 
+
+- the replacement color must be consistent throughout hash calculation for the entire sample space to ensure robustness against color transformations of the images.
+- the replacement color should be a color that does not appear often in the input space to avoid masking out available information.
+- when not specified `Orange` will be used as replacement. This choice was arbitrary and ideally, a default color should be chosen which results in 0 and 1 bits being computed in 50% of the time in respect to all other pixels and hashing algorithms.
+- supplying a replacement value of null will attempt to either use black or white as a replacement color conflicting with the advice given above. Computing the contrast color will fail if the transparent area of an image covers a large space and comes with a steep performance penalty.
+
+```java
+HashingAlgorithm hasher = new PerceptiveHash(32);
+
+//Replace all pixels with alpha values smaller than 0-255. The alpha value cutoff is taken into account after down scaling the image, therefore choose a reasonable value.  
+int alphaThreshold = 253;
+hasher.setOpaqueHandling(alphaThreshold)
+
+```
 
 ## Multiple types image matchers are available for each situation
 
@@ -89,7 +110,7 @@ The `exotic` package features BloomFilter, and the SingleImageMatcher used to ma
 	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
 	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
 	<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td>
-</tr> 
+</tr>
 
  <tr> <td>Altered Copyright</td>  <td><img width= 75% src="https://user-images.githubusercontent.com/9025925/36542411-0438eb36-17e1-11e8-9a59-2c69937560bf.jpg"> </td> 
 <td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
@@ -97,7 +118,7 @@ The `exotic` package features BloomFilter, and the SingleImageMatcher used to ma
 	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
 	<td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
 	<td><p align="center"><image src="https://via.placeholder.com/30/DC143C?text=+"/></p></td>
-</tr> 
+</tr>
 
 <tr> <td>Thumbnail</td>  <td><img src="https://user-images.githubusercontent.com/9025925/36542415-04ca8078-17e1-11e8-9be4-9a90b08c404b.jpg"></td> 
 <td><p align="center"><image src="https://via.placeholder.com/30/228B22?text=+"/></p></td> 
@@ -117,10 +138,10 @@ The `exotic` package features BloomFilter, and the SingleImageMatcher used to ma
 	
 </table>
 
-
 ## Hashing algorithm
 
 Image matchers can be configured using different algorithm. Each comes with individual properties
+
 <table>
   <tr><th>Algorithm</th>  <th>Feature</th><th>Notes</th> </tr>
   <tr><td><a href="https://github.com/KilianB/JImageHash/wiki/Hashing-Algorithms#averagehash-averagekernelhash-medianhash-averagecolorhash">AverageHash</a></td>  <td>Average Luminosity</td> <td>Fast and good all purpose algorithm</td> </tr>
@@ -143,8 +164,7 @@ Image clustering with fuzzy hashes allowing to represent hashes with probability
 
 ![1_fxpw79yoon8xo3slqsvmta](https://user-images.githubusercontent.com/9025925/51272388-439d9600-19ca-11e9-8220-fe3539ed6061.png)
 
-
-### Algorithm benchmarking 
+### Algorithm benchmarking
 
 See the wiki page on how to test different hashing algorithms with your set of images
 

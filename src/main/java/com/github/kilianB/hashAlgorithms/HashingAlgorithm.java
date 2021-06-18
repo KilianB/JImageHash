@@ -13,6 +13,7 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 import dev.brachtendorf.Require;
+import dev.brachtendorf.graphics.ColorUtil;
 import dev.brachtendorf.graphics.FastPixel;
 import dev.brachtendorf.graphics.ImageUtil;
 
@@ -69,10 +70,10 @@ public abstract class HashingAlgorithm implements Serializable {
 	private int algorithmId;
 
 	/** Color used in replacement of opaque pixels */
-	protected Color opaqueReplacementColor = Color.WHITE;
+	protected Color opaqueReplacementColor = Color.orange;
 
 	/** Maximum alpha value a pixel must have in order to be replaced */
-	protected int opaqueReplacementThreshold = 2;
+	protected int opaqueReplacementThreshold = -1;
 
 	/**
 	 * After a hash was created or the id was calculated the object may not be
@@ -110,7 +111,10 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * entirely black image while for the user these images are perceptually
 	 * different.
 	 * 
-	 * @param replacementColor The color used to replace opaque values
+	 * @param replacementColor The color used to replace opaque values. A color
+	 *                         should be chosen which is unlikely to be part of the
+	 *                         target images. By default an orange color is
+	 *                         selected. If a value of null is provided
 	 * @param alphaThreshold   All colors with a value lower or equal value [0-255]
 	 *                         will be replaced.
 	 *                         <ul>
@@ -127,9 +131,33 @@ public abstract class HashingAlgorithm implements Serializable {
 		if (immutableState) {
 			throw new IllegalStateException(LOCKED_MODIFICATION_EXCEPTION);
 		}
-
 		this.opaqueReplacementColor = replacementColor;
 		this.opaqueReplacementThreshold = alphaThreshold;
+	}
+
+	/**
+	 * Define how the algorithm shall handle images with alpha value. Hashing
+	 * algorithms usually depend on the luminosity value, which by default will be
+	 * treated as being black.
+	 * <p>
+	 * Sometimes display software may choose to display missing pixels in a
+	 * different color e.g. white. For the algorithm this would result in an
+	 * entirely black image while for the user these images are perceptually
+	 * different.
+	 * 
+	 * @param alphaThreshold All colors with a value lower or equal value [0-255]
+	 *                       will be replaced.
+	 *                       <ul>
+	 *                       <li>0 means only invisible (entirely opaque pixels will
+	 *                       be replaced)</li>
+	 *                       <li></li>
+	 *                       </ul>
+	 * @throws IllegalStateException if a hash was already created and the object is
+	 *                               considered immutable.
+	 * @since 3.0.1
+	 */
+	public void setOpaqueHandling(int alphaThreshold) {
+		setOpaqueHandling(this.opaqueReplacementColor, alphaThreshold);
 	}
 
 	/**
@@ -266,9 +294,26 @@ public abstract class HashingAlgorithm implements Serializable {
 	protected abstract BigInteger hash(BufferedImage image, HashBuilder hashBuilder);
 
 	protected FastPixel createPixelAccessor(BufferedImage image, int width, int height) {
-		FastPixel fp = FastPixel.create(ImageUtil.getScaledInstance(image, width, height));
-		if (this.opaqueReplacementThreshold > 0) {
-			fp.setReplaceOpaqueColors(this.opaqueReplacementThreshold, this.opaqueReplacementColor);
+
+		BufferedImage scaledInstance = ImageUtil.getScaledInstance(image, width, height);
+		FastPixel fp = FastPixel.create(scaledInstance);
+
+		// If opaque handling is specified and the image has an alpha channel
+		if (this.opaqueReplacementThreshold >= 0 && fp.hasAlpha()) {
+			/**
+			 * If no color is specified grab the contrast color. This operation might not be
+			 * the best for hash calculation depending on how the color is interpolated. The
+			 * interpolated Color might be black for white images if the alpha is in the
+			 * majority.
+			 */
+			if (this.opaqueReplacementColor == null) {
+
+				javafx.scene.paint.Color interpolatedColor = ImageUtil.interpolateColor(image);
+				Color replacementColor = ColorUtil.getContrastColor(ColorUtil.fxToAwtColor(interpolatedColor));
+				fp.setReplaceOpaqueColors(this.opaqueReplacementThreshold, replacementColor);
+			} else {
+				fp.setReplaceOpaqueColors(this.opaqueReplacementThreshold, this.opaqueReplacementColor);
+			}
 		}
 		return fp;
 	}
@@ -291,6 +336,13 @@ public abstract class HashingAlgorithm implements Serializable {
 			algorithmId = 31 * precomputeAlgoId();
 			// Make sure the algo id doesn't collide with version 2.0.0 id's
 			algorithmId = 31 * algorithmId + 5 + preProcessing.hashCode();
+
+			// Change hash code only if transparency is supported
+			if (this.opaqueReplacementThreshold >= 0) {
+				algorithmId = 31 * algorithmId
+						+ Objects.hash(this.opaqueReplacementThreshold, this.opaqueReplacementColor);
+			}
+
 			immutableState = true;
 		}
 		return algorithmId;
@@ -442,6 +494,22 @@ public abstract class HashingAlgorithm implements Serializable {
 		HashingAlgorithm other = (HashingAlgorithm) obj;
 		if (algorithmId() != other.algorithmId())
 			return false;
+
+		if (this.opaqueReplacementThreshold >= 0 && other.opaqueReplacementThreshold >= 0) {
+
+			if (this.opaqueReplacementThreshold != other.opaqueReplacementThreshold) {
+				return false;
+			}
+			if (!this.opaqueReplacementColor.equals(other.opaqueReplacementColor)) {
+				return false;
+			}
+
+		} else if (this.opaqueReplacementThreshold < 0 && other.opaqueReplacementThreshold < 0) {
+
+		} else {
+			return false;
+		}
+
 		return true;
 	}
 }

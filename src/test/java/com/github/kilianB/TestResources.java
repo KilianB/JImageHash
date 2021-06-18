@@ -25,12 +25,18 @@ public class TestResources {
 	public static BufferedImage highQuality;
 	public static BufferedImage lowQuality;
 	public static BufferedImage thumbnail;
+
 	public static BufferedImage lenna;
 	public static BufferedImage lenna90;
 	public static BufferedImage lenna180;
 	public static BufferedImage lenna270;
 
 	public static BufferedImage white;
+
+	public static BufferedImage transparent0;
+	public static BufferedImage transparent1;
+	public static BufferedImage transparent0White;
+	public static BufferedImage transparent1White;
 
 	static {
 		try {
@@ -45,6 +51,15 @@ public class TestResources {
 			lenna270 = ImageIO.read(TestResources.class.getClassLoader().getResourceAsStream("Lenna270.png"));
 
 			white = ImageIO.read(TestResources.class.getClassLoader().getResourceAsStream("white.jpg"));
+
+			transparent0 = ImageIO.read(TestResources.class.getClassLoader().getResourceAsStream("transparent0.png"));
+			transparent1 = ImageIO.read(TestResources.class.getClassLoader().getResourceAsStream("transparent1.png"));
+
+			transparent0White = ImageIO
+					.read(TestResources.class.getClassLoader().getResourceAsStream("transparent0White.png"));
+			transparent1White = ImageIO
+					.read(TestResources.class.getClassLoader().getResourceAsStream("transparent1White.png"));
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -71,6 +86,14 @@ public class TestResources {
 			assertTrue(lenna180.getWidth() > 0);
 		}, () -> {
 			assertTrue(lenna270.getWidth() > 0);
+		}, () -> {
+			assertTrue(transparent0.getWidth() > 0);
+		}, () -> {
+			assertTrue(transparent1.getWidth() > 0);
+		}, () -> {
+			assertTrue(transparent0White.getWidth() > 0);
+		}, () -> {
+			assertTrue(transparent1White.getWidth() > 0);
 		}, () -> {
 			assertTrue(white.getWidth() > 0);
 		});

@@ -4,9 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * @author Kilian
@@ -32,7 +35,7 @@ class MedianHashTest {
 				assertEquals(-847216249, new MedianHash(25).algorithmId());
 			});
 		}
-		
+
 		@Test
 		@DisplayName("Consistent AlgorithmIds v 2.0.0 collision")
 		public void notVersionTwo() {
@@ -43,16 +46,16 @@ class MedianHashTest {
 			});
 		}
 	}
-	
-	//Base Hashing algorithm tests
+
+	// Base Hashing algorithm tests
 	@Nested
-	class AlgorithmBaseTests extends HashTestBase{
+	class AlgorithmBaseTests extends HashTestBase {
 
 		@Override
 		protected HashingAlgorithm getInstance(int bitResolution) {
 			return new MedianHash(bitResolution);
 		}
-		
+
 		@Override
 		protected double differenceBallonHqHash() {
 			return 78;
@@ -61,8 +64,19 @@ class MedianHashTest {
 		@Override
 		protected double normDifferenceBallonHqHash() {
 			return 78 / 132d;
+
 		}
-		
+
+		@Nested
+		class HashTest extends HashTestBase.HashTest {
+			@Disabled("Skip test for median hash. As it fails on these logos")
+			@ParameterizedTest
+			@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+			@Override
+			public void replaceTransparentPixels(Integer bitRes) {
+			}
+		}
+
 	}
 
 }

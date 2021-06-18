@@ -5,6 +5,10 @@ import static com.github.kilianB.TestResources.copyright;
 import static com.github.kilianB.TestResources.highQuality;
 import static com.github.kilianB.TestResources.lowQuality;
 import static com.github.kilianB.TestResources.thumbnail;
+import static com.github.kilianB.TestResources.transparent0;
+import static com.github.kilianB.TestResources.transparent1;
+import static com.github.kilianB.TestResources.transparent0White;
+import static com.github.kilianB.TestResources.transparent1White;
 import static com.github.kilianB.TestResources.white;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -13,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -112,7 +117,7 @@ public abstract class HashTestBase {
 
 		@ParameterizedTest
 		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolutionBroad")
-		public void algorithmKeyLengthConsitent(Integer bitResolution) {
+		public void algorithmKeyLengthConsistent(Integer bitResolution) {
 			HashingAlgorithm d1 = getInstance(bitResolution);
 			Hash ballonHash = d1.hash(ballon);
 			assertEquals(d1.getKeyResolution(), ballonHash.getBitResolution());
@@ -196,7 +201,7 @@ public abstract class HashTestBase {
 		 */
 		@ParameterizedTest
 		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
-		public void consitent(Integer bitRes) {
+		public void consistent(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(h.hash(ballon).getHashValue(), h.hash(ballon).getHashValue());
 		}
@@ -282,6 +287,70 @@ public abstract class HashTestBase {
 				assertTrue(highQualityHash.normalizedHammingDistance(lowQualityHash) < highQualityHash
 						.normalizedHammingDistance(ballonHash));
 			});
+		}
+
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		public void opaqueEqualityOnNoOverrideSet(Integer bitRes) {
+			// Background is assumed to be black for transparent images, therefore images
+			// should all look identical for the hashing algorithm
+			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
+			Hash transparent0Hash = h.hash(transparent0);
+			Hash transparent1Hash = h.hash(transparent1);
+			assertTrue(transparent0Hash.normalizedHammingDistance(transparent1Hash) == 0);
+		}
+
+		/**
+		 * Opaque images should be considered differently if a replace opaque color is
+		 * set.
+		 * 
+		 * @param bitRes the bit resolution of the algorithm
+		 */
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		public void opaqueEqualityOverrideWithBlack(Integer bitRes) {
+			// Background is assumed to be black for transparent images, therefore images
+			// should all look identical for the hashing algorithm
+			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
+			h.setOpaqueHandling(Color.BLACK, 240);
+			Hash transparent0Hash = h.hash(transparent0);
+			Hash transparent1Hash = h.hash(transparent1);
+			assertTrue(transparent0Hash.normalizedHammingDistance(transparent1Hash) == 0);
+		}
+
+		/**
+		 * Use white transparent images and replace the background with white.
+		 * Algorithms should produce the same hash
+		 * 
+		 * @param bitRes the bit resolution of the algorithm
+		 */
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		public void overrideTransparencyWhiteImage(Integer bitRes) {
+			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
+			h.setOpaqueHandling(Color.white, 253);
+			Hash transparent0Hash = h.hash(transparent0White);
+			Hash transparent1Hash = h.hash(transparent1White);
+			assertTrue(transparent0Hash.normalizedHammingDistance(transparent1Hash) == 0, h.toString());
+		}
+
+		/**
+		 * Opaque images should be considered differently if a replace opaque color is
+		 * set.
+		 * 
+		 * @param bitRes the bit resolution of the algorithm
+		 */
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		public void replaceTransparentPixels(Integer bitRes) {
+			// Background is assumed to be black for transparent images, therefore images
+			// should all look identical for the hashing algorithm
+			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
+			h.setOpaqueHandling(Color.white, 250);
+			Hash transparent0Hash = h.hash(transparent0);
+			Hash transparent1Hash = h.hash(transparent1);
+			assertTrue(transparent0Hash.normalizedHammingDistance(transparent1Hash) != 0,
+					h + " should not have the same hash");
 		}
 	}
 
