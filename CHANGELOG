@@ -11,8 +11,6 @@
 - package is now distributed via maven central
 - moved AlgorithmBenchmarker to example package
 
-- algorithmId of 
-
 ### Fixed
 - Rot Average Hash now correctly computes the same hash for consecutive uses. (Algorithm Id changed! Not compatible with previously created hashes)
 
