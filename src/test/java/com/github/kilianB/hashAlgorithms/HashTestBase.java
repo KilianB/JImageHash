@@ -87,6 +87,31 @@ public abstract class HashTestBase {
 				}
 			});
 		}
+
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@DisplayName("Unique AlgorithmsIds replacement colors")
+		public void differentReplacementColor(int bitResolution){
+			HashingAlgorithm h0 = getInstance(bitResolution);
+			HashingAlgorithm h1 = getInstance(bitResolution*2);
+			HashingAlgorithm h2 = getInstance(bitResolution*2);
+
+			int h0Id = h0.algorithmId();
+			int h1Id = h1.algorithmId();
+			h2.setOpaqueHandling(-1);
+			int h2Id = h2.algorithmId();
+
+			HashingAlgorithm h0Replacement = getInstance(bitResolution);
+			HashingAlgorithm h1Replacement = getInstance(bitResolution*2);
+
+			h0Replacement.setOpaqueHandling(120);
+			h1Replacement.setOpaqueHandling(Color.white, 40);
+
+			assertNotEquals(h0Id,h1Id);
+			assertEquals(h1Id,h2Id);
+			assertNotEquals(h0Id,h0Replacement);
+			assertNotEquals(h1Id,h1Replacement);
+		}
 	}
 
 	@Nested
@@ -351,6 +376,26 @@ public abstract class HashTestBase {
 			Hash transparent1Hash = h.hash(transparent1);
 			assertTrue(transparent0Hash.normalizedHammingDistance(transparent1Hash) != 0,
 					h + " should not have the same hash");
+		}
+
+		/**
+		 * The algorithm opaque replacement can not be modified after a hash is
+		 * generated.
+		 * 
+		 * @param bitRes the bit resolution of the algorithm
+		 */
+		@ParameterizedTest
+		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		public void setReplacementAfterHashGeneration(Integer bitRes) {
+			// Background is assumed to be black for transparent images, therefore images
+			// should all look identical for the hashing algorithm
+			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
+
+			Hash transparent0Hash = h.hash(transparent0);
+
+			assertThrows(IllegalStateException.class, () -> {
+				h.setOpaqueHandling(Color.white, 250);
+			});
 		}
 	}
 
