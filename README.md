@@ -13,9 +13,11 @@ JImageHash is a performant perceptual image fingerprinting library entirely writ
 
 This library was inspired by _Dr. Neal Krawetz_ blog post "<a href="http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">kind of like that</a>" and incorporates several improvements. A comprehensive overview of perceptual image hashing can be found in this <a href="https://www.phash.org/docs/pubs/thesis_zauner.pdf">paper</a> by Christoph Zauner.
 
+
+
 ## Maven
 
-The project is hosted on maven central. **Please be aware that migrating from one major version to another usually invalidates created hashes in order to retain validity when persistently storing the hashes.**
+The project is hosted on maven central
 
 ```XML
 <dependency>
@@ -28,9 +30,22 @@ The project is hosted on maven central. **Please be aware that migrating from on
 <dependency>
 	<groupId>com.h2database</groupId>
 	<artifactId>h2</artifactId>
-	<version>1.4.197</version>
+	<version>1.4.200</version>
 </dependency>
 ```
+
+### Breaking Changes: migration guide to version 1.0.0
+
+**Please be aware that migrating from one major version to another usually invalidates created hashes in order to retain validity when persistently storing the hashes.**
+The algorithm id of hashes is adjusted in order for the jvm to throw an error if the possibility exist that hashes generated for the same input image are not consistent throughout the compared versions.
+
+ Hashes generated with the following 2 algorithm have to be regenerated:
+
+- RotPAverage hash was fixed to correctly return hashes when the algorithm is used multiple times.
+- KernelAverageHash algorithm id changed due to JVMs internal hashcode calculation and the package name update. Hashes generated with this algorithm have to be regenerated.
+
+The package is now published to maven central under a new group id. The internal package structure has been adjusted from `com.github.kilianB` to `dev.brachtendorf.jimagehash`. Adjust your imports accordingly.
+
 
 ## Hello World
 
@@ -167,5 +182,6 @@ Image clustering with fuzzy hashes allowing to represent hashes with probability
 ### Algorithm benchmarking
 
 See the wiki page on how to test different hashing algorithms with your set of images
+Code available at the example repo: https://github.com/KilianB/JImageHash-Examples/tree/main/src/main/java/com/github/kilianB/benchmark
 
 <img src="https://user-images.githubusercontent.com/9025925/49185669-c14a0b80-f362-11e8-92fa-d51a20476937.jpg" />

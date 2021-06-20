@@ -1,11 +1,20 @@
-- Semantic versioning
 
 
+## [1.0.0] Distributed via maven central under new groupId  - 20.06.2021
 
-## [1.0.0-Snapshot] Distributed via maven central under new groupId  - 16.06.2021
+### Added
+- ability to handle transparent images
 
 ### Changed
+- package changed from com.github.kilianB to dev.brachtendorf.jimagehash
 - Move Examples to new repository https://github.com/KilianB/JImageHash-Examples
+- package is now distributed via maven central
+- moved AlgorithmBenchmarker to example package
+
+- algorithmId of 
+
+### Fixed
+- Rot Average Hash now correctly computes the same hash for consecutive uses. (Algorithm Id changed! Not compatible with previously created hashes)
 
 ### Updated
 - bump h2 dependency
