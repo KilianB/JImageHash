@@ -33,7 +33,7 @@ import dev.brachtendorf.graphics.FastPixel;
  */
 public class RotAverageHash extends HashingAlgorithm {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 128391293L;
 
 	/** Width of the rescaled image */
 	private int width;
