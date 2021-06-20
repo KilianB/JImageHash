@@ -1,4 +1,4 @@
-package com.github.kilianB.datastructures;
+package dev.brachtendorf.jimagehash.datastructures;
 
 import org.junit.jupiter.api.Test;
 

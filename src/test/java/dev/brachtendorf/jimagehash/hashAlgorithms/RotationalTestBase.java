@@ -1,19 +1,20 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
-import static com.github.kilianB.TestResources.lenna;
-import static com.github.kilianB.TestResources.lenna180;
-import static com.github.kilianB.TestResources.lenna270;
-import static com.github.kilianB.TestResources.lenna90;
+import static dev.brachtendorf.jimagehash.TestResources.lenna;
+import static dev.brachtendorf.jimagehash.TestResources.lenna180;
+import static dev.brachtendorf.jimagehash.TestResources.lenna270;
+import static dev.brachtendorf.jimagehash.TestResources.lenna90;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 
+import dev.brachtendorf.jimagehash.hash.Hash;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.brachtendorf.ArrayUtil;
-import com.github.kilianB.hash.Hash;
 
 /**
  * @author Kilian
@@ -22,7 +23,7 @@ import com.github.kilianB.hash.Hash;
 public abstract class RotationalTestBase extends HashTestBase{
 
 	@ParameterizedTest
-	@MethodSource(value = "com.github.kilianB.hashAlgorithms.RotationalTestBase#bitResolution")
+	@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.RotationalTestBase#bitResolution")
 	public void rotatedImages(Integer bitResolution) {
 
 		HashingAlgorithm h = getInstance(bitResolution+this.offsetBitResolution());

@@ -1,16 +1,15 @@
-package com.github.kilianB.datastructures.tree.binaryTree;
+package dev.brachtendorf.jimagehash.datastructures.tree.binaryTree;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import com.github.kilianB.datastructures.tree.AbstractBinaryTree;
-import com.github.kilianB.datastructures.tree.NodeInfo;
-import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.hash.Hash;
+import dev.brachtendorf.jimagehash.datastructures.tree.AbstractBinaryTree;
+import dev.brachtendorf.jimagehash.datastructures.tree.NodeInfo;
+import dev.brachtendorf.jimagehash.datastructures.tree.Result;
+import dev.brachtendorf.jimagehash.hash.Hash;
 
 /**
  * A not thread safe binary tree implementation used to quickly compute the
@@ -54,7 +53,7 @@ import com.github.kilianB.hash.Hash;
  * 
  * @author Kilian
  */
-public class BinaryTree<T> extends AbstractBinaryTree<T> implements Serializable {
+public class BinaryTree<T> extends AbstractBinaryTree<T> {
 
 	private static final long serialVersionUID = 4193396415197848158L;
 

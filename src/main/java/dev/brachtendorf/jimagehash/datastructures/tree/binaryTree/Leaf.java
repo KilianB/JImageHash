@@ -1,4 +1,4 @@
-package com.github.kilianB.datastructures.tree.binaryTree;
+package dev.brachtendorf.jimagehash.datastructures.tree.binaryTree;
 
 import java.util.ArrayList;
 

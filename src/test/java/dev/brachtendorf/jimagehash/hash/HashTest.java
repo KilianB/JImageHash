@@ -1,4 +1,4 @@
-package com.github.kilianB.hash;
+package dev.brachtendorf.jimagehash.hash;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.hashAlgorithms.AverageHash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.AverageHash;
 
 class HashTest {
 

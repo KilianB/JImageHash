@@ -1,10 +1,10 @@
-package com.github.kilianB.matcher.cached;
+package dev.brachtendorf.jimagehash.matcher.cached;
 
-import static com.github.kilianB.TestResources.ballon;
-import static com.github.kilianB.TestResources.copyright;
-import static com.github.kilianB.TestResources.highQuality;
-import static com.github.kilianB.TestResources.lowQuality;
-import static com.github.kilianB.TestResources.thumbnail;
+import static dev.brachtendorf.jimagehash.TestResources.ballon;
+import static dev.brachtendorf.jimagehash.TestResources.copyright;
+import static dev.brachtendorf.jimagehash.TestResources.highQuality;
+import static dev.brachtendorf.jimagehash.TestResources.lowQuality;
+import static dev.brachtendorf.jimagehash.TestResources.thumbnail;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,11 +18,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.hashAlgorithms.AverageHash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.matcher.TypedImageMatcher.AlgoSettings;
+import dev.brachtendorf.jimagehash.datastructures.tree.Result;
+import dev.brachtendorf.jimagehash.hashAlgorithms.AverageHash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.hashAlgorithms.PerceptiveHash;
+import dev.brachtendorf.jimagehash.matcher.TypedImageMatcher.AlgoSettings;
 
 class ConsecutiveMatcherTest {
 

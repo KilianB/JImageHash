@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.exotic;
+package dev.brachtendorf.jimagehash.matcher.exotic;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -7,9 +7,9 @@ import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.TypedImageMatcher;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.matcher.TypedImageMatcher;
 
 /**
  * Convenience class to chain multiple hashing algorithms to check if two images

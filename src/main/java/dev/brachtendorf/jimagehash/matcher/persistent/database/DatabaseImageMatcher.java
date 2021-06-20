@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.persistent.database;
+package dev.brachtendorf.jimagehash.matcher.persistent.database;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -27,11 +27,11 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.TypedImageMatcher;
-import com.github.kilianB.matcher.persistent.ConsecutiveMatcher;
+import dev.brachtendorf.jimagehash.datastructures.tree.Result;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.matcher.TypedImageMatcher;
+import dev.brachtendorf.jimagehash.matcher.persistent.ConsecutiveMatcher;
 
 /**
  * A naive database based image matcher implementation. Images indexed by this

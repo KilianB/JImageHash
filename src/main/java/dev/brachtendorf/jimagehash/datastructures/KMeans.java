@@ -1,4 +1,4 @@
-package com.github.kilianB.datastructures;
+package dev.brachtendorf.jimagehash.datastructures;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,8 +7,9 @@ import java.util.logging.Logger;
 
 import dev.brachtendorf.ArrayUtil;
 import dev.brachtendorf.Require;
-import com.github.kilianB.hash.FuzzyHash;
-import com.github.kilianB.hash.Hash;
+import dev.brachtendorf.jimagehash.hash.FuzzyHash;
+import dev.brachtendorf.jimagehash.hash.Hash;
+
 import com.github.kilianB.pcg.fast.PcgRSFast;
 
 /**

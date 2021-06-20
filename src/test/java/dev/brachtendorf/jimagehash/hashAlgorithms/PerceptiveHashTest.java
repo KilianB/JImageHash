@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;

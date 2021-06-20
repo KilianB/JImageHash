@@ -1,16 +1,16 @@
-package com.github.kilianB.matcher;
+package dev.brachtendorf.jimagehash.matcher;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 
 /**
  * Image matchers are a collection of classes which bundle the hashing operation
- * of one or multiple {@link com.github.kilianB.hashAlgorithms.HashingAlgorithm
+ * of one or multiple {@link dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm
  * HashingAlgorithms} and expose functionalities to compare multiple images with
  * each other.
  * <p>

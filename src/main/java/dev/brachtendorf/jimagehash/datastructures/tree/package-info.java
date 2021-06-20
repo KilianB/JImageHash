@@ -4,4 +4,4 @@
  * @author Kilian
  *
  */
-package com.github.kilianB.datastructures.tree;
+package dev.brachtendorf.jimagehash.datastructures.tree;

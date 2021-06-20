@@ -1,11 +1,11 @@
-package com.github.kilianB.datastructures;
+package dev.brachtendorf.jimagehash.datastructures;
 
-import static com.github.kilianB.TestResources.createHash;
+import static dev.brachtendorf.jimagehash.TestResources.createHash;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import dev.brachtendorf.jimagehash.hash.Hash;
 
-import com.github.kilianB.hash.Hash;
 
 /**
  * @author Kilian

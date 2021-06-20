@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.categorize;
+package dev.brachtendorf.jimagehash.matcher.categorize;
 
 /**
  * A categorization result describes the membership to a cluster. It contains
@@ -22,7 +22,7 @@ package com.github.kilianB.matcher.categorize;
  * @author Kilian
  *
  * @since 3.0.0
- * @see com.github.kilianB.matcher.categorize.CategoricalImageMatcher
+ * @see dev.brachtendorf.jimagehash.matcher.categorize.CategoricalImageMatcher
  */
 public class CategorizationResult {
 

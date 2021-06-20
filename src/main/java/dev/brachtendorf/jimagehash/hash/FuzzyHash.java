@@ -1,4 +1,4 @@
-package com.github.kilianB.hash;
+package dev.brachtendorf.jimagehash.hash;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,8 +11,7 @@ import java.math.BigInteger;
 import java.util.logging.Logger;
 
 import dev.brachtendorf.graphics.ColorUtil;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 import javafx.scene.paint.Color;
 
 /**
@@ -43,7 +42,7 @@ import javafx.scene.paint.Color;
  * to the modus bit for each bit.
  * 
  * <p>
- * <b>Implnote:</b> Opposed to the original {@link com.github.kilianB.hash.Hash}
+ * <b>Implnote:</b> Opposed to the original {@link dev.brachtendorf.jimagehash.hash.Hash}
  * equals and hashcode are not overwritten to ensure correct functionality in
  * hash collections after factoring in mutable fields. To check if hashes are
  * equals calculate the distance between the hashes instead.

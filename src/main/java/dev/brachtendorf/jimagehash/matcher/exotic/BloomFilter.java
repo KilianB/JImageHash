@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.exotic;
+package dev.brachtendorf.jimagehash.matcher.exotic;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -9,10 +9,11 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import dev.brachtendorf.ArrayUtil;
-import com.github.kilianB.Experimental;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.PlainImageMatcher;
+import dev.brachtendorf.jimagehash.Experimental;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.matcher.PlainImageMatcher;
+
 import com.github.kilianB.pcg.fast.PcgRSFast;
 
 /**

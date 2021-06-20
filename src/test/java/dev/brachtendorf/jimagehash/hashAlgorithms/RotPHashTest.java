@@ -1,5 +1,5 @@
-package com.github.kilianB.hashAlgorithms;
-import static com.github.kilianB.TestResources.lenna;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
+import static dev.brachtendorf.jimagehash.TestResources.lenna;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;

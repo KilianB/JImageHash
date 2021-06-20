@@ -1,4 +1,4 @@
-package com.github.kilianB.datastructures.tree;
+package dev.brachtendorf.jimagehash.datastructures.tree;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
 
 /**
  * @author Kilian

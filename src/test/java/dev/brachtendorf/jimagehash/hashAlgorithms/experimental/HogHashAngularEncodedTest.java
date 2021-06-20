@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms.experimental;
+package dev.brachtendorf.jimagehash.hashAlgorithms.experimental;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,8 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.hashAlgorithms.HashTestBase;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 
 /**
  * @author Kilian

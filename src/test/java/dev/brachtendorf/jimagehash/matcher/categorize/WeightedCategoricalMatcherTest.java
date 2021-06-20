@@ -1,6 +1,6 @@
-package com.github.kilianB.matcher.categorize;
+package dev.brachtendorf.jimagehash.matcher.categorize;
 
-import static com.github.kilianB.TestResources.ballon;
+import static dev.brachtendorf.jimagehash.TestResources.ballon;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.stream.Stream;
@@ -8,8 +8,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.github.kilianB.hashAlgorithms.AverageHash;
-import com.github.kilianB.matcher.categorize.WeightedCategoricalMatcher.DimReduction;
+import dev.brachtendorf.jimagehash.hashAlgorithms.AverageHash;
+import dev.brachtendorf.jimagehash.matcher.categorize.WeightedCategoricalMatcher.DimReduction;
 
 /**
  * @author Kilian
@@ -18,7 +18,7 @@ import com.github.kilianB.matcher.categorize.WeightedCategoricalMatcher.DimReduc
 class WeightedCategoricalMatcherTest extends CategorizeBaseTest {
 	
 	@ParameterizedTest
-	@MethodSource(value = "com.github.kilianB.matcher.categorize.WeightedCategoricalMatcherTest#getMatcher")
+	@MethodSource(value = "dev.brachtendorf.jimagehash.matcher.categorize.WeightedCategoricalMatcherTest#getMatcher")
 	void sameDistanceAfterClusterRecomputation(WeightedCategoricalMatcher wMatcher) {
 		wMatcher.addHashingAlgorithm(new AverageHash(32));
 		wMatcher.categorizeImageAndAdd(ballon, "ballon");

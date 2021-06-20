@@ -1,6 +1,6 @@
-package com.github.kilianB.hash;
+package dev.brachtendorf.jimagehash.hash;
 
-import static com.github.kilianB.TestResources.ballon;
+import static dev.brachtendorf.jimagehash.TestResources.ballon;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -19,8 +19,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import dev.brachtendorf.ArrayUtil;
-import com.github.kilianB.TestResources;
-import com.github.kilianB.hashAlgorithms.AverageHash;
+import dev.brachtendorf.jimagehash.TestResources;
+import dev.brachtendorf.jimagehash.hashAlgorithms.AverageHash;
+
 import com.github.kilianB.pcg.fast.PcgRSFast;
 
 /**

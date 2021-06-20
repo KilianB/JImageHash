@@ -10,6 +10,6 @@
  * @author Kilian
  */
 @Experimental("Collection of hashing algorithms not ready to be used yet")
-package com.github.kilianB.hashAlgorithms.experimental;
+package dev.brachtendorf.jimagehash.hashAlgorithms.experimental;
 
-import com.github.kilianB.Experimental;
+import dev.brachtendorf.jimagehash.Experimental;

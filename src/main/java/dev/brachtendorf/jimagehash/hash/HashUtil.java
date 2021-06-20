@@ -1,10 +1,10 @@
-package com.github.kilianB.hash;
+package dev.brachtendorf.jimagehash.hash;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 
 /**
  * @author Kilian

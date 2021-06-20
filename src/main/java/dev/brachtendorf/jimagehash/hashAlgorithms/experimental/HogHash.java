@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms.experimental;
+package dev.brachtendorf.jimagehash.hashAlgorithms.experimental;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -12,14 +12,13 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 import dev.brachtendorf.ArrayUtil;
-import com.github.kilianB.Experimental;
 import dev.brachtendorf.MathUtil;
 import dev.brachtendorf.Require;
 import dev.brachtendorf.graphics.ColorUtil;
 import dev.brachtendorf.graphics.FastPixel;
-import dev.brachtendorf.graphics.ImageUtil;
-import com.github.kilianB.hashAlgorithms.HashBuilder;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.Experimental;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashBuilder;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 
 /**
  * Image Hash on HOG feature descriptor. Not ready yet. Most likely use a very
@@ -500,6 +499,6 @@ public class HogHash extends HashingAlgorithm {
 
 	@Override
 	protected int precomputeAlgoId() {
-		return Objects.hash(getClass().getName(), width,height,cellWidth,numBins);
+		return Objects.hash("com.github.kilianB.hashAlgorithms.experimental."+getClass().getSimpleName(), width,height,cellWidth,numBins);
 	}
 }

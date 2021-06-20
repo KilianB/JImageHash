@@ -1,4 +1,4 @@
-package com.github.kilianB.datastructures.tree;
+package dev.brachtendorf.jimagehash.datastructures.tree;
 
 /**
  * Search result returned when querying the tree

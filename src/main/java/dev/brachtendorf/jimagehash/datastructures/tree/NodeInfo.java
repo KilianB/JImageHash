@@ -1,6 +1,6 @@
-package com.github.kilianB.datastructures.tree;
+package dev.brachtendorf.jimagehash.datastructures.tree;
 
-import com.github.kilianB.datastructures.tree.binaryTree.Node;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.Node;
 
 /**
  * Helper class to iteratively search the tree {

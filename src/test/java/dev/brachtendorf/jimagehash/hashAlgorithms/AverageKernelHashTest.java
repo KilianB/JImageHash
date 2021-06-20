@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.hashAlgorithms.filter.Kernel;
+import dev.brachtendorf.jimagehash.hashAlgorithms.filter.Kernel;
 
 /**
  * @author Kilian
@@ -29,9 +29,9 @@ class AverageKernelHashTest {
 		@DisplayName("Consistent AlgorithmIds")
 		public void consistency() {
 			assertAll(() -> {
-				assertEquals(-297984255, new AverageKernelHash(14).algorithmId());
+				assertEquals(66055215, new AverageKernelHash(14).algorithmId());
 			}, () -> {
-				assertEquals(-268431583, new AverageKernelHash(25).algorithmId());
+				assertEquals(95607887, new AverageKernelHash(25).algorithmId());
 			});
 		}
 

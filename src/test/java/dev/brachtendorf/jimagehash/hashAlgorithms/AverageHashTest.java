@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,8 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.TestResources;
-import com.github.kilianB.hash.Hash;
+import dev.brachtendorf.jimagehash.TestResources;
+import dev.brachtendorf.jimagehash.hash.Hash;
 
 class AverageHashTest {
 
@@ -32,7 +32,7 @@ class AverageHashTest {
 				assertEquals(89846470, new AverageHash(25).algorithmId());
 			});
 		}
-		
+
 		@Test
 		@DisplayName("Consistent AlgorithmIds v 2.0.0 collision")
 		public void notVersionTwo() {
@@ -48,8 +48,8 @@ class AverageHashTest {
 	 * The average hash has the interesting property that it's hashes image
 	 * representation if hashed is the exact opposite of the first hash.
 	 * <p>
-	 * This only works if the hashes are perfectly aligned. With this test we can make
-	 * sure that bits are not shifted
+	 * This only works if the hashes are perfectly aligned. With this test we can
+	 * make sure that bits are not shifted
 	 */
 	@Test
 	void toImageTest() {
@@ -58,7 +58,7 @@ class AverageHashTest {
 		Hash ballonHash = hasher.hash(TestResources.ballon);
 		BufferedImage imageOfHash = ballonHash.toImage(10);
 		Hash hashedImage = hasher.hash(imageOfHash);
-		assertEquals(1,ballonHash.normalizedHammingDistance(hashedImage));
+		assertEquals(1, ballonHash.normalizedHammingDistance(hashedImage));
 	}
 
 	// Base Hashing algorithm tests

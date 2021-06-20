@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.persistent;
+package dev.brachtendorf.jimagehash.matcher.persistent;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -15,14 +15,14 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
-import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.TypedImageMatcher;
+import dev.brachtendorf.jimagehash.datastructures.tree.Result;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.matcher.TypedImageMatcher;
 
 /**
  * Persistent image matchers are a subset of
- * {@link com.github.kilianB.matcher.TypedImageMatcher TypedImageMatcher} which
+ * {@link dev.brachtendorf.jimagehash.matcher.TypedImageMatcher TypedImageMatcher} which
  * can be saved to disk to be later reconstructed. They expose the method
  * {@link #serializeState(File)} and {@link #reconstructState(File, boolean)}.
  * 

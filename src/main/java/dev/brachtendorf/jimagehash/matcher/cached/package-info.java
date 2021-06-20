@@ -10,4 +10,4 @@
  * 
  * @author Kilian
  */
-package com.github.kilianB.matcher.cached;
+package dev.brachtendorf.jimagehash.matcher.cached;

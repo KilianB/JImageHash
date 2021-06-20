@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
@@ -156,6 +156,6 @@ public class RotAverageHash extends HashingAlgorithm {
 		// https://github.com/KilianB/JImageHash/issues/49
 		final int doubleEqualsOffset = 3;
 		// These variables are enough to uniquely identify the hashing algorithm
-		return Objects.hash(getClass().getName(), width, height, doubleEqualsOffset);
+		return Objects.hash("com.github.kilianB.hashAlgorithms."+getClass().getSimpleName(), width, height, doubleEqualsOffset);
 	}
 }

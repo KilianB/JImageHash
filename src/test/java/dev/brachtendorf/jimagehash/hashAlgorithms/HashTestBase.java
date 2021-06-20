@@ -1,16 +1,15 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
-import static com.github.kilianB.TestResources.ballon;
-import static com.github.kilianB.TestResources.copyright;
-import static com.github.kilianB.TestResources.highQuality;
-import static com.github.kilianB.TestResources.lowQuality;
-import static com.github.kilianB.TestResources.thumbnail;
-import static com.github.kilianB.TestResources.transparent0;
-import static com.github.kilianB.TestResources.transparent1;
-import static com.github.kilianB.TestResources.transparent0White;
-import static com.github.kilianB.TestResources.transparent1White;
-import static com.github.kilianB.TestResources.white;
-
+import static dev.brachtendorf.jimagehash.TestResources.ballon;
+import static dev.brachtendorf.jimagehash.TestResources.copyright;
+import static dev.brachtendorf.jimagehash.TestResources.highQuality;
+import static dev.brachtendorf.jimagehash.TestResources.lowQuality;
+import static dev.brachtendorf.jimagehash.TestResources.thumbnail;
+import static dev.brachtendorf.jimagehash.TestResources.transparent0;
+import static dev.brachtendorf.jimagehash.TestResources.transparent0White;
+import static dev.brachtendorf.jimagehash.TestResources.transparent1;
+import static dev.brachtendorf.jimagehash.TestResources.transparent1White;
+import static dev.brachtendorf.jimagehash.TestResources.white;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -35,10 +34,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import dev.brachtendorf.ArrayUtil;
+import dev.brachtendorf.jimagehash.TestResources;
+import dev.brachtendorf.jimagehash.hashAlgorithms.filter.Kernel;
 
-import com.github.kilianB.TestResources;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.filter.Kernel;
+import dev.brachtendorf.jimagehash.hash.Hash;
 
 /**
  * Base test class applicable to all hashing algorithms
@@ -89,7 +88,7 @@ public abstract class HashTestBase {
 		}
 
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		@DisplayName("Unique AlgorithmsIds replacement colors")
 		public void differentReplacementColor(int bitResolution){
 			HashingAlgorithm h0 = getInstance(bitResolution);
@@ -141,7 +140,7 @@ public abstract class HashTestBase {
 		}
 
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolutionBroad")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolutionBroad")
 		public void algorithmKeyLengthConsistent(Integer bitResolution) {
 			HashingAlgorithm d1 = getInstance(bitResolution);
 			Hash ballonHash = d1.hash(ballon);
@@ -154,7 +153,7 @@ public abstract class HashTestBase {
 		 * @param hasher
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolutionBroad")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolutionBroad")
 		public void keyLengthMinimumBits(Integer bitResolution) {
 			HashingAlgorithm hasher = getInstance(bitResolution + offsetBitResolution());
 			assertTrue(hasher.hash(ballon).getBitResolution() >= hasher.bitResolution);
@@ -225,7 +224,7 @@ public abstract class HashTestBase {
 		 * @param bitRes the bit resolution of the algorithm
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void consistent(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(h.hash(ballon).getHashValue(), h.hash(ballon).getHashValue());
@@ -237,7 +236,7 @@ public abstract class HashTestBase {
 		 * @param bitRes the bit resolution of the algorithm
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void equalImage(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(0, h.hash(ballon).hammingDistance(h.hash(ballon)));
@@ -250,7 +249,7 @@ public abstract class HashTestBase {
 		 * @see https://github.com/KilianB/JImageHash/issues/49
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void equalImage2(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(0, h.hash(white).hammingDistance(h.hash(white)));
@@ -262,7 +261,7 @@ public abstract class HashTestBase {
 		 * @param bitRes the bit resolution of the algorithm
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void equalImageNormalized(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			assertEquals(0, h.hash(ballon).hammingDistanceFast(h.hash(ballon)));
@@ -275,7 +274,7 @@ public abstract class HashTestBase {
 		 * @param bitRes the bit resolution of the algorithm
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void unequalImage(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			Hash lowQualityHash = h.hash(lowQuality);
@@ -298,7 +297,7 @@ public abstract class HashTestBase {
 		 * @param bitRes the bit resolution of the algorithm
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void unequalImageNormalized(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			Hash lowQualityHash = h.hash(lowQuality);
@@ -315,7 +314,7 @@ public abstract class HashTestBase {
 		}
 
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void opaqueEqualityOnNoOverrideSet(Integer bitRes) {
 			// Background is assumed to be black for transparent images, therefore images
 			// should all look identical for the hashing algorithm
@@ -332,7 +331,7 @@ public abstract class HashTestBase {
 		 * @param bitRes the bit resolution of the algorithm
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void opaqueEqualityOverrideWithBlack(Integer bitRes) {
 			// Background is assumed to be black for transparent images, therefore images
 			// should all look identical for the hashing algorithm
@@ -350,7 +349,7 @@ public abstract class HashTestBase {
 		 * @param bitRes the bit resolution of the algorithm
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void overrideTransparencyWhiteImage(Integer bitRes) {
 			HashingAlgorithm h = getInstance(bitRes + offsetBitResolution());
 			h.setOpaqueHandling(Color.white, 253);
@@ -366,7 +365,7 @@ public abstract class HashTestBase {
 		 * @param bitRes the bit resolution of the algorithm
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void replaceTransparentPixels(Integer bitRes) {
 			// Background is assumed to be black for transparent images, therefore images
 			// should all look identical for the hashing algorithm
@@ -385,7 +384,7 @@ public abstract class HashTestBase {
 		 * @param bitRes the bit resolution of the algorithm
 		 */
 		@ParameterizedTest
-		@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+		@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 		public void setReplacementAfterHashGeneration(Integer bitRes) {
 			// Background is assumed to be black for transparent images, therefore images
 			// should all look identical for the hashing algorithm

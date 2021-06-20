@@ -1,13 +1,14 @@
-package com.github.kilianB.datastructures.tree.binaryTreeFuzzy;
+package dev.brachtendorf.jimagehash.datastructures.tree.binaryTreeFuzzy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.TestResources;
-import com.github.kilianB.hash.FuzzyHash;
-import com.github.kilianB.hash.Hash;
+import dev.brachtendorf.jimagehash.TestResources;
+import dev.brachtendorf.jimagehash.hash.FuzzyHash;
+import dev.brachtendorf.jimagehash.hash.Hash;
+
 /**
  * @author Kilian
  *

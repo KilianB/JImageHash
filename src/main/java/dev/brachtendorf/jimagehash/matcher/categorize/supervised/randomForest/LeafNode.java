@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.categorize.supervised.randomForest;
+package dev.brachtendorf.jimagehash.matcher.categorize.supervised.randomForest;
 
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicInteger;

@@ -1,10 +1,10 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
-import static com.github.kilianB.TestResources.ballon;
-import static com.github.kilianB.TestResources.copyright;
-import static com.github.kilianB.TestResources.highQuality;
-import static com.github.kilianB.TestResources.lowQuality;
-import static com.github.kilianB.TestResources.thumbnail;
+import static dev.brachtendorf.jimagehash.TestResources.ballon;
+import static dev.brachtendorf.jimagehash.TestResources.copyright;
+import static dev.brachtendorf.jimagehash.TestResources.highQuality;
+import static dev.brachtendorf.jimagehash.TestResources.lowQuality;
+import static dev.brachtendorf.jimagehash.TestResources.thumbnail;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -26,9 +26,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.github.kilianB.TestResources;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.DifferenceHash.Precision;
+import dev.brachtendorf.jimagehash.TestResources;
+import dev.brachtendorf.jimagehash.hashAlgorithms.DifferenceHash.Precision;
+
+import dev.brachtendorf.jimagehash.hash.Hash;
 
 //TODO  move difference hash to the default test scenarios
 class DifferenceHashTest {

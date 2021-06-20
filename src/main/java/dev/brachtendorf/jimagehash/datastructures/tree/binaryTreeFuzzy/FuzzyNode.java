@@ -1,8 +1,6 @@
-package com.github.kilianB.datastructures.tree.binaryTreeFuzzy;
+package dev.brachtendorf.jimagehash.datastructures.tree.binaryTreeFuzzy;
 
-import com.github.kilianB.datastructures.tree.binaryTree.Node;
-
-
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.Node;
 
 /**
  * A tree node saving references to it's children.

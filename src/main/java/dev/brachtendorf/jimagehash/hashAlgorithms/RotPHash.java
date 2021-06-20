@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
@@ -201,7 +201,7 @@ public class RotPHash extends HashingAlgorithm {
 
 	@Override
 	protected int precomputeAlgoId() {
-		return Objects.hash(getClass().getName(), this.width, this.height, this.truncateKey);
+		return Objects.hash("com.github.kilianB.hashAlgorithms."+getClass().getSimpleName(), this.width, this.height, this.truncateKey);
 
 	}
 

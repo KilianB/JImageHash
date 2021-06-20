@@ -1,4 +1,4 @@
-package com.github.kilianB.dataStrorage.tree;
+package dev.brachtendorf.jimagehash.dataStrorage.tree;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,10 +11,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.TestResources;
-import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
-import com.github.kilianB.hash.Hash;
+import dev.brachtendorf.jimagehash.TestResources;
+import dev.brachtendorf.jimagehash.datastructures.tree.Result;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.BinaryTree;
+import dev.brachtendorf.jimagehash.hash.Hash;
+
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class BinaryTreeTest {

@@ -1,4 +1,4 @@
-package com.github.kilianB;
+package dev.brachtendorf.jimagehash;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,9 +9,10 @@ import java.math.BigInteger;
 
 import javax.imageio.ImageIO;
 
+
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.hash.Hash;
+import dev.brachtendorf.jimagehash.hash.Hash;
 
 /**
  * @author Kilian

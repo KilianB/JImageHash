@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms.filter;
+package dev.brachtendorf.jimagehash.hashAlgorithms.filter;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import dev.brachtendorf.ArrayUtil;
-import com.github.kilianB.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy;
+import dev.brachtendorf.jimagehash.hashAlgorithms.filter.Kernel;
+import dev.brachtendorf.jimagehash.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy;
 
 /**
  * @author Kilian

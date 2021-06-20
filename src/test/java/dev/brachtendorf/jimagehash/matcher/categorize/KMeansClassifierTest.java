@@ -1,11 +1,11 @@
-package com.github.kilianB.matcher.categorize;
+package dev.brachtendorf.jimagehash.matcher.categorize;
 
-import static com.github.kilianB.TestResources.ballon;
+import static dev.brachtendorf.jimagehash.TestResources.ballon;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.kilianB.hashAlgorithms.AverageHash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.AverageHash;
 
 /**
  * @author Kilian

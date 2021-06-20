@@ -1,12 +1,12 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import dev.brachtendorf.graphics.FastPixel;
-import com.github.kilianB.hash.Hash;
 
+import dev.brachtendorf.graphics.FastPixel;
+import dev.brachtendorf.jimagehash.hash.Hash;
 import javafx.scene.paint.Color;
 
 /**
@@ -171,7 +171,7 @@ public class DifferenceHash extends HashingAlgorithm {
 	@Override
 	protected int precomputeAlgoId() {
 		// + 1 to ensure id is incompatible to earlier version
-		return Objects.hash(getClass().getName(), height, width, this.precision.name()) * 31 + 1;
+		return Objects.hash("com.github.kilianB.hashAlgorithms."+getClass().getSimpleName(), height, width, this.precision.name()) * 31 + 1;
 	}
 
 	/*

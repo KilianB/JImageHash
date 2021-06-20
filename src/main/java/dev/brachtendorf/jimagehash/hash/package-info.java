@@ -2,4 +2,4 @@
  * @author Kilian
  *
  */
-package com.github.kilianB.hash;
+package dev.brachtendorf.jimagehash.hash;

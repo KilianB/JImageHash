@@ -1,4 +1,4 @@
-package com.github.kilianB.datastructures;
+package dev.brachtendorf.jimagehash.datastructures;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 
 import dev.brachtendorf.ArrayUtil;
 import dev.brachtendorf.StringUtil;
-import com.github.kilianB.hash.FuzzyHash;
-import com.github.kilianB.hash.Hash;
+import dev.brachtendorf.jimagehash.hash.FuzzyHash;
+import dev.brachtendorf.jimagehash.hash.Hash;
 import dev.brachtendorf.mutable.MutableDouble;
 
 /**

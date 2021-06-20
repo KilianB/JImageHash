@@ -1,12 +1,12 @@
-package com.github.kilianB.datastructures.tree;
+package dev.brachtendorf.jimagehash.datastructures.tree;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import com.github.kilianB.datastructures.tree.binaryTree.Leaf;
-import com.github.kilianB.datastructures.tree.binaryTree.Node;
-import com.github.kilianB.hash.Hash;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.Leaf;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.Node;
+import dev.brachtendorf.jimagehash.hash.Hash;
 
 /**
  * @author Kilian

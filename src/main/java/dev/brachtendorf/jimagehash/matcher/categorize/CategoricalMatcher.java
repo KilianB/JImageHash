@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.categorize;
+package dev.brachtendorf.jimagehash.matcher.categorize;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -18,10 +18,10 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import dev.brachtendorf.datastructures.Pair;
-import com.github.kilianB.hash.FuzzyHash;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.categorize.supervised.LabeledImage;
+import dev.brachtendorf.jimagehash.hash.FuzzyHash;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.matcher.categorize.supervised.LabeledImage;
 
 /**
  * Cluster images into common categories. This matcher clusters images by

@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
@@ -147,6 +147,6 @@ public class PerceptiveHash extends HashingAlgorithm {
 
 	@Override
 	protected int precomputeAlgoId() {
-		return Objects.hash(getClass().getName(), height, width) * 31 + 1;
+		return Objects.hash("com.github.kilianB.hashAlgorithms."+getClass().getSimpleName(), height, width) * 31 + 1;
 	}
 }

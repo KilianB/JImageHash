@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.categorize.supervised;
+package dev.brachtendorf.jimagehash.matcher.categorize.supervised;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms.filter;
+package dev.brachtendorf.jimagehash.hashAlgorithms.filter;
 
 import dev.brachtendorf.ArrayUtil;
 

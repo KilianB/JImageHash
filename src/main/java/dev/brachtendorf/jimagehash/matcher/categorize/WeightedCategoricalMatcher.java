@@ -1,16 +1,17 @@
-package com.github.kilianB.matcher.categorize;
+package dev.brachtendorf.jimagehash.matcher.categorize;
 
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import com.github.kilianB.datastructures.ClusterResult;
-import com.github.kilianB.datastructures.KMeans;
-import com.github.kilianB.datastructures.tree.binaryTreeFuzzy.FuzzyBinaryTree;
-import com.github.kilianB.hash.FuzzyHash;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+
+import dev.brachtendorf.jimagehash.datastructures.ClusterResult;
+import dev.brachtendorf.jimagehash.datastructures.KMeans;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTreeFuzzy.FuzzyBinaryTree;
+import dev.brachtendorf.jimagehash.hash.FuzzyHash;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 
 /**
  ** Cluster images into common categories. This matcher clusters images by

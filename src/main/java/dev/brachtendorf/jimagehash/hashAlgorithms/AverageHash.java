@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
@@ -127,6 +127,6 @@ public class AverageHash extends HashingAlgorithm {
 		 * flagged as incompatible. Dimension are what makes average hashes unique
 		 * therefore, even
 		 */
-		return Objects.hash(getClass().getName(), height, width);
+		return Objects.hash("com.github.kilianB.hashAlgorithms."+getClass().getSimpleName(), height, width);
 	}
 }

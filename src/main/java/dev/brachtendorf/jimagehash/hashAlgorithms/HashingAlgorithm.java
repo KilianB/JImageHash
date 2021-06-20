@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -16,9 +16,8 @@ import dev.brachtendorf.Require;
 import dev.brachtendorf.graphics.ColorUtil;
 import dev.brachtendorf.graphics.FastPixel;
 import dev.brachtendorf.graphics.ImageUtil;
-
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.filter.Filter;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.filter.Filter;
 
 /**
  * Base class for hashing algorithms returning perceptual hashes for supplied
@@ -401,7 +400,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	}
 
 	/**
-	 * Add a {@link com.github.kilianB.hashAlgorithms.filter.Filter Filter} to this
+	 * Add a {@link dev.brachtendorf.jimagehash.hashAlgorithms.filter.Filter Filter} to this
 	 * hashing algorithm which will be used to alter the image before the hashing
 	 * operation is applied. Kernels are invoked in the order they are added and are
 	 * performed individually on all 3 RGB channels.
@@ -430,7 +429,7 @@ public abstract class HashingAlgorithm implements Serializable {
 
 	/**
 	 * Remove the first occurance of a
-	 * {@link com.github.kilianB.hashAlgorithms.filter.Filter Filter} from this
+	 * {@link dev.brachtendorf.jimagehash.hashAlgorithms.filter.Filter Filter} from this
 	 * hashing algorithm.
 	 * 
 	 * <p>
@@ -459,7 +458,7 @@ public abstract class HashingAlgorithm implements Serializable {
 	 * <p>
 	 * Some algorithms may choose to return an extended hash class to overwrite
 	 * certain behavior, in particular the
-	 * {@link com.github.kilianB.hash.Hash#toImage(int)} is likely to differ.
+	 * {@link dev.brachtendorf.jimagehash.hash.Hash#toImage(int)} is likely to differ.
 	 * 
 	 * <p>
 	 * If the algorithm does not utilize a special hash sub class this method

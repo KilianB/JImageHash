@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms.filter;
+package dev.brachtendorf.jimagehash.hashAlgorithms.filter;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import dev.brachtendorf.ArrayUtil;
+import dev.brachtendorf.jimagehash.hashAlgorithms.filter.Kernel;
+import dev.brachtendorf.jimagehash.hashAlgorithms.filter.MaximumKernel;
 
 /**
  * @author Kilian

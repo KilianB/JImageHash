@@ -4,4 +4,4 @@
  *
  * @author Kilian
  */
-package com.github.kilianB.matcher.categorize;
+package dev.brachtendorf.jimagehash.matcher.categorize;

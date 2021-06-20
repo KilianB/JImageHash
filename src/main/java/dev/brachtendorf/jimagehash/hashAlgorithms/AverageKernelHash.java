@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
@@ -10,7 +10,7 @@ import java.util.Objects;
 import dev.brachtendorf.ArrayUtil;
 import dev.brachtendorf.Require;
 import dev.brachtendorf.graphics.FastPixel;
-import com.github.kilianB.hashAlgorithms.filter.Kernel;
+import dev.brachtendorf.jimagehash.hashAlgorithms.filter.Kernel;
 
 /**
  * Calculate a hash value based on the average luminosity in an image. The
@@ -120,7 +120,7 @@ public class AverageKernelHash extends AverageHash{
 	@Override
 	protected int precomputeAlgoId() {
 		//*31 to create a distinct id compare to v 2.0.0 bugfix
-		return Objects.hash(getClass().getName(), height, width, filters) *31;
+		return Objects.hash("com.github.kilianB.hashAlgorithms."+getClass().getSimpleName(), height, width, filters) *31;
 	}
 
 	@Override

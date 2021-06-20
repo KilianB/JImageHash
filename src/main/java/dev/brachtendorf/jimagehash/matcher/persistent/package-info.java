@@ -14,4 +14,4 @@
  * 
  * @author Kilian
  */
-package com.github.kilianB.matcher.persistent;
+package dev.brachtendorf.jimagehash.matcher.persistent;

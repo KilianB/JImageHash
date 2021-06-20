@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.cached;
+package dev.brachtendorf.jimagehash.matcher.cached;
 
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
@@ -8,10 +8,11 @@ import java.util.Objects;
 import java.util.PriorityQueue;
 
 import dev.brachtendorf.MathUtil;
-import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.datastructures.tree.Result;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.BinaryTree;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+
 
 /**
  * Convenience class allowing to chain multiple hashing algorithms to find
@@ -21,7 +22,7 @@ import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
  * approach requires much more memory and is unsuited for large collection of
  * images.
  * 
- * Contrary to the {@link com.github.kilianB.matcher.cached.ConsecutiveMatcher
+ * Contrary to the {@link dev.brachtendorf.jimagehash.matcher.cached.ConsecutiveMatcher
  * ConsecutiveMatcher}, instead of early aborting if one algorithm fails, this
  * class looks at the summed distance and decides if images match.
  * 

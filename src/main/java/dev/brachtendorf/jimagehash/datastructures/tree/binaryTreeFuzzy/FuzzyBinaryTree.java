@@ -1,4 +1,4 @@
-package com.github.kilianB.datastructures.tree.binaryTreeFuzzy;
+package dev.brachtendorf.jimagehash.datastructures.tree.binaryTreeFuzzy;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import dev.brachtendorf.MathUtil;
-import com.github.kilianB.datastructures.tree.AbstractBinaryTree;
-import com.github.kilianB.datastructures.tree.NodeInfo;
-import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.datastructures.tree.binaryTree.Leaf;
-import com.github.kilianB.datastructures.tree.binaryTree.Node;
-import com.github.kilianB.hash.FuzzyHash;
-import com.github.kilianB.hash.Hash;
+import dev.brachtendorf.jimagehash.datastructures.tree.AbstractBinaryTree;
+import dev.brachtendorf.jimagehash.datastructures.tree.NodeInfo;
+import dev.brachtendorf.jimagehash.datastructures.tree.Result;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.Leaf;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.Node;
+import dev.brachtendorf.jimagehash.hash.FuzzyHash;
+import dev.brachtendorf.jimagehash.hash.Hash;
+
 
 /**
  * A binary tree implementation allowing to quickly lookup

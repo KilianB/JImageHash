@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.hashAlgorithms.MedianHash;
 
 /**
  * @author Kilian
@@ -71,7 +74,7 @@ class MedianHashTest {
 		class HashTest extends HashTestBase.HashTest {
 			@Disabled("Skip test for median hash. As it fails on these logos")
 			@ParameterizedTest
-			@MethodSource(value = "com.github.kilianB.hashAlgorithms.HashTestBase#bitResolution")
+			@MethodSource(value = "dev.brachtendorf.jimagehash.hashAlgorithms.HashTestBase#bitResolution")
 			@Override
 			public void replaceTransparentPixels(Integer bitRes) {
 			}

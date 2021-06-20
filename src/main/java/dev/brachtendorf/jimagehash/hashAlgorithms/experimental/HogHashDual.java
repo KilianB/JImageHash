@@ -1,11 +1,10 @@
-package com.github.kilianB.hashAlgorithms.experimental;
+package dev.brachtendorf.jimagehash.hashAlgorithms.experimental;
 
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 
 import dev.brachtendorf.graphics.FastPixel;
-import dev.brachtendorf.graphics.ImageUtil;
-import com.github.kilianB.hashAlgorithms.HashBuilder;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashBuilder;
 
 /**
  * Image Hash on HOG feature descriptor. Not ready yet. Most likely use a very

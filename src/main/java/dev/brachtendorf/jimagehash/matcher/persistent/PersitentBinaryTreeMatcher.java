@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.persistent;
+package dev.brachtendorf.jimagehash.matcher.persistent;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -10,19 +10,19 @@ import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.logging.Logger;
 
-import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.datastructures.tree.Result;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.BinaryTree;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 
 /**
  * * Persistent image matchers are a subset of
- * {@link com.github.kilianB.matcher.TypedImageMatcher TypedImageMatcher} which
+ * {@link dev.brachtendorf.jimagehash.matcher.TypedImageMatcher TypedImageMatcher} which
  * can be saved to disk to be later reconstructed. They expose the method
  * {@link #serializeState(File)} and {@link #reconstructState(File, boolean)}.
  * 
  * <p>
- * The {@link com.github.kilianB.matcher.persistent.PersitentBinaryTreeMatcher}
+ * The {@link dev.brachtendorf.jimagehash.matcher.persistent.PersitentBinaryTreeMatcher}
  * implementation utilizes a binary tree as it's core to save hashes storing a
  * reference to a unique identifier describing the hashed image. No data
  * reference to the actual object is saved which allows to keep the data

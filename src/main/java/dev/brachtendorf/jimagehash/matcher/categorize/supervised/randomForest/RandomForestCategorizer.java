@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.categorize.supervised.randomForest;
+package dev.brachtendorf.jimagehash.matcher.categorize.supervised.randomForest;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -27,22 +27,24 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 
 import dev.brachtendorf.ArrayUtil;
-import com.github.kilianB.Experimental;
+
 import dev.brachtendorf.MathUtil;
 import dev.brachtendorf.Require;
 import dev.brachtendorf.datastructures.CountHashCollection;
 import dev.brachtendorf.datastructures.Pair;
 import dev.brachtendorf.datastructures.Triple;
-import com.github.kilianB.hash.FuzzyHash;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.AverageHash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.hashAlgorithms.PerceptiveHash;
-import com.github.kilianB.hashAlgorithms.RotAverageHash;
-import com.github.kilianB.matcher.PlainImageMatcher;
-import com.github.kilianB.matcher.categorize.CategoricalImageMatcher;
-import com.github.kilianB.matcher.categorize.CategorizationResult;
-import com.github.kilianB.matcher.categorize.supervised.LabeledImage;
+import dev.brachtendorf.jimagehash.Experimental;
+import dev.brachtendorf.jimagehash.hash.FuzzyHash;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.AverageHash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.hashAlgorithms.PerceptiveHash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.RotAverageHash;
+import dev.brachtendorf.jimagehash.matcher.PlainImageMatcher;
+import dev.brachtendorf.jimagehash.matcher.categorize.CategoricalImageMatcher;
+import dev.brachtendorf.jimagehash.matcher.categorize.CategorizationResult;
+import dev.brachtendorf.jimagehash.matcher.categorize.supervised.LabeledImage;
+
 import com.github.kilianB.pcg.fast.PcgRSFast;
 
 /**

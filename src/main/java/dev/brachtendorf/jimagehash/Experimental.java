@@ -1,4 +1,4 @@
-package com.github.kilianB;
+package dev.brachtendorf.jimagehash;
 
 import static java.lang.annotation.ElementType.PACKAGE;
 import static java.lang.annotation.ElementType.TYPE;

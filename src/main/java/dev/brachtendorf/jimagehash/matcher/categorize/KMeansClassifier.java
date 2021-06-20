@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.categorize;
+package dev.brachtendorf.jimagehash.matcher.categorize;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -10,10 +10,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import dev.brachtendorf.Require;
-import com.github.kilianB.datastructures.ClusterResult;
-import com.github.kilianB.datastructures.KMeansPlusPlus;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.datastructures.ClusterResult;
+import dev.brachtendorf.jimagehash.datastructures.KMeansPlusPlus;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+
 
 /**
  * The kMeans approach requires to know the number of clusters beforehand.

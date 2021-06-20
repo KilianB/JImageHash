@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.persistent.database;
+package dev.brachtendorf.jimagehash.matcher.persistent.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 import org.h2.tools.DeleteDbFiles;
 
-import com.github.kilianB.matcher.persistent.ConsecutiveMatcher;
+import dev.brachtendorf.jimagehash.matcher.persistent.ConsecutiveMatcher;
 
 /**
  * A naive database based image matcher implementation. Images indexed by this

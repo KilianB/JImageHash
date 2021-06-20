@@ -3,4 +3,4 @@
  * @author Kilian
  *
  */
-package com.github.kilianB.matcher.exotic;
+package dev.brachtendorf.jimagehash.matcher.exotic;

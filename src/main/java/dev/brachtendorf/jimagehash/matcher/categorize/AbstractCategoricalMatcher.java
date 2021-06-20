@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.categorize;
+package dev.brachtendorf.jimagehash.matcher.categorize;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.kilianB.matcher.PlainImageMatcher;
+import dev.brachtendorf.jimagehash.matcher.PlainImageMatcher;
 
 /**
  * An abstract implementation of the categorical image matcher supporting

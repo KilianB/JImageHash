@@ -1,4 +1,4 @@
-package com.github.kilianB.hash;
+package dev.brachtendorf.jimagehash.hash;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,8 +13,7 @@ import java.math.BigInteger;
 import dev.brachtendorf.Require;
 import dev.brachtendorf.StringUtil;
 import dev.brachtendorf.graphics.FastPixel;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 import javafx.scene.paint.Color;
 
 /**
@@ -266,7 +265,7 @@ public class Hash implements Serializable {
 	 * 
 	 * <p>
 	 * Some hash algorithms may chose to construct their hashes in a non default
-	 * manner (e.g. {@link com.github.kilianB.hashAlgorithms.DifferenceHash}). In
+	 * manner (e.g. {@link dev.brachtendorf.jimagehash.hashAlgorithms.DifferenceHash}). In
 	 * this case {@link #toImage(int, HashingAlgorithm)} may help to resolve the
 	 * issue;
 	 * 
@@ -291,7 +290,7 @@ public class Hash implements Serializable {
 	 * 
 	 * <p>
 	 * Some hash algorithms may chose to construct their hashes in a non default
-	 * manner (e.g. {@link com.github.kilianB.hashAlgorithms.DifferenceHash}).
+	 * manner (e.g. {@link dev.brachtendorf.jimagehash.hashAlgorithms.DifferenceHash}).
 	 * 
 	 * @param blockSize scaling factor of each pixel in the has. each bit of the
 	 *                  hash will be represented to blockSize*blockSize pixels

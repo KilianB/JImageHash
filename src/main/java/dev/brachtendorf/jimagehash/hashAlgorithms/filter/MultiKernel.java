@@ -1,4 +1,4 @@
-package com.github.kilianB.hashAlgorithms.filter;
+package dev.brachtendorf.jimagehash.hashAlgorithms.filter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +36,7 @@ public class MultiKernel extends Kernel {
 	/**
 	 * Create a multi kernel with the given kernel maks. The kernels will use the
 	 * default
-	 * {@link com.github.kilianB.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy#EXPAND
+	 * {@link dev.brachtendorf.jimagehash.hashAlgorithms.filter.Kernel.EdgeHandlingStrategy#EXPAND
 	 * EdgeHandlingStrategy#EXPAND}
 	 * 
 	 * @param kernelMasks used to construct the kernels

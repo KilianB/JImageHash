@@ -1,11 +1,11 @@
-package com.github.kilianB.matcher.categorize.supervised.randomForest;
+package dev.brachtendorf.jimagehash.matcher.categorize.supervised.randomForest;
 
 import java.awt.image.BufferedImage;
 
 import dev.brachtendorf.StringUtil;
-import com.github.kilianB.hash.FuzzyHash;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.hash.FuzzyHash;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 
 class InnerNode extends TreeNode {
 

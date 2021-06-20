@@ -4,4 +4,4 @@
  * 
  * @author Kilian
  */
-package com.github.kilianB.hashAlgorithms;
+package dev.brachtendorf.jimagehash.hashAlgorithms;

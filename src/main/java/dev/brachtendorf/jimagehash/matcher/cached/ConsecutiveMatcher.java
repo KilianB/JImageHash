@@ -1,4 +1,4 @@
-package com.github.kilianB.matcher.cached;
+package dev.brachtendorf.jimagehash.matcher.cached;
 
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 
-import com.github.kilianB.datastructures.tree.Result;
-import com.github.kilianB.datastructures.tree.binaryTree.BinaryTree;
-import com.github.kilianB.hash.Hash;
-import com.github.kilianB.hashAlgorithms.HashingAlgorithm;
-import com.github.kilianB.matcher.TypedImageMatcher;
+import dev.brachtendorf.jimagehash.datastructures.tree.Result;
+import dev.brachtendorf.jimagehash.datastructures.tree.binaryTree.BinaryTree;
+import dev.brachtendorf.jimagehash.hash.Hash;
+import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
+import dev.brachtendorf.jimagehash.matcher.TypedImageMatcher;
 
 /**
  * Convenience class allowing to chain multiple hashing algorithms to find

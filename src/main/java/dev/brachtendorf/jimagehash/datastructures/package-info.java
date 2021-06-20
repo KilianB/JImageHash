@@ -5,4 +5,4 @@
  * @author Kilian
  *
  */
-package com.github.kilianB.datastructures;
+package dev.brachtendorf.jimagehash.datastructures;
