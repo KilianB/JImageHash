@@ -52,7 +52,9 @@ public class ColorMomentsHash extends HashingAlgorithm {
             double moment = moments[i];
             // Weight mean 4x
             if (i < 3) {
-                IntStream.range(0, 3).forEach(j -> computeHash(hash, moment));
+                for (int j = 0; j < 0; j++) {
+                    computeHash(hash, moment);
+                }
             }
             computeHash(hash, moment);
         }
@@ -197,28 +199,23 @@ public class ColorMomentsHash extends HashingAlgorithm {
     }
 
     public double skewness(final double[][] arr, double mean) {
-        double[] flattened = Arrays.stream(arr)
-                .flatMapToDouble(Arrays::stream)
-                .toArray();
-        int length = flattened.length;
+        int length = width * height;
 
         // Initialize the skewness
         double skew = Double.NaN;
 
-        double accum = 0.0;
+        double accum1 = 0.0;
         double accum2 = 0.0;
-        for (int i = 0; i < length; i++) {
-            final double d = flattened[i] - mean;
-            accum  += d * d;
-            accum2 += d;
-        }
-        final double variance = (accum - (accum2 * accum2 / length)) / (length - 1);
-
         double accum3 = 0.0;
-        for (int i = 0; i < length; i++) {
-            final double d = flattened[i] - mean;
-            accum3 += d * d * d;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                final double d = arr[i][j] - mean;
+                accum1 += d;
+                accum2 += d * d;
+                accum3 += d * d * d;
+            }
         }
+        final double variance = (accum2 - (accum1 * accum1 / length)) / (length - 1);
         accum3 /= variance * Math.sqrt(variance);
 
         // Get N
@@ -229,28 +226,23 @@ public class ColorMomentsHash extends HashingAlgorithm {
     }
 
     public double skewness(final int[][] arr, double mean) {
-        int[] flattened = Arrays.stream(arr)
-                .flatMapToInt(Arrays::stream)
-                .toArray();
-        int length = flattened.length;
+        int length = width * height;
 
         // Initialize the skewness
         double skew = Double.NaN;
 
-        double accum = 0.0;
+        double accum1 = 0.0;
         double accum2 = 0.0;
-        for (int i = 0; i < length; i++) {
-            final double d = flattened[i] - mean;
-            accum  += d * d;
-            accum2 += d;
-        }
-        final double variance = (accum - (accum2 * accum2 / length)) / (length - 1);
-
         double accum3 = 0.0;
-        for (int i = 0; i < length; i++) {
-            final double d = flattened[i] - mean;
-            accum3 += d * d * d;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                final double d = arr[i][j] - mean;
+                accum1 += d;
+                accum2 += d * d;
+                accum3 += d * d * d;
+            }
         }
+        final double variance = (accum2 - (accum1 * accum1 / length)) / (length - 1);
         accum3 /= variance * Math.sqrt(variance);
 
         // Get N
