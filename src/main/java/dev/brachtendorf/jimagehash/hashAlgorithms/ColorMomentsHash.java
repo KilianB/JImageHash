@@ -41,12 +41,12 @@ public class ColorMomentsHash extends HashingAlgorithm {
         moments[0] = mean(hue);
         moments[1] = mean(sat);
         moments[2] = mean(val);
-        moments[3] = standardDeviation(hue);
-        moments[4] = standardDeviation(sat);
-        moments[5] = standardDeviation(val);
-        moments[6] = skewness(hue);
-        moments[7] = skewness(sat);
-        moments[8] = skewness(val);
+        moments[3] = standardDeviation(hue, moments[0]);
+        moments[4] = standardDeviation(sat, moments[1]);
+        moments[5] = standardDeviation(val, moments[2]);
+        moments[6] = skewness(hue, moments[0]);
+        moments[7] = skewness(sat, moments[1]);
+        moments[8] = skewness(val, moments[2]);
 
         for (int i = 0; i < moments.length; i++) {
             double moment = moments[i];
@@ -196,7 +196,7 @@ public class ColorMomentsHash extends HashingAlgorithm {
         return valArr;
     }
 
-    public static double skewness(final double[][] arr) {
+    public double skewness(final double[][] arr, double mean) {
         double[] flattened = Arrays.stream(arr)
                 .flatMapToDouble(Arrays::stream)
                 .toArray();
@@ -204,16 +204,11 @@ public class ColorMomentsHash extends HashingAlgorithm {
 
         // Initialize the skewness
         double skew = Double.NaN;
-        // Get the mean and the standard deviation
-        double m = Arrays.stream(flattened).average().getAsDouble();
 
-        // Calc the std, this is implemented here instead
-        // of using the standardDeviation method eliminate
-        // a duplicate pass to get the mean
         double accum = 0.0;
         double accum2 = 0.0;
         for (int i = 0; i < length; i++) {
-            final double d = flattened[i] - m;
+            final double d = flattened[i] - mean;
             accum  += d * d;
             accum2 += d;
         }
@@ -221,7 +216,7 @@ public class ColorMomentsHash extends HashingAlgorithm {
 
         double accum3 = 0.0;
         for (int i = 0; i < length; i++) {
-            final double d = flattened[i] - m;
+            final double d = flattened[i] - mean;
             accum3 += d * d * d;
         }
         accum3 /= variance * Math.sqrt(variance);
@@ -233,7 +228,7 @@ public class ColorMomentsHash extends HashingAlgorithm {
         return (n0 / ((n0 - 1) * (n0 - 2))) * accum3;
     }
 
-    public static double skewness(final int[][] arr) {
+    public double skewness(final int[][] arr, double mean) {
         int[] flattened = Arrays.stream(arr)
                 .flatMapToInt(Arrays::stream)
                 .toArray();
@@ -241,16 +236,11 @@ public class ColorMomentsHash extends HashingAlgorithm {
 
         // Initialize the skewness
         double skew = Double.NaN;
-        // Get the mean and the standard deviation
-        double m = Arrays.stream(flattened).average().getAsDouble();
 
-        // Calc the std, this is implemented here instead
-        // of using the standardDeviation method eliminate
-        // a duplicate pass to get the mean
         double accum = 0.0;
         double accum2 = 0.0;
         for (int i = 0; i < length; i++) {
-            final double d = flattened[i] - m;
+            final double d = flattened[i] - mean;
             accum  += d * d;
             accum2 += d;
         }
@@ -258,7 +248,7 @@ public class ColorMomentsHash extends HashingAlgorithm {
 
         double accum3 = 0.0;
         for (int i = 0; i < length; i++) {
-            final double d = flattened[i] - m;
+            final double d = flattened[i] - mean;
             accum3 += d * d * d;
         }
         accum3 /= variance * Math.sqrt(variance);
@@ -270,14 +260,7 @@ public class ColorMomentsHash extends HashingAlgorithm {
         return (n0 / ((n0 - 1) * (n0 - 2))) * accum3;
     }
 
-    public double standardDeviation(double[][] arr) {
-        double sum = 0;
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                sum += arr[i][j];
-            }
-        }
-        double mean = sum / (width * height);
+    public double standardDeviation(double[][] arr, double mean) {
         double sd = 0;
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -287,14 +270,7 @@ public class ColorMomentsHash extends HashingAlgorithm {
         return Math.sqrt(sd / (width * height));
     }
 
-    public double standardDeviation(int[][] arr) {
-        int sum = 0;
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                sum += arr[i][j];
-            }
-        }
-        double mean = sum / (width * height);
+    public double standardDeviation(int[][] arr, double mean) {
         double sd = 0;
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -305,10 +281,22 @@ public class ColorMomentsHash extends HashingAlgorithm {
     }
 
     public double mean(double[][] arr) {
-        return Arrays.stream(arr).flatMapToDouble(Arrays::stream).average().getAsDouble();
+        double sum = 0;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                sum += arr[i][j];
+            }
+        }
+        return sum / (width * height);
     }
 
     public double mean(int[][] arr) {
-        return Arrays.stream(arr).flatMapToInt(Arrays::stream).average().getAsDouble();
+        int sum = 0;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                sum += arr[i][j];
+            }
+        }
+        return sum / (width * height);
     }
 }
