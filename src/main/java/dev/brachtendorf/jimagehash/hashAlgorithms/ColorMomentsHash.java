@@ -48,15 +48,15 @@ public class ColorMomentsHash extends HashingAlgorithm {
         moments[7] = skewness(sat, moments[1]);
         moments[8] = skewness(val, moments[2]);
 
+        for (double moment : moments) {
+            computeHash(hash, moment);
+        }
+        // Weight mean 4x
         for (int i = 0; i < moments.length; i++) {
             double moment = moments[i];
-            // Weight mean 4x
-            if (i < 3) {
-                for (int j = 0; j < 0; j++) {
-                    computeHash(hash, moment);
-                }
+            for (int j = 0; j < 3; j++) {
+                computeHash(hash, moment);
             }
-            computeHash(hash, moment);
         }
         return hash.toBigInteger();
     }
