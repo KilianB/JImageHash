@@ -60,7 +60,7 @@ public class ColorMomentsHash extends HashingAlgorithm {
 	public void computeHash(HashBuilder hash, int weight, double[] moments) {
 		for (double moment: moments) {
 			String binary = Long.toBinaryString(Double.doubleToRawLongBits(moment))
-				.substring(24)
+				.substring(0, 32)
 				.repeat(weight);
 			for (char c : binary.toCharArray()) {
 				if (c == '0')
