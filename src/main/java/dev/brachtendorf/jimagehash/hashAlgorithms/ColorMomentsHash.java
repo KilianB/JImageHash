@@ -1,14 +1,19 @@
 package interpolator.utils.sorter;
 
 import dev.brachtendorf.graphics.FastPixel;
+import dev.brachtendorf.jimagehash.hash.ColorMoments;
 import dev.brachtendorf.jimagehash.hashAlgorithms.HashBuilder;
 import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Objects;
 
 public class ColorMomentsHash extends HashingAlgorithm {
+
 	private static final long serialVersionUID = -5234612717498362659L;
 
 	/**
@@ -20,10 +25,42 @@ public class ColorMomentsHash extends HashingAlgorithm {
 		super(bitResolution);
 		/*
 		 * Figure out how big our resized image has to be in order to create a hash with
-		 * approximately bit resolution bits while trying to stay as squared as possible
+		 * approximately bitResolution bits while trying to stay as squared as possible
 		 * to not introduce bias via stretching or shrinking the image asymmetrically.
 		 */
 		computeDimension(bitResolution);
+	}
+
+
+	public ColorMoments hash2(File imageFile) throws IOException {
+		return hash2(imageFile, new int[]{1, 2, 3});
+	}
+
+	public ColorMoments hash2(File imageFile, int[] weights) throws IOException {
+		BufferedImage image = ImageIO.read(imageFile);
+		FastPixel fp = createPixelAccessor(image, width, height);
+
+		int[][]    hue = getHue(fp);
+		double[][] sat = getSaturation(fp);
+		int[][]    val = getValue(fp);
+
+		double[] meanMoments = new double[]{
+			weights[0] * mean(hue),
+			weights[0] * mean(sat),
+			weights[0] * mean(val)
+		};
+		double[] stdDevMoments = new double[]{
+			weights[1] * standardDeviation(hue, meanMoments[0]),
+			weights[1] * standardDeviation(sat, meanMoments[1]),
+			weights[1] * standardDeviation(val, meanMoments[2])
+		};
+		double[] skewnessMoments = new double[]{
+			weights[2] * skewness(hue, meanMoments[0]),
+			weights[2] * skewness(sat, meanMoments[1]),
+			weights[2] * skewness(val, meanMoments[2])
+		};
+
+		return new ColorMoments(meanMoments, stdDevMoments, skewnessMoments);
 	}
 
 	@Override
@@ -50,9 +87,9 @@ public class ColorMomentsHash extends HashingAlgorithm {
 			skewness(val, meanMoments[2])
 		};
 
-		computeHash(hash, 4, meanMoments);
-		computeHash(hash, 2, stdDevMoments);
-		computeHash(hash, 1, skewnessMoments);
+		computeHash(hash, 3, meanMoments);
+		computeHash(hash, 1, stdDevMoments);
+		computeHash(hash, 0, skewnessMoments);
 
 		return hash.toBigInteger();
 	}
